@@ -36,6 +36,7 @@ export type WindowCoveringsCluster = Cluster & {
 export default async function initWindowCoveringsDevice(
   device: ZigbeeWindowCoveringsDevice,
   zclNode: ZCLNode,
+  endpointId?: number,
 ): Promise<void> {
   if (!device.hasCapability(SET_CAPABILITY)) {
     return;
@@ -43,7 +44,7 @@ export default async function initWindowCoveringsDevice(
 
   device.log(`Initialising ${SET_CAPABILITY} capability`);
 
-  const endpoint = device.getClusterEndpoint(CLUSTER_SPEC) ?? 1;
+  const endpoint = endpointId ?? device.getClusterEndpoint(CLUSTER_SPEC) ?? 1;
   const cluster = zclNode
     .endpoints[endpoint]
     .clusters[CLUSTER_SPEC.NAME] as unknown as WindowCoveringsCluster;
@@ -114,10 +115,11 @@ export default async function initWindowCoveringsDevice(
   };
 
   // Retrieve initial values
-  await readInitialValue(device, zclNode, SET_CAPABILITY, CLUSTER_SPEC, LIFT_PERCENTAGE, reportParser);
+  await readInitialValue(device, zclNode, SET_CAPABILITY, CLUSTER_SPEC, LIFT_PERCENTAGE, reportParser, endpoint);
 
   // Configure the capability
   device.registerCapability(SET_CAPABILITY, CLUSTER_SPEC, {
+    endpoint,
     getOpts: {
       getOnStart: false,
     },
@@ -135,8 +137,9 @@ export default async function initWindowCoveringsDevice(
     device.log(`Initialising ${STATE_CAPABILITY} capability`);
 
     device.registerCapability(STATE_CAPABILITY, CLUSTER_SPEC, {
-        set: (value: keyof typeof STATE_COMMAND_MAP) => STATE_COMMAND_MAP[value],
-        setParser: () => ({}),
+      endpoint,
+      set: (value: keyof typeof STATE_COMMAND_MAP) => STATE_COMMAND_MAP[value],
+      setParser: () => ({}),
     });
 
     device.log(`Initialised ${STATE_CAPABILITY} capability`);
@@ -147,6 +150,7 @@ export default async function initWindowCoveringsDevice(
     device.log(`Initialising ${SET_TILT_CAPABILITY} capability`);
 
     device.registerCapability(SET_TILT_CAPABILITY, CLUSTER_SPEC, {
+      endpoint,
       getOpts: {
         getOnStart: false,
       },

@@ -10,6 +10,7 @@ const CLUSTER_SPEC = CLUSTER.POWER_CONFIGURATION;
 export default async function initPowerConfigurationDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
+  endpointId?: number,
 ): Promise<void> {
   const reportParser = function (value: number): number | null {
     device.debug('New battery percentage', value);
@@ -22,6 +23,6 @@ export default async function initPowerConfigurationDevice(
   };
 
   await initReadOnlyCapability(
-    device, zclNode, CAPABILITY, CLUSTER_SPEC, BATTERY_PERCENTAGE, reportParser,
+    device, zclNode, CAPABILITY, CLUSTER_SPEC, BATTERY_PERCENTAGE, reportParser, endpointId,
   );
 }

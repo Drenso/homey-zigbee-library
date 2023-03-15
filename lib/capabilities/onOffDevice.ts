@@ -24,6 +24,6 @@ export default async function initOnOffDevice(
     'onOff',
     reportParser,
     undefined,
-    endpointId
+    endpointId,
   );
 }

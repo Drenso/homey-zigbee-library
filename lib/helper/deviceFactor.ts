@@ -8,7 +8,8 @@ export interface ZigbeeFactorDeviceProperties {
   meteringFactor?: number;
 }
 
-export interface ZigbeeFactorDevice extends ZigBeeDevice, ZigbeeFactorDeviceProperties {}
+export interface ZigbeeFactorDevice extends ZigBeeDevice, ZigbeeFactorDeviceProperties {
+}
 
 const factorProperties: Record<keyof ZigbeeFactorDeviceProperties, {
   value: string,
@@ -32,15 +33,16 @@ const factorProperties: Record<keyof ZigbeeFactorDeviceProperties, {
 export default async function initFactorImplementation(
   device: ZigbeeFactorDevice,
   zclNode: ZCLNode,
-  storeProperty: keyof ZigbeeFactorDeviceProperties,
   capability: string,
   clusterSpec: ClusterSpecification,
+  storeProperty: keyof ZigbeeFactorDeviceProperties,
+  endPointId?: number,
 ): Promise<void> {
   // Restore factor from store
   await updateDeviceFactor(device, storeProperty)
     .catch(e => device.error(`Failed to restore ${storeProperty}`, e));
 
-  const endpoint = device.getClusterEndpoint(clusterSpec) ?? 1;
+  const endpoint = endPointId ?? device.getClusterEndpoint(clusterSpec) ?? 1;
   const cluster = zclNode
     .endpoints[endpoint]
     .clusters[clusterSpec.NAME];

@@ -9,12 +9,12 @@ export default async function initIasZoneDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
   capabilityIds: string[],
-  statusParsers: (((payload: ZoneStatusChangedPayload) => any)|ZoneStatus)[],
+  statusParsers: (((payload: ZoneStatusChangedPayload) => any) | ZoneStatus)[],
   endpointId?: number,
 ): Promise<void> {
 
   if (statusParsers.length !== capabilityIds.length) {
-    throw new Error("Amount of capabilities and flag names should match!");
+    throw new Error('Amount of capabilities and flag names should match!');
   }
 
   const endpoint = endpointId ?? device.getClusterEndpoint(IASZoneCluster) ?? 1;
@@ -47,7 +47,7 @@ export default async function initIasZoneDevice(
     for (let i = 0; i < capabilityIds.length; i++) {
       const capabilityId = capabilityIds[i];
       const statusParser = statusParsers[i];
-      if (typeof statusParser == "string") {
+      if (typeof statusParser == 'string') {
         await device.setCapabilityValue(capabilityId, flags.includes(statusParser));
       } else {
         await device.setCapabilityValue(capabilityId, await statusParser(payload));

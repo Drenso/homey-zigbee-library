@@ -4,13 +4,12 @@ import initFactorImplementation, {ZigbeeFactorDevice} from '../helper/deviceFact
 export default async function initMeteringDevice(
   device: ZigbeeFactorDevice,
   zclNode: ZCLNode,
+  endpointId?: number,
 ): Promise<void> {
   if (device.hasCapability('meter_power')) {
     device.log('Initialising meter_power capability');
 
-    await initFactorImplementation(
-      device, zclNode, 'meteringFactor', 'meter_power', CLUSTER.METERING,
-    )
+    await initFactorImplementation(device, zclNode, 'meter_power', CLUSTER.METERING, 'meteringFactor', endpointId)
       .then(() => device.log('Initialised meter_power capability'))
       .catch(e => device.error('Failed to initialise meter_power capability', e));
   }
