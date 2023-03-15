@@ -30,7 +30,7 @@
   },
   "sideeffects": false,
   "files": [
-    "*.js",
-    "*.d.ts"
+    "*/**/*.js",
+    "*/**/*.d.ts"
   ]
 }
