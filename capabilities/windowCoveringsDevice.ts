@@ -1,7 +1,7 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {Cluster, CLUSTER, ZCLNode} from 'zigbee-clusters';
-import mapValueRange from '../helper/valueRange';
-import {readInitialValue} from '../attributeDevice';
+import mapValueRange from '../lib/helper/valueRange';
+import {readInitialValue} from '../lib/attributeDevice';
 
 const UP_OPEN = 'upOpen';
 const DOWN_CLOSE = 'downClose';

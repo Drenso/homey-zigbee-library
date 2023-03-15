@@ -1,6 +1,6 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import {initReadOnlyCapability} from '../attributeDevice';
+import {initReadOnlyCapability} from '../lib/attributeDevice';
 
 const BATTERY_PERCENTAGE = 'batteryPercentageRemaining';
 

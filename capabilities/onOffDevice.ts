@@ -1,6 +1,6 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import {initReadWriteCapability} from '../attributeDevice';
+import {initReadWriteCapability} from '../lib/attributeDevice';
 
 export default async function initOnOffDevice(
   device: ZigBeeDevice,

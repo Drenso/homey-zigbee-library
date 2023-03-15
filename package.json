@@ -20,6 +20,7 @@
   },
   "scripts": {
     "compile": "tsc",
+    "clean": "tsc --build --clean",
     "lint": "eslint --ext .ts .",
     "fix": "eslint --fix  --ext .ts .",
     "prepare": "tsc"
@@ -29,6 +30,7 @@
   },
   "sideeffects": false,
   "files": [
-    ".build"
+    "*.js",
+    "*.d.ts"
   ]
 }

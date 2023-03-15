@@ -1,5 +1,5 @@
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import initFactorImplementation, {ZigbeeFactorDevice} from '../helper/deviceFactor';
+import initFactorImplementation, {ZigbeeFactorDevice} from '../lib/helper/deviceFactor';
 
 export default async function initElectricalMeasurementDevice(
   device: ZigbeeFactorDevice,
