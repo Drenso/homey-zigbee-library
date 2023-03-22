@@ -2,7 +2,7 @@ import {ClusterSpecification, ZigBeeDevice} from 'homey-zigbeedriver';
 import {ZCLNode} from 'zigbee-clusters';
 
 type SetName = string | ((value: any) => string);
-type SetParser = (setValue: any) => object | null | Promise<object | null>;
+type SetParser = (setValue: any, opts?: any) => object | null | Promise<object | null>;
 const defaultSetParser: SetParser = (x) => x;
 
 type ReportParser = (reportValue: any) => null | any | Promise<any>;

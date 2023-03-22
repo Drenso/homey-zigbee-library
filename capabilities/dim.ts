@@ -17,12 +17,10 @@ export default async function initDimDevice(
     capabilityId,
     CLUSTER.LEVEL_CONTROL,
     'moveToLevelWithOnOff',
-    async (value: number): Promise<{ transitionTime: number, level: number }> => {
-      await device.setCapabilityValue('onoff', value > 0);
-
+    async (value: number, opts: {duration?: number}): Promise<{ transitionTime: number, level: number }> => {
       return {
         level: Math.round(value * maxDimValue),
-        transitionTime: 0xFFFF,
+        transitionTime: calculateDimDuration(opts?.duration),
       };
     },
     'currentLevel',
@@ -34,4 +32,14 @@ export default async function initDimDevice(
     minChange,
     endpointId,
   );
+}
+
+function calculateDimDuration(durationSetting: number | undefined): number {
+  if (durationSetting === undefined) {
+    // Use the default transition time of the device
+    return 0xFFFF;
+  }
+
+  // Convert from milliseconds to tenth of second, then cap the range between 0 and 65534
+  return Math.max(Math.min(durationSetting / 100, 65534), 0);
 }
