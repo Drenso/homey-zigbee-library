@@ -5,12 +5,13 @@ import {initReadOnlyCapability} from '../lib/attributeDevice';
 export default async function initMeasureTemperatureDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
+  capabilityId = 'measure_temperature',
   endpointId?: number,
 ): Promise<void> {
   await initReadOnlyCapability(
     device,
     zclNode,
-    'measure_temperature',
+    capabilityId,
     CLUSTER.TEMPERATURE_MEASUREMENT,
     'measuredValue',
     (value: number) => Math.round((value / 100) * 10) / 10,

@@ -5,12 +5,13 @@ import {initReadOnlyCapability} from '../lib/attributeDevice';
 export default async function initMeasureIlluminanceDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
+  capabilityId = 'measure_luminance',
   endpointId?: number,
 ): Promise<void> {
   await initReadOnlyCapability(
     device,
     zclNode,
-    'measure_luminance',
+    capabilityId,
     CLUSTER.ILLUMINANCE_MEASUREMENT,
     'measuredValue',
     (value: number): number => {

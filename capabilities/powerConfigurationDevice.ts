@@ -2,14 +2,10 @@ import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
 import {initReadOnlyCapability} from '../lib/attributeDevice';
 
-const BATTERY_PERCENTAGE = 'batteryPercentageRemaining';
-
-const CAPABILITY = 'measure_battery';
-const CLUSTER_SPEC = CLUSTER.POWER_CONFIGURATION;
-
 export default async function initPowerConfigurationDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
+  capabilityId = 'measure_battery',
   endpointId?: number,
 ): Promise<void> {
   const reportParser = function (value: number): number | null {
@@ -23,6 +19,12 @@ export default async function initPowerConfigurationDevice(
   };
 
   await initReadOnlyCapability(
-    device, zclNode, CAPABILITY, CLUSTER_SPEC, BATTERY_PERCENTAGE, reportParser, endpointId,
+    device,
+    zclNode,
+    capabilityId,
+    CLUSTER.POWER_CONFIGURATION,
+    'batteryPercentageRemaining',
+    reportParser,
+    endpointId,
   );
 }
