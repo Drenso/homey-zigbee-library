@@ -90,10 +90,12 @@ export default async function initWindowCoveringsDevice(
   };
 
   const reportParser = function (value: number): number | null {
+    // Value comes from uint8
     device.debug(`Newly reported value for ${SET_CAPABILITY}`, value);
 
     // Validate input
-    if (value < 0 || value > 100) {
+    if (value < 0x00 || value > 0x64) {
+      device.error('Lift percentage value outside valid range');
       return null;
     }
 

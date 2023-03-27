@@ -14,7 +14,19 @@ export default async function initMeasureTemperatureDevice(
     capabilityId,
     CLUSTER.TEMPERATURE_MEASUREMENT,
     'measuredValue',
-    (value: number) => Math.round((value / 100) * 10) / 10,
+    (value: number) => {
+      // Value comes from int16
+      // Check for invalid values
+      if (value == 0x8000) return null;
+      if (value < -0x154D || value > 0x7FFE) {
+        device.error('Temperature value outside valid range');
+        return null;
+      }
+
+      // MeasuredValue represents the temperature in degrees Celsius as follows:
+      // MeasuredValue = 100 x Temperature in degrees Celsius
+      return Math.round((value / 100) * 10) / 10;
+    },
     10,
     undefined,
     endpointId,

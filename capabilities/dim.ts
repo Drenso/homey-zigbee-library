@@ -6,11 +6,10 @@ export default async function initDimDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
   capabilityId = 'dim',
-  maxDim?: number,
+  maxDimValue = 0xFE,
   minChange?: number,
   endpointId?: number,
 ): Promise<void> {
-  const maxDimValue = maxDim ?? 254;
   await initReadWriteCapability(
     device,
     zclNode,
@@ -24,7 +23,14 @@ export default async function initDimDevice(
       };
     },
     'currentLevel',
-    async (value: number): Promise<number> => {
+    async (value: number): Promise<number | null> => {
+      // Value comes from uint8
+      // Check for valid values
+      if (value < 0 || value > maxDimValue) {
+        device.error('Dim value outside valid range');
+        return null;
+      }
+
       await device.setCapabilityValue('onoff', value > 0);
 
       return value / maxDimValue;

@@ -9,13 +9,15 @@ export default async function initPowerConfigurationDevice(
   endpointId?: number,
 ): Promise<void> {
   const reportParser = function (value: number): number | null {
-    device.debug('New battery percentage', value);
-
-    // Max value 200, 255 indicates invalid or unknown reading
-    if (value <= 200 && value !== 255) {
-      return Math.round(value / 2);
+    // Value comes from uint8
+    if (value == 0xFF) return null;
+    if (value < 0x00 || value > 0xFF) {
+      device.error('Battery percentage value outside valid range');
+      return null;
     }
-    return null;
+
+    // Specifies the remaining battery life as a half integer percentage of the full battery capacity
+    return Math.round(value / 2);
   };
 
   await initReadOnlyCapability(
