@@ -15,7 +15,7 @@ export default async function initMeasureHumidityDevice(
     CLUSTER.RELATIVE_HUMIDITY_MEASUREMENT,
     'measuredValue',
     (value: number) => Math.round((value / 100) * 10) / 10,
-    30,
+    10,
     undefined,
     endpointId,
   );

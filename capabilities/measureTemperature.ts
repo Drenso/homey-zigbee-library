@@ -15,7 +15,7 @@ export default async function initMeasureTemperatureDevice(
     CLUSTER.TEMPERATURE_MEASUREMENT,
     'measuredValue',
     (value: number) => Math.round((value / 100) * 10) / 10,
-    30,
+    10,
     undefined,
     endpointId,
   );
