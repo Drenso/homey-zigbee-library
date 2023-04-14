@@ -1,10 +1,16 @@
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
 import initFactorImplementation, {ZigbeeFactorDevice} from '../lib/helper/deviceFactor';
 
+type ArgumentOverrides = {
+  endpointId?: number,
+}
+
 export default async function initElectricalMeasurementDevice(
   device: ZigbeeFactorDevice,
   zclNode: ZCLNode,
-  endpointId?: number,
+  {
+    endpointId,
+  }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   if (device.hasCapability('measure_voltage')) {
     device.log('Initialising measure_voltage capability');

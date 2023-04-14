@@ -2,13 +2,22 @@ import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
 import {initReadWriteCapability} from '../lib/attributeDevice';
 
+type ArgumentOverrides = {
+  capabilityId: string,
+  maxDimValue: number,
+  minChange?: number,
+  endpointId?: number,
+}
+
 export default async function initDimDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
-  capabilityId = 'dim',
-  maxDimValue = 0xFE,
-  minChange?: number,
-  endpointId?: number,
+  {
+    capabilityId = 'dim',
+    maxDimValue = 0xFE,
+    minChange,
+    endpointId,
+  }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   await initReadWriteCapability(
     device,

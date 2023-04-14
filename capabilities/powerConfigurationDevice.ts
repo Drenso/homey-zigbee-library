@@ -2,11 +2,18 @@ import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
 import {initReadOnlyCapability} from '../lib/attributeDevice';
 
+type ArgumentOverrides = {
+  capabilityId: string,
+  endpointId?: number,
+}
+
 export default async function initPowerConfigurationDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
-  capabilityId = 'measure_battery',
-  endpointId?: number,
+  {
+    capabilityId = 'measure_battery',
+    endpointId,
+  }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   const reportParser = function (value: number): number | null {
     // Value comes from uint8

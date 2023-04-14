@@ -33,10 +33,16 @@ export type WindowCoveringsCluster = Cluster & {
   stop: () => Promise<void>;
 };
 
+type ArgumentOverrides = {
+  endpointId?: number,
+}
+
 export default async function initWindowCoveringsDevice(
   device: ZigbeeWindowCoveringsDevice,
   zclNode: ZCLNode,
-  endpointId?: number,
+  {
+    endpointId,
+  }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   if (!device.hasCapability(SET_CAPABILITY)) {
     return;

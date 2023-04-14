@@ -2,11 +2,18 @@ import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
 import {initReadOnlyCapability} from '../lib/attributeDevice';
 
+type ArgumentOverrides = {
+  capabilityId: string,
+  endpointId?: number,
+}
+
 export default async function initMeasureHumidityDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
-  capabilityId = 'measure_humidity',
-  endpointId?: number,
+  {
+    capabilityId = 'measure_humidity',
+    endpointId,
+  }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   await initReadOnlyCapability(
     device,

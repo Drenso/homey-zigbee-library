@@ -1,10 +1,16 @@
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
 import initFactorImplementation, {ZigbeeFactorDevice} from '../lib/helper/deviceFactor';
 
+type ArgumentOverrides = {
+  endpointId?: number,
+}
+
 export default async function initMeteringDevice(
   device: ZigbeeFactorDevice,
   zclNode: ZCLNode,
-  endpointId?: number,
+  {
+    endpointId,
+  }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   if (device.hasCapability('meter_power')) {
     device.log('Initialising meter_power capability');
