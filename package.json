@@ -26,7 +26,7 @@
     "prepare": "tsc"
   },
   "peerDependencies": {
-    "homey-zigbeedriver": "^1.6.12"
+    "homey-zigbeedriver": "^1.6.12 || ^2.0.0"
   },
   "sideeffects": false,
   "files": [
