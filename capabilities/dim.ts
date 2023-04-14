@@ -4,6 +4,7 @@ import {initReadWriteCapability} from '../lib/attributeDevice';
 
 type ArgumentOverrides = {
   capabilityId: string,
+  onOffCapabilityId: string,
   maxDimValue: number,
   minChange?: number,
   endpointId?: number,
@@ -14,6 +15,7 @@ export default async function initDimDevice(
   zclNode: ZCLNode,
   {
     capabilityId = 'dim',
+    onOffCapabilityId = 'onoff',
     maxDimValue = 0xFE,
     minChange,
     endpointId,
@@ -40,7 +42,7 @@ export default async function initDimDevice(
         return null;
       }
 
-      await device.setCapabilityValue('onoff', value > 0);
+      await device.setCapabilityValue(onOffCapabilityId, value > 0);
 
       return value / maxDimValue;
     },
