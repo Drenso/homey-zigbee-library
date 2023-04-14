@@ -44,6 +44,14 @@ export default async function initWindowCoveringsDevice(
 
   device.log(`Initialising ${SET_CAPABILITY} capability`);
 
+  const parsePercentageValue = function (value: number): number | null {
+    // Validate input
+    if (value < 0x00 || value > 0x64) return null;
+
+    // Parse input value
+    return mapValueRange(0, 100, 0, 1, value);
+  };
+
   const endpoint = endpointId ?? device.getClusterEndpoint(CLUSTER_SPEC) ?? 1;
   const cluster = zclNode
     .endpoints[endpoint]
@@ -93,14 +101,8 @@ export default async function initWindowCoveringsDevice(
     // Value comes from uint8
     device.debug(`Newly reported value for ${SET_CAPABILITY}`, value);
 
-    // Validate input
-    if (value < 0x00 || value > 0x64) {
-      device.error('Lift percentage value outside valid range');
-      return null;
-    }
-
-    // Parse input value
-    const parsedValue = mapValueRange(0, 100, 0, 1, value);
+    const parsedValue = parsePercentageValue(value);
+    if (parsedValue === null) device.error('Lift percentage value outside valid range');
 
     // Refresh timer if needed
     if (device.positionPercentageDebounce) {
@@ -162,7 +164,13 @@ export default async function initWindowCoveringsDevice(
         percentageTiltValue: value * 100,
       }),
       report: 'currentPositionTiltPercentage',
-      reportParser: value => value / 100,
+      reportParser: (value: number): number | null => {
+        // Value comes from uint8
+        device.debug(`Newly reported value for ${SET_TILT_CAPABILITY}`, value);
+        const percentageValue = parsePercentageValue(value);
+        if (percentageValue === null) device.error('Tilt percentage value outside valid range');
+        return percentageValue;
+      },
     });
 
     device.log(`Initialised ${SET_TILT_CAPABILITY} capability`);
