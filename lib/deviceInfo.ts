@@ -11,7 +11,7 @@ export default async function retrieveDeviceInfo(
   await zclNode
     .endpoints[endpoint]
     .clusters[CLUSTER.BASIC.NAME]
-    .readAttributes('hwVersion', 'dateCode', 'swBuildId')
+    .readAttributes(['hwVersion', 'dateCode', 'swBuildId'])
     .then(async (result) => {
       // Convert incoming values to string
       const values: Record<string, string> = {};

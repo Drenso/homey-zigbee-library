@@ -64,7 +64,7 @@ declare module 'zigbee-clusters' {
 
     static get COMMANDS(): object;
 
-    async readAttributes(...attributeNames: string[]): Promise<{ [attributeName: string]: any }>;
+    async readAttributes(attributeNames: string[], opts?: { timeout: number }): Promise<{ [attributeName: string]: any }>;
 
     async writeAttributes(attributes: { [attributeName: string]: any }): Promise<{ [attributeName: string]: { id: number, status: 'SUCCESS' | 'FAILURE' } }>;
 

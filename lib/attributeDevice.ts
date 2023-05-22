@@ -22,7 +22,7 @@ export async function readInitialValue(
   await zclNode
     .endpoints[endpoint]
     .clusters[cluster.NAME]
-    .readAttributes(attributeName)
+    .readAttributes([attributeName])
     .then(async result => {
       await device
         .setCapabilityValue(capabilityId, await reportParser(result[attributeName]))

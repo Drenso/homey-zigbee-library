@@ -59,7 +59,7 @@ export default async function initFactorImplementation(
 
   // Retrieve initial values
   await cluster
-    .readAttributes(properties.value, properties.multiplier, properties.divisor)
+    .readAttributes([properties.value, properties.multiplier, properties.divisor])
     .then(async (result) => {
       await updateDeviceFactor(device, storeProperty, result[properties.multiplier], result[properties.divisor]);
       await device
