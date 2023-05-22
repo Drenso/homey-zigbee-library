@@ -1,17 +1,18 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import {initReadOnlyCapability} from '../lib/attributeDevice';
+import {initReadOnlyCapability, ReadOnlyArgumentOverrides} from '../lib/attributeDevice';
 
-type ArgumentOverrides = {
-  capabilityId: string,
-  endpointId?: number,
-}
+type ArgumentOverrides = ReadOnlyArgumentOverrides;
 
 export default async function initMeasureIlluminanceDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
   {
     capabilityId = 'measure_luminance',
+    cluster = CLUSTER.ILLUMINANCE_MEASUREMENT,
+    attributeName = 'measuredValue',
+    minChange = 1000,
+    maxInterval,
     endpointId,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
@@ -19,8 +20,8 @@ export default async function initMeasureIlluminanceDevice(
     device,
     zclNode,
     capabilityId,
-    CLUSTER.ILLUMINANCE_MEASUREMENT,
-    'measuredValue',
+    cluster,
+    attributeName,
     (value: number): number | null => {
       // Value comes from uint16
       // Check for special values
@@ -35,8 +36,8 @@ export default async function initMeasureIlluminanceDevice(
       // MeasuredValue = 10,000 x log10 Illuminance + 1
       return Math.round(10 ** ((value - 1) / 10000));
     },
-    1000,
-    undefined,
+    minChange,
+    maxInterval,
     endpointId,
   );
 }

@@ -1,17 +1,18 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import {initReadOnlyCapability} from '../lib/attributeDevice';
+import {initReadOnlyCapability, ReadOnlyArgumentOverrides} from '../lib/attributeDevice';
 
-type ArgumentOverrides = {
-  capabilityId: string,
-  endpointId?: number,
-}
+type ArgumentOverrides = ReadOnlyArgumentOverrides;
 
 export default async function initMeasureTemperatureDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
   {
     capabilityId = 'measure_temperature',
+    cluster = CLUSTER.TEMPERATURE_MEASUREMENT,
+    attributeName = 'measuredValue',
+    minChange = 10,
+    maxInterval,
     endpointId,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
@@ -19,8 +20,8 @@ export default async function initMeasureTemperatureDevice(
     device,
     zclNode,
     capabilityId,
-    CLUSTER.TEMPERATURE_MEASUREMENT,
-    'measuredValue',
+    cluster,
+    attributeName,
     (value: number) => {
       // Value comes from int16
       // Check for invalid values
@@ -34,8 +35,8 @@ export default async function initMeasureTemperatureDevice(
       // MeasuredValue = 100 x Temperature in degrees Celsius
       return Math.round((value / 100) * 10) / 10;
     },
-    10,
-    undefined,
+    minChange,
+    maxInterval,
     endpointId,
   );
 }

@@ -71,6 +71,15 @@ export async function initReadWriteCapability(
   device.log(capabilityId, 'initialized');
 }
 
+export interface ReadOnlyArgumentOverrides {
+  capabilityId: string,
+  cluster: ClusterSpecification,
+  attributeName: string,
+  minChange?: number,
+  maxInterval?: number,
+  endpointId?: number,
+}
+
 export async function initReadOnlyCapability(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
