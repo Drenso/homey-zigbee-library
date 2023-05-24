@@ -45,13 +45,36 @@ export async function initReadWriteCapability(
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
 
+  // Retrieve initial value
+  await readInitialValue(device, zclNode, capabilityId, cluster, attributeName, reportParser, endpoint);
+
+  // Configure reading the capability
+  device.registerCapability(capabilityId, cluster, {
+    endpoint,
+    get: attributeName,
+    getOpts: {
+      getOnStart: false,
+    },
+    report: attributeName,
+    reportOpts: {
+      configureAttributeReporting: {
+        minInterval: 0,
+        maxInterval: maxInterval ?? 3600,
+        minChange: minChange ?? 1,
+      },
+    },
+    reportParser,
+  });
+
+  // Configure writing the capability
   device.registerCapabilityListener(capabilityId, async (value) => {
     const attributeValue = setParser(value);
     await device.zclNode.endpoints[endpoint].clusters[cluster.NAME].writeAttributes({
       [attributeName]: attributeValue,
     });
   });
-  await initReadOnlyCapability(device, zclNode, capabilityId, cluster, attributeName, reportParser, minChange, maxInterval, endpointId);
+
+  await device.log(capabilityId, 'initialized');
 }
 
 export async function initReadCommandCapability(
