@@ -2,7 +2,7 @@ import {ClusterSpecification, ZigBeeDevice} from 'homey-zigbeedriver';
 import {ZCLNode} from 'zigbee-clusters';
 
 type SetName = string | ((value: any) => string);
-type SetParser = (setValue: any, opts?: any) => object | null | Promise<object | null>;
+type SetParser = (setValue: any, opts?: any) => any | null | Promise<any | null>;
 const defaultSetParser: SetParser = (x) => x;
 
 type ReportParser = (reportValue: any) => null | any | Promise<any>;
@@ -36,10 +36,33 @@ export async function initReadWriteCapability(
   zclNode: ZCLNode,
   capabilityId: string,
   cluster: ClusterSpecification,
-  setName: SetName,
   setParser: SetParser = defaultSetParser,
   attributeName: string,
   reportParser: ReportParser = defaultReportParser,
+  minChange?: number,
+  maxInterval?: number,
+  endpointId?: number,
+): Promise<void> {
+  const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
+
+  device.registerCapabilityListener(capabilityId, async (value) => {
+    const attributeValue = setParser(value);
+    await device.zclNode.endpoints[endpoint].clusters[cluster.NAME].writeAttributes({
+      [attributeName]: attributeValue,
+    });
+  });
+  await initReadOnlyCapability(device, zclNode, capabilityId, cluster, attributeName, reportParser, minChange, maxInterval, endpointId);
+}
+
+export async function initReadCommandCapability(
+  device: ZigBeeDevice,
+  zclNode: ZCLNode,
+  capabilityId: string,
+  cluster: ClusterSpecification,
+  commandName: SetName,
+  commandArgParser: SetParser = defaultSetParser,
+  attributeName: string,
+  reportParser: ReportParser  = defaultReportParser,
   minChange?: number,
   endpointId?: number,
 ): Promise<void> {
@@ -55,8 +78,8 @@ export async function initReadWriteCapability(
     getOpts: {
       getOnStart: false,
     },
-    set: setName,
-    setParser,
+    set: commandName,
+    setParser: commandArgParser,
     report: attributeName,
     reportOpts: {
       configureAttributeReporting: {
