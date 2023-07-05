@@ -7,15 +7,15 @@ stages:
 include:
   # Prepare
   - project: 'intern/runner-templates'
-    ref: "7.3"
+    ref: "9.6"
     file: '/npm/install-js-dependencies.yml'
 
   # Lint
   - project: 'intern/runner-templates'
-    ref: "7.3"
+    ref: "9.6"
     file: '/npm/audit.yml'
   - project: 'intern/runner-templates'
-    ref: "7.3"
+    ref: "9.6"
     file: '/npm/eslint.yml'
 
 publish-pkg:
