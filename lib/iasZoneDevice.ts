@@ -11,6 +11,7 @@ export default async function initIasZoneDevice(
   capabilityIds: string[],
   statusParsers: (((payload: ZoneStatusChangedPayload) => any) | ZoneStatus)[],
   endpointId?: number,
+  autoEnrollResponse?: boolean,
 ): Promise<void> {
 
   if (statusParsers.length !== capabilityIds.length) {
@@ -24,18 +25,29 @@ export default async function initIasZoneDevice(
   const cluster = zclNode.endpoints[endpoint]
     .clusters[IASZoneCluster.NAME] as unknown as IASZoneCluster;
 
+  const zoneId = Math.floor(Math.random() * 255);
+  const sendZoneEnrollResponse = (): void => {
+    cluster
+      .zoneEnrollResponse({
+        enrollResponseCode: 'success',
+        zoneId: zoneId,
+      }, {waitForResponse: false})
+      .catch(e => device.error('Failed to write response', e));
+  };
+
   // Register enroll request listener for automatic enrollment
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore Dynamic event handler
   cluster.onZoneEnrollRequest = (payload: ZoneEnrollRequestParams): void => {
     device.log('Zone enroll request received', payload);
-    cluster
-      .zoneEnrollResponse({
-        enrollResponseCode: 'success',
-        zoneId: Math.floor(Math.random() * 255),
-      }, {waitForResponse: false})
-      .catch(e => device.error('Failed to write response', e));
+    sendZoneEnrollResponse();
   };
+
+  if (autoEnrollResponse) {
+    // Automatically send the enroll response
+    device.log('Automatically sending zone enroll response');
+    sendZoneEnrollResponse();
+  }
 
   // Register zone state change notification
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -56,5 +68,5 @@ export default async function initIasZoneDevice(
 
   };
 
-  device.log(`Initialised IasZone on endpoint ${endpoint}, waiting for zone enroll request`);
+  device.log(`Initialised IasZone on endpoint ${endpoint}, ${autoEnrollResponse ? 'zone enroll response already sent' : 'waiting for zone enroll request'}`);
 }
