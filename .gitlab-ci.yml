@@ -1,8 +1,13 @@
 stages:
   - prepare
+  - audit
   - lint
   - build
   - publish
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "merge_request_event"
 
 include:
   # Prepare
