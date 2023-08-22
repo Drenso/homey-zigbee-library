@@ -3,6 +3,7 @@ import initFactorImplementation, {ZigbeeFactorDevice} from '../lib/helper/device
 
 type ArgumentOverrides = {
   endpointId?: number,
+  useInstantaneousDemand?: boolean,
 }
 
 export default async function initElectricalMeasurementDevice(
@@ -10,6 +11,7 @@ export default async function initElectricalMeasurementDevice(
   zclNode: ZCLNode,
   {
     endpointId,
+    useInstantaneousDemand
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   if (device.hasCapability('measure_voltage')) {
@@ -31,7 +33,14 @@ export default async function initElectricalMeasurementDevice(
   if (device.hasCapability('measure_power')) {
     device.log('Initialising measure_power capability');
 
-    await initFactorImplementation(device, zclNode, 'measure_power', CLUSTER.ELECTRICAL_MEASUREMENT, 'activePowerFactor', endpointId)
+    await initFactorImplementation(
+      device,
+      zclNode,
+      'measure_power',
+      useInstantaneousDemand ? CLUSTER.METERING : CLUSTER.ELECTRICAL_MEASUREMENT,
+      useInstantaneousDemand ? 'instantaneousDemandFactor' : 'activePowerFactor',
+      endpointId,
+    )
       .then(() => device.log('Initialised measure_power capability'))
       .catch(e => device.error('Failed to initialise measure_power capability', e));
   }

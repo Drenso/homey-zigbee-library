@@ -5,6 +5,7 @@ export interface ZigbeeFactorDeviceProperties {
   acVoltageFactor?: number;
   acCurrentFactor?: number;
   activePowerFactor?: number;
+  instantaneousDemandFactor?: number;
   meteringFactor?: number;
 }
 
@@ -24,6 +25,9 @@ const factorProperties: Record<keyof ZigbeeFactorDeviceProperties, {
   },
   activePowerFactor: {
     value: 'activePower', multiplier: 'acPowerMultiplier', divisor: 'acPowerDivisor',
+  },
+  instantaneousDemandFactor: {
+    value: 'instantaneousDemand', multiplier: 'multiplier', divisor: 'divisor',
   },
   meteringFactor: {
     value: 'currentSummationDelivered', multiplier: 'multiplier', divisor: 'divisor',
@@ -101,6 +105,8 @@ export default async function initFactorImplementation(
 
   // Configure the capability
   device.registerCapability(capability, clusterSpec, {
+    get: properties.value,
+    report: properties.value,
     getOpts: {
       getOnStart: false,
     },
