@@ -5,6 +5,7 @@ import {initReadCommandCapability} from '../lib/attributeDevice';
 type ArgumentOverrides = {
   capabilityId: string,
   endpointId?: number,
+  maxInterval?: number,
 }
 
 export default async function initOnOffDevice(
@@ -13,6 +14,7 @@ export default async function initOnOffDevice(
   {
     capabilityId = 'onoff',
     endpointId,
+    maxInterval,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   const command = (value: boolean): string => value ? 'setOn' : 'setOff';
@@ -32,5 +34,6 @@ export default async function initOnOffDevice(
     reportParser,
     undefined,
     endpointId,
+    maxInterval,
   );
 }

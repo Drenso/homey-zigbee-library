@@ -8,6 +8,15 @@ const defaultSetParser: SetParser = (x) => x;
 type ReportParser = (reportValue: any) => null | any | Promise<any>;
 const defaultReportParser: ReportParser = (x) => x;
 
+export interface ReadOnlyArgumentOverrides {
+  capabilityId: string,
+  cluster: ClusterSpecification,
+  attributeName: string,
+  minChange?: number,
+  maxInterval?: number,
+  endpointId?: number,
+}
+
 export async function readInitialValue(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
@@ -88,6 +97,7 @@ export async function initReadCommandCapability(
   reportParser: ReportParser  = defaultReportParser,
   minChange?: number,
   endpointId?: number,
+  maxInterval?: number,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
 
@@ -107,7 +117,7 @@ export async function initReadCommandCapability(
     reportOpts: {
       configureAttributeReporting: {
         minInterval: 0,
-        maxInterval: 3600,
+        maxInterval: maxInterval ?? 3600,
         minChange: minChange ?? 1,
       },
     },
@@ -115,15 +125,6 @@ export async function initReadCommandCapability(
   });
 
   device.log(capabilityId, 'initialized');
-}
-
-export interface ReadOnlyArgumentOverrides {
-  capabilityId: string,
-  cluster: ClusterSpecification,
-  attributeName: string,
-  minChange?: number,
-  maxInterval?: number,
-  endpointId?: number,
 }
 
 export async function initReadOnlyCapability(

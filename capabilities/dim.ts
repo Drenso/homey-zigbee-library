@@ -6,6 +6,7 @@ type ArgumentOverrides = {
   capabilityId: string,
   onOffCapabilityId: string | false,
   maxDimValue: number,
+  maxInterval?: number,
   minChange?: number,
   endpointId?: number,
 }
@@ -17,6 +18,7 @@ export default async function initDimDevice(
     capabilityId = 'dim',
     onOffCapabilityId = 'onoff',
     maxDimValue = 0xFE,
+    maxInterval,
     minChange,
     endpointId,
   }: Partial<ArgumentOverrides> = {},
@@ -50,6 +52,7 @@ export default async function initDimDevice(
     },
     minChange,
     endpointId,
+    maxInterval,
   );
 }
 
