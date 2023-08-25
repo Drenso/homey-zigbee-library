@@ -11,7 +11,7 @@ export default async function initElectricalMeasurementDevice(
   zclNode: ZCLNode,
   {
     endpointId,
-    useInstantaneousDemand
+    useInstantaneousDemand,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   if (device.hasCapability('measure_voltage')) {
