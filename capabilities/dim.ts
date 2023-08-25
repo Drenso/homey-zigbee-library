@@ -4,7 +4,7 @@ import {initReadCommandCapability} from '../lib/attributeDevice';
 
 type ArgumentOverrides = {
   capabilityId: string,
-  onOffCapabilityId: string,
+  onOffCapabilityId: string | false,
   maxDimValue: number,
   minChange?: number,
   endpointId?: number,
@@ -42,7 +42,9 @@ export default async function initDimDevice(
         return null;
       }
 
-      await device.setCapabilityValue(onOffCapabilityId, value > 0);
+      if (onOffCapabilityId !== false) {
+        await device.setCapabilityValue(onOffCapabilityId, value > 0);
+      }
 
       return value / maxDimValue;
     },
