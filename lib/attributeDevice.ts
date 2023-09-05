@@ -73,17 +73,13 @@ export async function initReadWriteCapability(
       },
     },
     reportParser,
+    set: 'writeAttributes',
+    setParser: value => {
+      return {[attributeName]: setParser(value)};
+    },
   });
 
-  // Configure writing the capability
-  device.registerCapabilityListener(capabilityId, async (value) => {
-    const attributeValue = setParser(value);
-    await device.zclNode.endpoints[endpoint].clusters[cluster.NAME].writeAttributes({
-      [attributeName]: attributeValue,
-    });
-  });
-
-  await device.log(capabilityId, 'initialized');
+  device.log(capabilityId, 'initialized');
 }
 
 export async function initReadCommandCapability(
