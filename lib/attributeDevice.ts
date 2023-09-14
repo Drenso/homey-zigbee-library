@@ -1,10 +1,13 @@
 import {ClusterSpecification, ZigBeeDevice} from 'homey-zigbeedriver';
 import {ZCLNode} from 'zigbee-clusters';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SetName = string | ((value: any) => string);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SetParser = (setValue: any, opts?: any) => any | null | Promise<any | null>;
 const defaultSetParser: SetParser = (x) => x;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ReportParser = (reportValue: any) => null | any | Promise<any>;
 const defaultReportParser: ReportParser = (x) => x;
 

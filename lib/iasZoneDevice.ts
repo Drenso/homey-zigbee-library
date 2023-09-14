@@ -9,7 +9,7 @@ export default async function initIasZoneDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
   capabilityIds: string[],
-  statusParsers: (((payload: ZoneStatusChangedPayload) => any) | ZoneStatus)[],
+  statusParsers: (((payload: ZoneStatusChangedPayload) => any) | ZoneStatus)[], // eslint-disable-line @typescript-eslint/no-explicit-any
   endpointId?: number,
   autoEnrollResponse?: boolean,
 ): Promise<void> {

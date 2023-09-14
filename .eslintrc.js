@@ -11,6 +11,7 @@ module.exports = {
   ],
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'error',
+    '@typescript-eslint/no-explicit-any': 'error',
     'semi': [2, "always"],
     "comma-dangle": ["error", "always-multiline"],
   },
