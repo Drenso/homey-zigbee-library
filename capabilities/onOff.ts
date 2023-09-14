@@ -6,6 +6,7 @@ type ArgumentOverrides = {
   capabilityId: string,
   endpointId?: number,
   maxInterval?: number,
+  pollInterval?: number,
 }
 
 export default async function initOnOffDevice(
@@ -15,6 +16,7 @@ export default async function initOnOffDevice(
     capabilityId = 'onoff',
     endpointId,
     maxInterval,
+    pollInterval,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   const command = (value: boolean): string => value ? 'setOn' : 'setOff';
@@ -35,5 +37,6 @@ export default async function initOnOffDevice(
     undefined,
     endpointId,
     maxInterval,
+    pollInterval,
   );
 }

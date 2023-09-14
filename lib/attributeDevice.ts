@@ -94,6 +94,7 @@ export async function initReadCommandCapability(
   minChange?: number,
   endpointId?: number,
   maxInterval?: number,
+  pollInterval?: number,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
 
@@ -106,6 +107,7 @@ export async function initReadCommandCapability(
     get: attributeName,
     getOpts: {
       getOnStart: false,
+      pollInterval,
     },
     set: commandName,
     setParser: commandArgParser,
