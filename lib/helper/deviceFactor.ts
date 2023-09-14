@@ -41,6 +41,7 @@ export default async function initFactorImplementation(
   clusterSpec: ClusterSpecification,
   storeProperty: keyof ZigbeeFactorDeviceProperties,
   endPointId?: number,
+  noPowerFactorReporting?: boolean,
 ): Promise<void> {
   // Restore factor from store
   await updateDeviceFactor(device, storeProperty)
@@ -73,25 +74,27 @@ export default async function initFactorImplementation(
     .catch(e => device.error(`Failed to read ${clusterSpec.NAME} ${Object.values(properties)} attributes`, e));
 
   // Configure reporting for the power factor
-  await device
-    .configureAttributeReporting([
-      {
-        endpointId: endpoint,
-        cluster: clusterSpec,
-        attributeName: properties.multiplier,
-        minInterval: 0,
-        maxInterval: 3600,
-        minChange: 1,
-      }, {
-        endpointId: endpoint,
-        cluster: clusterSpec,
-        attributeName: properties.divisor,
-        minInterval: 0,
-        maxInterval: 3600,
-        minChange: 1,
-      },
-    ])
-    .catch(e => device.error(`Failed to configure ${clusterSpec.NAME} [${properties.multiplier}, ${properties.divisor}] attribute reporting`, e));
+  if (noPowerFactorReporting !== true) {
+    await device
+      .configureAttributeReporting([
+        {
+          endpointId: endpoint,
+          cluster: clusterSpec,
+          attributeName: properties.multiplier,
+          minInterval: 0,
+          maxInterval: 3600,
+          minChange: 1,
+        }, {
+          endpointId: endpoint,
+          cluster: clusterSpec,
+          attributeName: properties.divisor,
+          minInterval: 0,
+          maxInterval: 3600,
+          minChange: 1,
+        },
+      ])
+      .catch(e => device.error(`Failed to configure ${clusterSpec.NAME} [${properties.multiplier}, ${properties.divisor}] attribute reporting`, e));
+  }
 
   // Register listener for incoming report
   cluster.on('attr.' + properties.multiplier, (value) => {

@@ -3,6 +3,7 @@ import initFactorImplementation, {ZigbeeFactorDevice} from '../lib/helper/device
 
 type ArgumentOverrides = {
   endpointId?: number,
+  noPowerFactorReporting?: boolean,
 }
 
 export default async function initMeteringDevice(
@@ -10,12 +11,13 @@ export default async function initMeteringDevice(
   zclNode: ZCLNode,
   {
     endpointId,
+    noPowerFactorReporting,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   if (device.hasCapability('meter_power')) {
     device.log('Initialising meter_power capability');
 
-    await initFactorImplementation(device, zclNode, 'meter_power', CLUSTER.METERING, 'meteringFactor', endpointId)
+    await initFactorImplementation(device, zclNode, 'meter_power', CLUSTER.METERING, 'meteringFactor', endpointId, noPowerFactorReporting)
       .then(() => device.log('Initialised meter_power capability'))
       .catch(e => device.error('Failed to initialise meter_power capability', e));
   }

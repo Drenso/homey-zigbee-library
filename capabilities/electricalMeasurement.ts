@@ -4,6 +4,7 @@ import initFactorImplementation, {ZigbeeFactorDevice} from '../lib/helper/device
 type ArgumentOverrides = {
   endpointId?: number,
   useInstantaneousDemand?: boolean,
+  noPowerFactorReporting?: boolean,
 }
 
 export default async function initElectricalMeasurementDevice(
@@ -12,12 +13,21 @@ export default async function initElectricalMeasurementDevice(
   {
     endpointId,
     useInstantaneousDemand,
+    noPowerFactorReporting,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   if (device.hasCapability('measure_voltage')) {
     device.log('Initialising measure_voltage capability');
 
-    await initFactorImplementation(device, zclNode, 'measure_voltage', CLUSTER.ELECTRICAL_MEASUREMENT, 'acVoltageFactor', endpointId)
+    await initFactorImplementation(
+      device,
+      zclNode,
+      'measure_voltage',
+      CLUSTER.ELECTRICAL_MEASUREMENT,
+      'acVoltageFactor',
+      endpointId,
+      noPowerFactorReporting,
+    )
       .then(() => device.log('Initialised measure_voltage capability'))
       .catch(e => device.error('Failed to initialise measure_voltage capability', e));
   }
@@ -25,7 +35,15 @@ export default async function initElectricalMeasurementDevice(
   if (device.hasCapability('measure_current')) {
     device.log('Initialising measure_current capability');
 
-    await initFactorImplementation(device, zclNode, 'measure_current', CLUSTER.ELECTRICAL_MEASUREMENT, 'acCurrentFactor', endpointId)
+    await initFactorImplementation(
+      device,
+      zclNode,
+      'measure_current',
+      CLUSTER.ELECTRICAL_MEASUREMENT,
+      'acCurrentFactor',
+      endpointId,
+      noPowerFactorReporting,
+    )
       .then(() => device.log('Initialised measure_current capability'))
       .catch(e => device.error('Failed to initialise measure_current capability', e));
   }
@@ -40,6 +58,7 @@ export default async function initElectricalMeasurementDevice(
       useInstantaneousDemand ? CLUSTER.METERING : CLUSTER.ELECTRICAL_MEASUREMENT,
       useInstantaneousDemand ? 'instantaneousDemandFactor' : 'activePowerFactor',
       endpointId,
+      noPowerFactorReporting,
     )
       .then(() => device.log('Initialised measure_power capability'))
       .catch(e => device.error('Failed to initialise measure_power capability', e));
