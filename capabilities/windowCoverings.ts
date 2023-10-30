@@ -138,6 +138,13 @@ export default async function initWindowCoveringsDevice(
     setParser,
     report: 'currentPositionLiftPercentage',
     reportParser,
+    reportOpts: {
+      configureAttributeReporting: {
+        minInterval: 10,
+        maxInterval: 3600,
+        minChange: 1,
+      },
+    },
   });
 
   device.log(`Initialised ${SET_CAPABILITY} capability`);
@@ -176,6 +183,13 @@ export default async function initWindowCoveringsDevice(
         const percentageValue = parsePercentageValue(value);
         if (percentageValue === null) device.error('Tilt percentage value outside valid range');
         return percentageValue;
+      },
+      reportOpts: {
+        configureAttributeReporting: {
+          minInterval: 10,
+          maxInterval: 3600,
+          minChange: 1,
+        },
       },
     });
 
