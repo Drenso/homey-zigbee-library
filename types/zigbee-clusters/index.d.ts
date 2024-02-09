@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare module 'zigbee-clusters' {
   import EventEmitter from 'events';
-  import {ZigBeeNode} from 'homey';
+  import { ZigBeeNode } from 'homey';
 
   function debug(flag?: boolean, namespaces?: string): void;
 
@@ -53,6 +53,34 @@ declare module 'zigbee-clusters' {
     static TOUCHLINK: typeof Cluster;
   }
 
+  type AttributeDefinition = {
+    id: number,
+    type: ZCLDataType,
+    manufacturerId?: number,
+  }
+
+  type AttributesDefinition = {
+    [attributeName: string]: AttributeDefinition,
+  }
+
+  type CommandDirection = 'DIRECTION_CLIENT_TO_SERVER' | 'DIRECTION_SERVER_TO_CLIENT';
+
+  type CommandDefinition = {
+    id: number,
+    direction?: CommandDirection,
+    args?: {
+      [argName: string]: ZCLDataType,
+    }
+  }
+
+  type CommandDefinitions = {
+    [commandName: string]: CommandDefinition,
+  }
+
+  type CommandFunctions<T extends CommandDefinitions> = Cluster & {
+    [commandName in keyof T]: (a: T[commandName]['args']) => Promise<unknown>;
+  }
+
   class Cluster extends EventEmitter {
     constructor(endpoint: Endpoint);
 
@@ -60,9 +88,9 @@ declare module 'zigbee-clusters' {
 
     static get NAME(): string;
 
-    static get ATTRIBUTES(): object;
+    static get ATTRIBUTES(): AttributesDefinition;
 
-    static get COMMANDS(): object;
+    static get COMMANDS(): CommandDefinitions;
 
     async readAttributes(attributeNames: string[], opts?: { timeout: number }): Promise<{ [attributeName: string]: any }>;
 
@@ -75,10 +103,14 @@ declare module 'zigbee-clusters' {
     nextSeqNr(): number;
 
     async sendFrame(data: object): Promise<void>;
+
+    static DIRECTION_SERVER_TO_CLIENT = 'DIRECTION_SERVER_TO_CLIENT' as const;
+    static DIRECTION_CLIENT_TO_SERVER = 'DIRECTION_CLIENT_TO_SERVER' as const;
   }
 
   interface Bitmap<T> {
     getBits(): T[];
+
     setBit(index: number, value = true): void;
   }
 
@@ -102,7 +134,7 @@ declare module 'zigbee-clusters' {
     | 'test'
     | 'batteryDefect';
 
-  interface ZoneStatusChangedPayload {
+  type ZoneStatusChangedPayload = {
     zoneStatus: Bitmap<ZoneStatus>;
     extendedStatus: number;
     zoneId: number;
@@ -141,18 +173,22 @@ declare module 'zigbee-clusters' {
   }
 
   class ZCLDataTypes {
-    static enum8;
-    static enum16;
-    static uint8;
-    static uint16;
-    static uint32;
-    static map8;
-    static map16;
-    static bool;
+    static enum8: (enumArgs: object) => any;
+    static enum16: (enumArgs: object) => any;
+    static uint8: any;
+    static uint16: any;
+    static uint24: any;
+    static uint32: any;
+    static int8: any;
+    static int16: any;
+    static map8: (mapArgs: object) => any;
+    static map16: (mapArgs: object) => any;
+    static bool: any;
+    static octstr: any;
+    static string: any;
   }
 
-  class ZCLDataType {
-  }
+  type ZCLDataType = ZCLDataTypes[keyof typeof ZCLDataTypes];
 
   class ZCLStruct {
   }
