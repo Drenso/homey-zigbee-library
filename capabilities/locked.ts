@@ -1,12 +1,10 @@
 import { ZigBeeDevice } from 'homey-zigbeedriver';
 import { CLUSTER, ZCLNode } from 'zigbee-clusters';
 import {LockState} from "../lib/clusters/DoorLockCluster";
-import {initReadCommandCapability} from "../lib/attributeDevice";
+import {DefaultConfiguration, initReadCommandCapability} from '../lib/attributeDevice';
 
-type ArgumentOverrides = {
-  capabilityId: string,
+type ArgumentOverrides = DefaultConfiguration & {
   reportParser: (value: LockState) => unknown,
-  endpointId?: number,
 };
 
 export default async function initLockedDevice(

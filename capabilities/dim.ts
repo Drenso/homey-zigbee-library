@@ -1,14 +1,14 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import {initReadCommandCapability} from '../lib/attributeDevice';
+import {
+  DefaultConfiguration,
+  initReadCommandCapability,
+  ReportingConfiguration,
+} from '../lib/attributeDevice';
 
-type ArgumentOverrides = {
-  capabilityId: string,
+type ArgumentOverrides = DefaultConfiguration & ReportingConfiguration & {
   onOffCapabilityId: string | false,
   maxDimValue: number,
-  maxInterval?: number,
-  minChange?: number,
-  endpointId?: number,
 }
 
 export default async function initDimDevice(
@@ -18,6 +18,7 @@ export default async function initDimDevice(
     capabilityId = 'dim',
     onOffCapabilityId = 'onoff',
     maxDimValue = 0xFE,
+    minInterval,
     maxInterval,
     minChange,
     endpointId,
@@ -29,7 +30,10 @@ export default async function initDimDevice(
     capabilityId,
     CLUSTER.LEVEL_CONTROL,
     'moveToLevelWithOnOff',
-    async (value: number, opts: {duration?: number}): Promise<{ transitionTime: number, level: number }> => {
+    async (value: number, opts: { duration?: number }): Promise<{
+      transitionTime: number,
+      level: number
+    }> => {
       return {
         level: Math.round(value * maxDimValue),
         transitionTime: calculateDimDuration(opts?.duration),
@@ -50,9 +54,8 @@ export default async function initDimDevice(
 
       return value / maxDimValue;
     },
-    minChange,
+    {minInterval, maxInterval, minChange},
     endpointId,
-    maxInterval,
   );
 }
 

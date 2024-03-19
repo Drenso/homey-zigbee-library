@@ -11,13 +11,20 @@ const defaultSetParser: SetParser = (x) => x;
 type ReportParser = (reportValue: any) => null | any | Promise<any>;
 const defaultReportParser: ReportParser = (x) => x;
 
-export interface ReadOnlyArgumentOverrides {
+export interface DefaultConfiguration {
   capabilityId: string,
+  endpointId?: number,
+}
+
+export interface ReportingConfiguration {
+  minChange?: number,
+  minInterval?: number,
+  maxInterval?: number,
+}
+
+export interface AttributeConfiguration extends DefaultConfiguration, ReportingConfiguration {
   cluster: ClusterSpecification,
   attributeName: string,
-  minChange?: number,
-  maxInterval?: number,
-  endpointId?: number,
 }
 
 export async function readInitialValue(
@@ -51,8 +58,11 @@ export async function initReadWriteCapability(
   attributeName: string,
   reportParser: ReportParser = defaultReportParser,
   setParser: SetParser = defaultSetParser,
-  minChange?: number,
-  maxInterval?: number,
+  {
+    minInterval = 0,
+    maxInterval = 3600,
+    minChange = 1,
+  }: ReportingConfiguration = {},
   endpointId?: number,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
@@ -70,9 +80,9 @@ export async function initReadWriteCapability(
     report: attributeName,
     reportOpts: {
       configureAttributeReporting: {
-        minInterval: 0,
-        maxInterval: maxInterval ?? 3600,
-        minChange: minChange ?? 1,
+        minInterval,
+        maxInterval,
+        minChange,
       },
     },
     reportParser,
@@ -94,9 +104,12 @@ export async function initReadCommandCapability(
   commandArgParser: SetParser = defaultSetParser,
   attributeName: string,
   reportParser: ReportParser  = defaultReportParser,
-  minChange?: number,
+  {
+    minInterval = 0,
+    maxInterval = 3600,
+    minChange = 1,
+  }: ReportingConfiguration = {},
   endpointId?: number,
-  maxInterval?: number,
   pollInterval?: number,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
@@ -117,9 +130,9 @@ export async function initReadCommandCapability(
     report: attributeName,
     reportOpts: {
       configureAttributeReporting: {
-        minInterval: 0,
-        maxInterval: maxInterval ?? 3600,
-        minChange: minChange ?? 1,
+        minInterval,
+        maxInterval,
+        minChange,
       },
     },
     reportParser,
@@ -135,8 +148,11 @@ export async function initReadOnlyCapability(
   cluster: ClusterSpecification,
   attributeName: string,
   reportParser: ReportParser = defaultReportParser,
-  minChange?: number,
-  maxInterval?: number,
+  {
+    minInterval = 0,
+    maxInterval = 3600,
+    minChange = 1,
+  }: ReportingConfiguration = {},
   endpointId?: number,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
@@ -154,9 +170,9 @@ export async function initReadOnlyCapability(
     report: attributeName,
     reportOpts: {
       configureAttributeReporting: {
-        minInterval: 0,
-        maxInterval: maxInterval ?? 3600,
-        minChange: minChange ?? 1,
+        minInterval,
+        maxInterval,
+        minChange,
       },
     },
     reportParser,

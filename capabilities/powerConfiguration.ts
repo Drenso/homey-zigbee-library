@@ -1,13 +1,12 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import {initReadOnlyCapability} from '../lib/attributeDevice';
+import {
+  DefaultConfiguration,
+  initReadOnlyCapability,
+  ReportingConfiguration,
+} from '../lib/attributeDevice';
 
-type ArgumentOverrides = {
-  capabilityId: string,
-  minChange?: number,
-  maxInterval?: number,
-  endpointId?: number,
-}
+type ArgumentOverrides = DefaultConfiguration & ReportingConfiguration;
 
 export default async function initPowerConfigurationDevice(
   device: ZigBeeDevice,
@@ -15,6 +14,7 @@ export default async function initPowerConfigurationDevice(
   {
     capabilityId = 'measure_battery',
     minChange = 2,
+    minInterval,
     maxInterval,
     endpointId,
   }: Partial<ArgumentOverrides> = {},
@@ -38,8 +38,7 @@ export default async function initPowerConfigurationDevice(
     CLUSTER.POWER_CONFIGURATION,
     'batteryPercentageRemaining',
     reportParser,
-    minChange,
-    maxInterval,
+    {minInterval, maxInterval, minChange},
     endpointId,
   );
 }

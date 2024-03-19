@@ -1,8 +1,8 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import {initReadOnlyCapability, ReadOnlyArgumentOverrides} from '../lib/attributeDevice';
+import {initReadOnlyCapability, AttributeConfiguration} from '../lib/attributeDevice';
 
-type ArgumentOverrides = ReadOnlyArgumentOverrides;
+type ArgumentOverrides = AttributeConfiguration;
 
 export default async function initMeasureHumidityDevice(
   device: ZigBeeDevice,
@@ -12,6 +12,7 @@ export default async function initMeasureHumidityDevice(
     cluster = CLUSTER.RELATIVE_HUMIDITY_MEASUREMENT,
     attributeName = 'measuredValue',
     minChange = 10,
+    minInterval,
     maxInterval,
     endpointId,
   }: Partial<ArgumentOverrides> = {},
@@ -35,8 +36,7 @@ export default async function initMeasureHumidityDevice(
       // MeasuredValue = 100 x Relative humidity
       return Math.round((value / 100) * 10) / 10;
     },
-    minChange,
-    maxInterval,
+    {minInterval, maxInterval, minChange},
     endpointId,
   );
 }

@@ -1,11 +1,12 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import {initReadCommandCapability} from '../lib/attributeDevice';
+import {
+  DefaultConfiguration,
+  initReadCommandCapability,
+  ReportingConfiguration,
+} from '../lib/attributeDevice';
 
-type ArgumentOverrides = {
-  capabilityId: string,
-  endpointId?: number,
-  maxInterval?: number,
+type ArgumentOverrides = DefaultConfiguration & ReportingConfiguration & {
   pollInterval?: number,
 }
 
@@ -15,7 +16,9 @@ export default async function initOnOffDevice(
   {
     capabilityId = 'onoff',
     endpointId,
+    minInterval,
     maxInterval,
+    minChange,
     pollInterval,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
@@ -34,9 +37,8 @@ export default async function initOnOffDevice(
     commandArgParser,
     'onOff',
     reportParser,
-    undefined,
+    {minInterval, maxInterval, minChange},
     endpointId,
-    maxInterval,
     pollInterval,
   );
 }

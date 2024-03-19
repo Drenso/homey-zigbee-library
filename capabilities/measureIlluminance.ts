@@ -1,8 +1,8 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import {initReadOnlyCapability, ReadOnlyArgumentOverrides} from '../lib/attributeDevice';
+import {initReadOnlyCapability, AttributeConfiguration} from '../lib/attributeDevice';
 
-type ArgumentOverrides = ReadOnlyArgumentOverrides;
+type ArgumentOverrides = AttributeConfiguration;
 
 export default async function initMeasureIlluminanceDevice(
   device: ZigBeeDevice,
@@ -12,6 +12,7 @@ export default async function initMeasureIlluminanceDevice(
     cluster = CLUSTER.ILLUMINANCE_MEASUREMENT,
     attributeName = 'measuredValue',
     minChange = 1000,
+    minInterval,
     maxInterval,
     endpointId,
   }: Partial<ArgumentOverrides> = {},
@@ -36,8 +37,7 @@ export default async function initMeasureIlluminanceDevice(
       // MeasuredValue = 10,000 x log10 Illuminance + 1
       return Math.round(10 ** ((value - 1) / 10000));
     },
-    minChange,
-    maxInterval,
+    {minInterval, maxInterval, minChange},
     endpointId,
   );
 }
