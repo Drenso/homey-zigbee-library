@@ -4,6 +4,8 @@ import {initReadOnlyCapability} from '../lib/attributeDevice';
 
 type ArgumentOverrides = {
   capabilityId: string,
+  minChange?: number,
+  maxInterval?: number,
   endpointId?: number,
 }
 
@@ -12,6 +14,8 @@ export default async function initPowerConfigurationDevice(
   zclNode: ZCLNode,
   {
     capabilityId = 'measure_battery',
+    minChange = 2,
+    maxInterval,
     endpointId,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
@@ -34,6 +38,8 @@ export default async function initPowerConfigurationDevice(
     CLUSTER.POWER_CONFIGURATION,
     'batteryPercentageRemaining',
     reportParser,
+    minChange,
+    maxInterval,
     endpointId,
   );
 }
