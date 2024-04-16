@@ -12,6 +12,12 @@ export interface ZigbeeFactorDeviceProperties {
 export interface ZigbeeFactorDevice extends ZigBeeDevice, ZigbeeFactorDeviceProperties {
 }
 
+export interface MeasurementReportingInterface {
+  minMeasurementChange?: number,
+  minMeasurementInterval?: number,
+  maxMeasurementInterval?: number,
+}
+
 const factorProperties: Record<keyof ZigbeeFactorDeviceProperties, {
   value: string,
   multiplier: string,
@@ -34,6 +40,16 @@ const factorProperties: Record<keyof ZigbeeFactorDeviceProperties, {
   },
 };
 
+export function factorReportParserBuilder(factor: () => number): (value: number) => number | null {
+  return function (value: number): number | null {
+    if (value < 0) {
+      return null;
+    }
+
+    return value * factor();
+  };
+}
+
 export default async function initFactorImplementation(
   device: ZigbeeFactorDevice,
   zclNode: ZCLNode,
@@ -42,6 +58,11 @@ export default async function initFactorImplementation(
   storeProperty: keyof ZigbeeFactorDeviceProperties,
   endPointId?: number,
   noPowerFactorReporting?: boolean,
+  {
+    minMeasurementInterval = 10,
+    maxMeasurementInterval = 3600,
+    minMeasurementChange = 1,
+  }: MeasurementReportingInterface = {},
 ): Promise<void> {
   // Restore factor from store
   await updateDeviceFactor(device, storeProperty)
@@ -52,13 +73,7 @@ export default async function initFactorImplementation(
     .endpoints[endpoint]
     .clusters[clusterSpec.NAME];
 
-  const reportParser = function (value: number): number | null {
-    if (value < 0) {
-      return null;
-    }
-
-    return value * (device[storeProperty] ?? 1);
-  };
+  const reportParser = factorReportParserBuilder(() => device[storeProperty] ?? 1);
 
   const properties = factorProperties[storeProperty];
 
@@ -115,9 +130,9 @@ export default async function initFactorImplementation(
     },
     reportOpts: {
       configureAttributeReporting: {
-        minInterval: 10,
-        maxInterval: 3600,
-        minChange: 1,
+        minInterval: minMeasurementInterval,
+        maxInterval: maxMeasurementInterval,
+        minChange: minMeasurementChange,
       },
     },
     reportParser,

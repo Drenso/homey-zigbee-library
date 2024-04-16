@@ -197,4 +197,5 @@ declare module 'zigbee-clusters' {
   class OnOffCluster extends Cluster {}
   class ScenesCluster extends Cluster {}
   class DoorLockCluster extends Cluster {}
+  class ElectricalMeasurementCluster extends Cluster {}
 }
