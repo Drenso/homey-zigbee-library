@@ -42,8 +42,10 @@ export default async function initElectricalMeasurementDevice(
 
   device.log('Measurement type is', measurementType);
   const measurementFlags = measurementType?.measurementType?.getBits();
+  // Configure phase A if there are no measurement types, if it is explicitly reported or if no phase is reported at all
+  const hasPhaseA = !measurementFlags || measurementFlags.includes('phaseAMeasurement') || (!measurementFlags.includes('phaseAMeasurement') && !measurementFlags.includes('phaseBMeasurement') && !measurementFlags.includes('phaseCMeasurement'));
 
-  if (!measurementFlags || measurementFlags.includes('phaseAMeasurement')) {
+  if (hasPhaseA) {
     if (device.hasCapability('measure_voltage')) {
       device.log('Initialising measure_voltage capability');
 
