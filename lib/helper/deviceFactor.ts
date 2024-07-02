@@ -40,7 +40,12 @@ const factorProperties: Record<keyof ZigbeeFactorDeviceProperties, {
   },
 };
 
-export function factorReportParserBuilder(factor: () => number, onReport?: (value: number) => void): (value: number) => number | null {
+export function factorReportParserBuilder(
+  factor: () => number,
+  onReport?: () => void,
+  onReportTimeout?: number,
+  device?: ZigbeeFactorDevice,
+): (value: number) => (number | null) {
   return function (value: number): number | null {
     if (value < 0) {
       return null;
@@ -48,7 +53,11 @@ export function factorReportParserBuilder(factor: () => number, onReport?: (valu
 
     const factorValue = value * factor();
     if (onReport) {
-      onReport(factorValue);
+      if (device) {
+        device.homey.setTimeout(onReport, (onReportTimeout ?? 1) * 1000);
+      } else {
+        onReport();
+      }
     }
     return factorValue;
   };
@@ -67,7 +76,8 @@ export default async function initFactorImplementation(
     maxMeasurementInterval = 3600,
     minMeasurementChange = 1,
   }: MeasurementReportingInterface = {},
-  onReport?: (value: number) => void,
+  onReport?: () => void,
+  onReportTimeout = 1,
 ): Promise<void> {
   // Restore factor from store
   await updateDeviceFactor(device, storeProperty)
@@ -78,7 +88,7 @@ export default async function initFactorImplementation(
     .endpoints[endpoint]
     .clusters[clusterSpec.NAME];
 
-  const reportParser = factorReportParserBuilder(() => device[storeProperty] ?? 1, onReport);
+  const reportParser = factorReportParserBuilder(() => device[storeProperty] ?? 1, onReport, onReportTimeout, device);
 
   const properties = factorProperties[storeProperty];
 

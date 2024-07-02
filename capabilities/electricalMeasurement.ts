@@ -17,6 +17,7 @@ type ArgumentOverrides = {
   minPowerMeasurementChange?: number,
   minMeasurementInterval?: number,
   maxMeasurementInterval?: number,
+  sumAverageUpdateInterval?: number,
 }
 
 export default async function initElectricalMeasurementDevice(
@@ -31,6 +32,7 @@ export default async function initElectricalMeasurementDevice(
     minPowerMeasurementChange,
     minMeasurementInterval,
     maxMeasurementInterval,
+    sumAverageUpdateInterval,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   device.log('Determining measurement type');
@@ -45,18 +47,16 @@ export default async function initElectricalMeasurementDevice(
   // Configure phase A if there are no measurement types, if it is explicitly reported or if no phase is reported at all
   const hasPhaseA = !measurementFlags || measurementFlags.includes('phaseAMeasurement') || (!measurementFlags.includes('phaseAMeasurement') && !measurementFlags.includes('phaseBMeasurement') && !measurementFlags.includes('phaseCMeasurement'));
 
-  const onAverageReportFactory = (
-    averageCapability: string,
-    value1: () => number,
-    value2: () => number,
-  ): ((value: number) => void) | undefined => {
-    if (!device.hasCapability(averageCapability)) {
-      return undefined;
-    }
-
-    return (reportValue: number): void => { // Update average value
-      // Filter zero values
-      const values = [reportValue, value1(), value2()];
+  const updateAverageCapabilityFactory = (averageCapability: string): () => void => {
+    return (): void => {
+      if (!device.hasCapability(averageCapability)) {
+        return;
+      }
+      const capabilities = [averageCapability + '.phase_a', averageCapability + '.phase_b', averageCapability + '.phase_c'];
+      const values = [];
+      for (const capability of capabilities) {
+        values.push(device.hasCapability(capability) ? device.getCapabilityValue(capability) : 0);
+      }
       const count = values.filter(n => n > 0).length;
       device.setCapabilityValue(averageCapability,
         count !== 0
@@ -65,16 +65,18 @@ export default async function initElectricalMeasurementDevice(
       ).catch(device.error);
     };
   };
-  const onSummationReportFactory = (
-    summationCapability: string,
-    value1: () => number,
-    value2: () => number,
-  ): ((value: number) => void) | undefined => {
-    if (!device.hasCapability(summationCapability)) {
-      return undefined;
-    }
-    return (reportValue: number): void => { // Update summed value
-      device.setCapabilityValue(summationCapability, reportValue + value1() + value2()).catch(device.error);
+
+  const updateSummationCapabilityFactory = (summationCapability: string): () => void => {
+    return (): void => {
+      if (!device.hasCapability(summationCapability)) {
+        return;
+      }
+      const capabilities = [summationCapability + '.phase_a', summationCapability + '.phase_b', summationCapability + '.phase_c'];
+      const values = [];
+      for (const capability of capabilities) {
+        values.push(device.hasCapability(capability) ? device.getCapabilityValue(capability) : 0);
+      }
+      device.setCapabilityValue(summationCapability, values.reduce((value, sum) => value + sum, 0)).catch(device.error);
     };
   };
 
@@ -95,11 +97,8 @@ export default async function initElectricalMeasurementDevice(
           maxMeasurementInterval,
           minMeasurementChange: minVoltageMeasurementChange,
         },
-        onAverageReportFactory(
-          'measure_voltage',
-          () => (device.hasCapability('measure_voltage.phase_b') ? device.getCapabilityValue('measure_voltage.phase_b') : 0),
-          () => (device.hasCapability('measure_voltage.phase_c') ? device.getCapabilityValue('measure_voltage.phase_c') : 0),
-        ),
+        updateAverageCapabilityFactory('measure_voltage'),
+        sumAverageUpdateInterval,
       )
         .then(() => device.log('Initialised measure_voltage.phase_a capability'))
         .catch(e => device.error('Failed to initialise measure_voltage.phase_a capability', e));
@@ -140,11 +139,8 @@ export default async function initElectricalMeasurementDevice(
           maxMeasurementInterval,
           minMeasurementChange: minCurrentMeasurementChange,
         },
-        onSummationReportFactory(
-          'measure_current',
-          () => (device.hasCapability('measure_current.phase_b') ? device.getCapabilityValue('measure_current.phase_b') : 0),
-          () => (device.hasCapability('measure_current.phase_c') ? device.getCapabilityValue('measure_current.phase_c') : 0),
-        ),
+        updateSummationCapabilityFactory('measure_current'),
+        sumAverageUpdateInterval,
       )
         .then(() => device.log('Initialised measure_current.phase_a capability'))
         .catch(e => device.error('Failed to initialise measure_current.phase_a capability', e));
@@ -185,11 +181,8 @@ export default async function initElectricalMeasurementDevice(
           maxMeasurementInterval,
           minMeasurementChange: minPowerMeasurementChange,
         },
-        onSummationReportFactory(
-          'measure_power',
-          () => (device.hasCapability('measure_power.phase_b') ? device.getCapabilityValue('measure_power.phase_b') : 0),
-          () => (device.hasCapability('measure_power.phase_c') ? device.getCapabilityValue('measure_power.phase_c') : 0),
-        ),
+        updateSummationCapabilityFactory('measure_power'),
+        sumAverageUpdateInterval,
       )
         .then(() => device.log('Initialised measure_power.phase_a capability'))
         .catch(e => device.error('Failed to initialise measure_power.phase_a capability', e));
@@ -229,11 +222,9 @@ export default async function initElectricalMeasurementDevice(
         'rmsVoltagePhB',
         factorReportParserBuilder(
           () => device['acVoltageFactor'] ?? 1,
-          onAverageReportFactory(
-            'measure_voltage',
-            () => device.hasCapability('measure_voltage.phase_a') ? device.getCapabilityValue('measure_voltage.phase_a') : 0,
-            () => device.hasCapability('measure_voltage.phase_c') ? device.getCapabilityValue('measure_voltage.phase_c') : 0,
-          ),
+          updateAverageCapabilityFactory('measure_voltage'),
+          sumAverageUpdateInterval,
+          device,
         ),
         {
           minInterval: minMeasurementInterval,
@@ -256,11 +247,9 @@ export default async function initElectricalMeasurementDevice(
         'rmsCurrentPhB',
         factorReportParserBuilder(
           () => device['acCurrentFactor'] ?? 1,
-          onSummationReportFactory(
-            'measure_current',
-            () => device.hasCapability('measure_current.phase_a') ? device.getCapabilityValue('measure_current.phase_a') : 0,
-            () => device.hasCapability('measure_current.phase_c') ? device.getCapabilityValue('measure_current.phase_c') : 0,
-          ),
+          updateSummationCapabilityFactory('measure_current'),
+          sumAverageUpdateInterval,
+          device,
         ),
         {
           minInterval: minMeasurementInterval,
@@ -283,11 +272,9 @@ export default async function initElectricalMeasurementDevice(
         'activePowerPhB',
         factorReportParserBuilder(
           () => device['activePowerFactor'] ?? 1,
-          onSummationReportFactory(
-            'measure_power',
-            () => device.hasCapability('measure_power.phase_a') ? device.getCapabilityValue('measure_power.phase_a') : 0,
-            () => device.hasCapability('measure_power.phase_c') ? device.getCapabilityValue('measure_power.phase_c') : 0,
-          ),
+          updateSummationCapabilityFactory('measure_power'),
+          sumAverageUpdateInterval,
+          device,
         ),
         {
           minInterval: minMeasurementInterval,
@@ -314,11 +301,9 @@ export default async function initElectricalMeasurementDevice(
         'rmsVoltagePhC',
         factorReportParserBuilder(
           () => device['acVoltageFactor'] ?? 1,
-          onAverageReportFactory(
-            'measure_voltage',
-            () => device.hasCapability('measure_voltage.phase_a') ? device.getCapabilityValue('measure_voltage.phase_a') : 0,
-            () => device.hasCapability('measure_voltage.phase_b') ? device.getCapabilityValue('measure_voltage.phase_b') : 0,
-          ),
+          updateAverageCapabilityFactory('measure_voltage'),
+          sumAverageUpdateInterval,
+          device,
         ),
         {
           minInterval: minMeasurementInterval,
@@ -341,11 +326,9 @@ export default async function initElectricalMeasurementDevice(
         'rmsCurrentPhC',
         factorReportParserBuilder(
           () => device['acCurrentFactor'] ?? 1,
-          onSummationReportFactory(
-            'measure_current',
-            () => device.hasCapability('measure_current.phase_a') ? device.getCapabilityValue('measure_current.phase_a') : 0,
-            () => device.hasCapability('measure_current.phase_b') ? device.getCapabilityValue('measure_current.phase_b') : 0,
-          ),
+          updateSummationCapabilityFactory('measure_current'),
+          sumAverageUpdateInterval,
+          device,
         ),
         {
           minInterval: minMeasurementInterval,
@@ -368,11 +351,9 @@ export default async function initElectricalMeasurementDevice(
         'activePowerPhC',
         factorReportParserBuilder(
           () => device['activePowerFactor'] ?? 1,
-          onSummationReportFactory(
-            'measure_power',
-            () => device.hasCapability('measure_power.phase_a') ? device.getCapabilityValue('measure_power.phase_a') : 0,
-            () => device.hasCapability('measure_power.phase_b') ? device.getCapabilityValue('measure_power.phase_b') : 0,
-          ),
+          updateSummationCapabilityFactory('measure_power'),
+          sumAverageUpdateInterval,
+          device,
         ),
         {
           minInterval: minMeasurementInterval,
