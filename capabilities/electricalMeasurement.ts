@@ -38,11 +38,11 @@ export default async function initElectricalMeasurementDevice(
   device.log('Determining measurement type');
   const measurementType = await zclNode
     .endpoints[endpointId ?? device.getClusterEndpoint(ExtendedElectricalMeasurementCluster) ?? 1]
-    .clusters[ExtendedElectricalMeasurementCluster.NAME]
-    .readAttributes(['measurementType'])
-    .catch(e => device.error('Failed to read', 'measurementType', 'from', ExtendedElectricalMeasurementCluster.NAME, e));
+    ?.clusters[ExtendedElectricalMeasurementCluster.NAME]
+    ?.readAttributes(['measurementType'])
+    ?.catch(e => device.error('Failed to read', 'measurementType', 'from', ExtendedElectricalMeasurementCluster.NAME, e));
 
-  device.log('Measurement type is', measurementType);
+  device.log('Measurement type is', measurementType ?? 'not provided by device');
   const measurementFlags = measurementType?.measurementType?.getBits();
   // Configure phase A if there are no measurement types, if it is explicitly reported or if no phase is reported at all
   const hasPhaseA = !measurementFlags || measurementFlags.includes('phaseAMeasurement') || (!measurementFlags.includes('phaseAMeasurement') && !measurementFlags.includes('phaseBMeasurement') && !measurementFlags.includes('phaseCMeasurement'));
