@@ -78,9 +78,10 @@ export default async function initFactorImplementation(
   }: MeasurementReportingInterface = {},
   onReport?: () => void,
   onReportTimeout = 1,
+  additionalMultiplier?: number,
 ): Promise<void> {
   // Restore factor from store
-  await updateDeviceFactor(device, storeProperty)
+  await updateDeviceFactor(device, storeProperty, undefined, undefined, additionalMultiplier)
     .catch(e => device.error(`Failed to restore ${storeProperty}`, e));
 
   const endpoint = endPointId ?? device.getClusterEndpoint(clusterSpec) ?? 1;
@@ -159,26 +160,35 @@ async function updateDeviceFactor(
   storeProperty: keyof ZigbeeFactorDeviceProperties,
   multiplier?: number,
   divisor?: number,
+  additionalMultiplier?: number,
 ): Promise<void> {
   device.log(`Handling new ${storeProperty}`, multiplier, divisor);
 
   const multiplierKey = storeProperty + '_multiplier';
   const divisorKey = storeProperty + '_divisor';
+  const additionalMultiplierKey = storeProperty + '_additional_multiplier';
 
   if (multiplier) {
     await device.setStoreValue(multiplierKey, multiplier)
-      .catch(e => device.error('Failed to store ' + multiplierKey, e));
+      .catch(e => device.error(`Failed to store ${multiplierKey}`, e));
   } else {
     multiplier = device.getStoreValue(multiplierKey);
   }
 
   if (divisor) {
     await device.setStoreValue(divisorKey, divisor)
-      .catch(e => device.error('Failed to store ' + divisorKey, e));
+      .catch(e => device.error(`Failed to store ${divisorKey}`, e));
   } else {
     divisor = device.getStoreValue(divisorKey);
   }
 
-  device[storeProperty] = (multiplier ?? 1) / (divisor ?? 1);
+  if (additionalMultiplier) {
+    await device.setStoreValue(additionalMultiplierKey, additionalMultiplier)
+      .catch(e => device.error(`Failed to store ${additionalMultiplierKey}`, e));
+  } else {
+    additionalMultiplier = device.getStoreValue(additionalMultiplierKey);
+  }
+
+  device[storeProperty] = ((multiplier ?? 1) / (divisor ?? 1)) * (additionalMultiplier ?? 1);
   device.log(`New active ${storeProperty}`, device[storeProperty]);
 }

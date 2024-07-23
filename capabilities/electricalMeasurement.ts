@@ -18,6 +18,9 @@ type ArgumentOverrides = {
   minMeasurementInterval?: number,
   maxMeasurementInterval?: number,
   sumAverageUpdateInterval?: number,
+  additionalVoltageMultiplier?: number,
+  additionalCurrentMultiplier?: number,
+  additionalPowerMultiplier?: number,
 }
 
 export default async function initElectricalMeasurementDevice(
@@ -33,6 +36,9 @@ export default async function initElectricalMeasurementDevice(
     minMeasurementInterval,
     maxMeasurementInterval,
     sumAverageUpdateInterval,
+    additionalVoltageMultiplier,
+    additionalCurrentMultiplier,
+    additionalPowerMultiplier,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   device.log('Determining measurement type');
@@ -99,6 +105,7 @@ export default async function initElectricalMeasurementDevice(
         },
         updateAverageCapabilityFactory('measure_voltage'),
         sumAverageUpdateInterval,
+        additionalVoltageMultiplier,
       )
         .then(() => device.log('Initialised measure_voltage.phase_a capability'))
         .catch(e => device.error('Failed to initialise measure_voltage.phase_a capability', e));
@@ -118,6 +125,9 @@ export default async function initElectricalMeasurementDevice(
           maxMeasurementInterval,
           minMeasurementChange: minVoltageMeasurementChange,
         },
+        undefined,
+        undefined,
+        additionalVoltageMultiplier,
       )
         .then(() => device.log('Initialised measure_voltage capability'))
         .catch(e => device.error('Failed to initialise measure_voltage capability', e));
@@ -141,6 +151,7 @@ export default async function initElectricalMeasurementDevice(
         },
         updateSummationCapabilityFactory('measure_current'),
         sumAverageUpdateInterval,
+        additionalCurrentMultiplier,
       )
         .then(() => device.log('Initialised measure_current.phase_a capability'))
         .catch(e => device.error('Failed to initialise measure_current.phase_a capability', e));
@@ -160,6 +171,9 @@ export default async function initElectricalMeasurementDevice(
           maxMeasurementInterval,
           minMeasurementChange: minCurrentMeasurementChange,
         },
+        undefined,
+        undefined,
+        additionalCurrentMultiplier,
       )
         .then(() => device.log('Initialised measure_current capability'))
         .catch(e => device.error('Failed to initialise measure_current capability', e));
@@ -183,6 +197,7 @@ export default async function initElectricalMeasurementDevice(
         },
         updateSummationCapabilityFactory('measure_power'),
         sumAverageUpdateInterval,
+        additionalPowerMultiplier,
       )
         .then(() => device.log('Initialised measure_power.phase_a capability'))
         .catch(e => device.error('Failed to initialise measure_power.phase_a capability', e));
@@ -202,6 +217,9 @@ export default async function initElectricalMeasurementDevice(
           maxMeasurementInterval,
           minMeasurementChange: minPowerMeasurementChange,
         },
+        undefined,
+        undefined,
+        additionalPowerMultiplier,
       )
         .then(() => device.log('Initialised measure_power capability'))
         .catch(e => device.error('Failed to initialise measure_power capability', e));
