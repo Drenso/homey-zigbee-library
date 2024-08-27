@@ -336,7 +336,7 @@ export default async function initElectricalMeasurementDevice(
     }
 
     if (device.hasCapability('measure_current.phase_c')) {
-      device.log('Initialising measure_current.phase_b capability');
+      device.log('Initialising measure_current.phase_c capability');
 
       await initReadOnlyCapability(
         device,
