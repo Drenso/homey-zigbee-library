@@ -3,9 +3,8 @@ import {Cluster, CLUSTER, ZCLNode} from 'zigbee-clusters';
 import mapValueRange from '../lib/helper/valueRange';
 import {readInitialValue} from '../lib/attributeDevice';
 
-const UP_OPEN = 'upOpen';
-const DOWN_CLOSE = 'downClose';
 const LIFT_PERCENTAGE = 'currentPositionLiftPercentage';
+const TILT_PERCENTAGE = 'currentPositionTiltPercentage';
 
 const SET_CAPABILITY = 'windowcoverings_set';
 const STATE_CAPABILITY = 'windowcoverings_state';
@@ -17,7 +16,7 @@ const STATE_COMMAND_MAP = {
   up: 'upOpen',
   idle: 'stop',
   down: 'downClose',
-};
+} as const;
 
 export interface WindowCoveringsProperties {
   positionPercentageDebounce?: NodeJS.Timeout | null;
@@ -82,12 +81,12 @@ export default async function initWindowCoveringsDevice(
 
     // Override goToLiftPercentage to enforce blind to open/close completely
     if (value === 0 || value === 1) {
-      const windowCoveringCommand = value === 1 ? UP_OPEN : DOWN_CLOSE;
-      device.debug(`set → \`windowcoverings_set\`: ${value} → setParser → ${windowCoveringCommand}`);
+      const windowCoveringCommand = value === 1 ? STATE_COMMAND_MAP.up : STATE_COMMAND_MAP.down;
+      device.debug(`set → \`${SET_CAPABILITY}\`: ${value} → setParser → ${windowCoveringCommand}`);
 
       await cluster[windowCoveringCommand]();
 
-      await device.setCapabilityValue('windowcoverings_set', value);
+      await device.setCapabilityValue(SET_CAPABILITY, value);
 
       return null;
     }
@@ -133,10 +132,10 @@ export default async function initWindowCoveringsDevice(
     getOpts: {
       getOnStart: false,
     },
-    get: 'currentPositionLiftPercentage',
+    get: LIFT_PERCENTAGE,
     set: 'goToLiftPercentage',
     setParser,
-    report: 'currentPositionLiftPercentage',
+    report: LIFT_PERCENTAGE,
     reportParser,
     reportOpts: {
       configureAttributeReporting: {
@@ -171,12 +170,12 @@ export default async function initWindowCoveringsDevice(
       getOpts: {
         getOnStart: false,
       },
-      get: 'currentPositionTiltPercentage',
+      get: TILT_PERCENTAGE,
       set: 'goToTiltPercentage',
       setParser: value => ({
         percentageTiltValue: value * 100,
       }),
-      report: 'currentPositionTiltPercentage',
+      report: TILT_PERCENTAGE,
       reportParser: (value: number): number | null => {
         // Value comes from uint8
         device.debug(`Newly reported value for ${SET_TILT_CAPABILITY}`, value);
