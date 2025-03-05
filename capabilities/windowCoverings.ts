@@ -3,12 +3,12 @@ import {Cluster, CLUSTER, ZCLNode} from 'zigbee-clusters';
 import mapValueRange from '../lib/helper/valueRange';
 import {readInitialValue} from '../lib/attributeDevice';
 
-const LIFT_PERCENTAGE = 'currentPositionLiftPercentage';
-const TILT_PERCENTAGE = 'currentPositionTiltPercentage';
+const LIFT_PERCENTAGE_ATTRIBUTE = 'currentPositionLiftPercentage';
+const TILT_PERCENTAGE_ATTRIBUTE = 'currentPositionTiltPercentage';
 
-const SET_CAPABILITY = 'windowcoverings_set';
-const STATE_CAPABILITY = 'windowcoverings_state';
-const SET_TILT_CAPABILITY = 'windowcoverings_tilt_set';
+const LIFT_PERCENTAGE_CAPABILITY = 'windowcoverings_set';
+const LIFT_STATE_CAPABILITY = 'windowcoverings_state';
+const TILT_PERCENTAGE_CAPABILITY = 'windowcoverings_tilt_set';
 const CLUSTER_SPEC = CLUSTER.WINDOW_COVERING;
 const REPORT_DEBOUNCE_TIME = 1000;
 
@@ -18,9 +18,19 @@ const STATE_COMMAND_MAP = {
   down: 'downClose',
 } as const;
 
+type StateCommand = keyof typeof STATE_COMMAND_MAP;
+
+function invertStateCommand(command: StateCommand): StateCommand {
+  switch (command) {
+    case "up": return "down";
+    case "down": return "up";
+    default: return command;
+  }
+}
+
 export interface WindowCoveringsProperties {
-  positionPercentageDebounce?: NodeJS.Timeout | null;
-  positionPercentageDebounceEnabled?: boolean;
+  positionUpdateDebounce?: NodeJS.Timeout | null;
+  positionUpdateDebounceActive?: boolean;
 }
 
 export interface ZigbeeWindowCoveringsDevice extends ZigBeeDevice, WindowCoveringsProperties {
@@ -34,117 +44,55 @@ export type WindowCoveringsCluster = Cluster & {
 
 type ArgumentOverrides = {
   endpointId?: number,
-  invertSet?: boolean,
-  invertTiltSet?: boolean,
+  invertPercentage?: boolean,
+  invertSetting?: string,
 }
 
 export default async function initWindowCoveringsDevice(
   device: ZigbeeWindowCoveringsDevice,
   zclNode: ZCLNode,
+  argumentOverrides: Partial<ArgumentOverrides> = {},
+): Promise<void> {
+  const endpoint = argumentOverrides.endpointId ?? device.getClusterEndpoint(CLUSTER_SPEC) ?? 1;
+  await initLiftPercentageCapability(device, zclNode, endpoint, argumentOverrides);
+  await initLiftStateCapability(device, endpoint);
+  await initTiltPercentageCapability(device, zclNode, endpoint, argumentOverrides);
+}
+
+async function initLiftPercentageCapability(
+  device: ZigbeeWindowCoveringsDevice,
+  zclNode: ZCLNode,
+  endpoint: number,
   {
-    endpointId,
-    invertSet = false,
-    invertTiltSet = invertSet,
+    invertPercentage = false,
+    invertSetting,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
-  if (!device.hasCapability(SET_CAPABILITY)) {
+  if (!device.hasCapability(LIFT_PERCENTAGE_CAPABILITY)) {
     return;
   }
 
-  device.log(`Initialising ${SET_CAPABILITY} capability`);
+  device.log(`Initialising ${LIFT_PERCENTAGE_CAPABILITY} capability`);
 
-  const parsePercentageValue = function (value: number): number | null {
-    // Validate input
-    if (value < 0x00 || value > 0x64) return null;
-
-    // Parse input value
-    return mapValueRange(0, 100, 0, 1, value);
-  };
-
-  const endpoint = endpointId ?? device.getClusterEndpoint(CLUSTER_SPEC) ?? 1;
   const cluster = zclNode
     .endpoints[endpoint]
     .clusters[CLUSTER_SPEC.NAME] as unknown as WindowCoveringsCluster;
 
-  const setParser = async function (value: number): Promise<unknown> {
-    if (invertSet) {
-      value = 1 - value;
-    }
+  const setParser = (value: number): Promise<null | { percentageLiftValue: number }> => LiftPercentageCapabilitySetParser(device, cluster, invertPercentage, invertSetting, value);
+  const reportParser = (value: number): number | null => LiftPercentageCapabilityReportParser(device, invertPercentage, invertSetting, value);
 
-    device.debug(`Newly set value for ${SET_CAPABILITY}`, value);
+  await readInitialValue(device, zclNode, LIFT_PERCENTAGE_CAPABILITY, CLUSTER_SPEC, LIFT_PERCENTAGE_ATTRIBUTE, reportParser, endpoint);
 
-    // Refresh timer or set new timer to prevent reports from updating the dim slider directly
-    // when set command from Homey
-    if (device.positionPercentageDebounce) {
-      device.positionPercentageDebounce.refresh();
-    } else {
-      device.positionPercentageDebounce = device.homey.setTimeout(() => {
-        device.positionPercentageDebounceEnabled = false;
-        device.positionPercentageDebounce = null;
-      }, REPORT_DEBOUNCE_TIME);
-    }
-
-    // Used to check if reports are generated based on set command from Homey
-    device.positionPercentageDebounceEnabled = true;
-
-    // Override goToLiftPercentage to enforce blind to open/close completely
-    if (value === 0 || value === 1) {
-      const windowCoveringCommand = value === 1 ? STATE_COMMAND_MAP.up : STATE_COMMAND_MAP.down;
-      device.debug(`set → \`${SET_CAPABILITY}\`: ${value} → setParser → ${windowCoveringCommand}`);
-
-      await cluster[windowCoveringCommand]();
-
-      await device.setCapabilityValue(SET_CAPABILITY, value);
-
-      return null;
-    }
-
-    const mappedValue = mapValueRange(0, 1, 0, 100, value);
-    const gotToLiftPercentageCommand = {
-      // Round, otherwise might not be accepted by device
-      percentageLiftValue: Math.round(mappedValue),
-    };
-    device.debug(`set → \`${SET_CAPABILITY}\`: ${value} → setParser → goToLiftPercentage`, gotToLiftPercentageCommand);
-
-    // Send command
-    return gotToLiftPercentageCommand;
-  };
-
-  const reportParser = function (value: number): number | null {
-    // Value comes from uint8
-    device.debug(`Newly reported value for ${SET_CAPABILITY}`, value);
-
-    const parsedValue = parsePercentageValue(value);
-    if (parsedValue === null) device.error('Lift percentage value outside valid range');
-
-    // Refresh timer if needed
-    if (device.positionPercentageDebounce) {
-      device.positionPercentageDebounce.refresh();
-    }
-
-    // If reports are not generated by set command from Homey update directly
-    if (parsedValue !== null && !device.positionPercentageDebounceEnabled) {
-      return invertSet ? 1 - parsedValue : parsedValue;
-    }
-
-    // Return default
-    return null;
-  };
-
-  // Retrieve initial values
-  await readInitialValue(device, zclNode, SET_CAPABILITY, CLUSTER_SPEC, LIFT_PERCENTAGE, reportParser, endpoint);
-
-  // Configure the capability
-  device.registerCapability(SET_CAPABILITY, CLUSTER_SPEC, {
+  device.registerCapability(LIFT_PERCENTAGE_CAPABILITY, CLUSTER_SPEC, {
     endpoint,
     getOpts: {
       getOnStart: false,
     },
-    get: LIFT_PERCENTAGE,
+    get: LIFT_PERCENTAGE_ATTRIBUTE,
     set: 'goToLiftPercentage',
-    setParser,
-    report: LIFT_PERCENTAGE,
-    reportParser,
+    setParser: setParser,
+    report: LIFT_PERCENTAGE_ATTRIBUTE,
+    reportParser: reportParser,
     reportOpts: {
       configureAttributeReporting: {
         minInterval: 10,
@@ -154,55 +102,189 @@ export default async function initWindowCoveringsDevice(
     },
   });
 
-  device.log(`Initialised ${SET_CAPABILITY} capability`);
+  device.log(`Initialised ${LIFT_PERCENTAGE_CAPABILITY} capability`);
+}
 
-  // Check for state support, if so
-  if (device.hasCapability(STATE_CAPABILITY)) {
-    device.log(`Initialising ${STATE_CAPABILITY} capability`);
-
-    device.registerCapability(STATE_CAPABILITY, CLUSTER_SPEC, {
-      endpoint,
-      set: (value: keyof typeof STATE_COMMAND_MAP) => STATE_COMMAND_MAP[value],
-      setParser: () => ({}),
-    });
-
-    device.log(`Initialised ${STATE_CAPABILITY} capability`);
+async function initLiftStateCapability(
+  device: ZigbeeWindowCoveringsDevice,
+  endpoint: number,
+  {
+    invertSetting,
+  }: Partial<ArgumentOverrides> = {},
+): Promise<void> {
+  if (!device.hasCapability(LIFT_PERCENTAGE_CAPABILITY)) {
+    return;
   }
 
-  // Check for tilt support, if so
-  if (device.hasCapability(SET_TILT_CAPABILITY)) {
-    device.log(`Initialising ${SET_TILT_CAPABILITY} capability`);
+  device.log(`Initialising ${LIFT_STATE_CAPABILITY} capability`);
 
-    device.registerCapability(SET_TILT_CAPABILITY, CLUSTER_SPEC, {
-      endpoint,
-      getOpts: {
-        getOnStart: false,
-      },
-      get: TILT_PERCENTAGE,
-      set: 'goToTiltPercentage',
-      setParser: value => ({
-        percentageTiltValue: (invertTiltSet ? 1 - value : value) * 100,
-      }),
-      report: TILT_PERCENTAGE,
-      reportParser: (value: number): number | null => {
-        // Value comes from uint8
-        device.debug(`Newly reported value for ${SET_TILT_CAPABILITY}`, value);
-        const percentageValue = parsePercentageValue(value);
-        if (percentageValue === null) {
-          device.error('Tilt percentage value outside valid range');
-          return null;
-        }
-        return invertTiltSet ? 1 - percentageValue : percentageValue;
-      },
-      reportOpts: {
-        configureAttributeReporting: {
-          minInterval: 10,
-          maxInterval: 3600,
-          minChange: 1,
-        },
-      },
-    });
+  const set = (value: StateCommand): typeof STATE_COMMAND_MAP[StateCommand] => {
+    if (invertSetting !== undefined && device.getSetting(invertSetting)) {
+      value = invertStateCommand(value);
+    }
+    return STATE_COMMAND_MAP[value];
+  };
 
-    device.log(`Initialised ${SET_TILT_CAPABILITY} capability`);
+  device.registerCapability(LIFT_STATE_CAPABILITY, CLUSTER_SPEC, {
+    endpoint,
+    set: set,
+    setParser: () => ({}),
+  });
+
+  device.log(`Initialised ${LIFT_STATE_CAPABILITY} capability`);
+}
+
+async function initTiltPercentageCapability(
+  device: ZigbeeWindowCoveringsDevice,
+  zclNode: ZCLNode,
+  endpoint: number,
+  {
+    invertPercentage = false,
+    invertSetting,
+  }: Partial<ArgumentOverrides> = {},
+): Promise<void> {
+  if (!device.hasCapability(TILT_PERCENTAGE_CAPABILITY)) {
+    return;
   }
+
+  device.log(`Initialising ${TILT_PERCENTAGE_CAPABILITY} capability`);
+
+  const setParser = (value: number): { percentageTiltValue: number } => {
+    if (invertSetting !== undefined && device.getSetting(invertSetting)) {
+      value = 1 - value;
+    }
+    if (invertPercentage) {
+      value = 1 - value;
+    }
+    return ({
+      percentageTiltValue: value * 100,
+    });
+  };
+
+  const reportParser = (value: number): number | null => {
+    device.debug(`Newly reported value for ${TILT_PERCENTAGE_CAPABILITY}`, value);
+    let parsedValue = parsePercentageValue(value);
+    if (parsedValue === null) {
+      device.error('Tilt percentage value outside valid range');
+      return null;
+    }
+    if (invertSetting !== undefined && device.getSetting(invertSetting)) {
+      parsedValue = 1 - parsedValue;
+    }
+    if (invertPercentage) {
+      parsedValue = 1 - parsedValue;
+    }
+    return parsedValue;
+  };
+
+  await readInitialValue(device, zclNode, TILT_PERCENTAGE_CAPABILITY, CLUSTER_SPEC, TILT_PERCENTAGE_ATTRIBUTE, reportParser, endpoint);
+
+  device.registerCapability(TILT_PERCENTAGE_CAPABILITY, CLUSTER_SPEC, {
+    endpoint,
+    getOpts: {
+      getOnStart: false,
+    },
+    get: TILT_PERCENTAGE_ATTRIBUTE,
+    set: 'goToTiltPercentage',
+    setParser: setParser,
+    report: TILT_PERCENTAGE_ATTRIBUTE,
+    reportParser: reportParser,
+    reportOpts: {
+      configureAttributeReporting: {
+        minInterval: 10,
+        maxInterval: 3600,
+        minChange: 1,
+      },
+    },
+  });
+
+  device.log(`Initialised ${TILT_PERCENTAGE_CAPABILITY} capability`);
+}
+
+async function LiftPercentageCapabilitySetParser(
+  device: ZigbeeWindowCoveringsDevice,
+  cluster: WindowCoveringsCluster,
+  invertPercentage: boolean,
+  invertSetting: string | undefined,
+  value: number,
+): Promise<null | { percentageLiftValue: number }> {
+  if (invertSetting !== undefined && device.getSetting(invertSetting)) {
+    value = 1 - value;
+  }
+
+  setPositionUpdateDebounce(device);
+
+  device.debug(`Newly set value for ${LIFT_PERCENTAGE_CAPABILITY}`, invertPercentage ? 1 - value : value);
+
+  // Override goToLiftPercentage to enforce blind to open/close completely
+  if (value === 0 || value === 1) {
+    const windowCoveringCommand = value === 1 ? STATE_COMMAND_MAP.up : STATE_COMMAND_MAP.down;
+    device.debug(`set → \`${LIFT_PERCENTAGE_CAPABILITY}\`: ${value} → setParser → ${windowCoveringCommand}`);
+
+    await cluster[windowCoveringCommand]();
+
+    await device.setCapabilityValue(LIFT_PERCENTAGE_CAPABILITY, invertPercentage ? 1 - value : value);
+
+    return null;
+  }
+
+  if (invertPercentage) {
+    value = 1 - value;
+  }
+
+  const mappedValue = Math.round(mapValueRange(0, 1, 0, 100, value));
+  device.debug(`set → \`${LIFT_PERCENTAGE_CAPABILITY}\`: ${value} → setParser → goToLiftPercentage`, mappedValue);
+
+  return {
+    percentageLiftValue: mappedValue,
+  };
+}
+
+function LiftPercentageCapabilityReportParser(
+  device: ZigbeeWindowCoveringsDevice,
+  invertPercentage: boolean,
+  invertSetting: string | undefined,
+  value: number
+): number | null {
+  device.debug(`Newly reported value for ${LIFT_PERCENTAGE_CAPABILITY}`, value);
+
+  device.positionUpdateDebounce?.refresh();
+  if (device.positionUpdateDebounceActive) {
+    return null;
+  }
+
+  let parsedValue = parsePercentageValue(value);
+  if (parsedValue === null) {
+    device.error('Lift percentage value outside valid range');
+    return null;
+  }
+
+
+  if (invertSetting !== undefined && device.getSetting(invertSetting)) {
+    parsedValue = 1 - parsedValue;
+  }
+
+  if (invertPercentage) {
+    parsedValue = 1 - parsedValue;
+  }
+
+  return parsedValue;
+}
+
+function setPositionUpdateDebounce(device: ZigbeeWindowCoveringsDevice): void {
+  if (device.positionUpdateDebounce) {
+    device.positionUpdateDebounce.refresh();
+  } else {
+    device.positionUpdateDebounce = device.homey.setTimeout(() => {
+      device.positionUpdateDebounceActive = false;
+      device.positionUpdateDebounce = null;
+    }, REPORT_DEBOUNCE_TIME);
+  }
+
+  device.positionUpdateDebounceActive = true;
+}
+
+function parsePercentageValue(value: number): number | null {
+  if (value < 0x00 || value > 0x64) return null;
+  return mapValueRange(0, 100, 0, 1, value);
 }
