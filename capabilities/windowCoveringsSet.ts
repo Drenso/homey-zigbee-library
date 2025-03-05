@@ -9,7 +9,7 @@ import {
 } from "./windowCoverings";
 
 const CLUSTER_SPEC = CLUSTER.WINDOW_COVERING;
-const REPORT_DEBOUNCE_TIME = 1000;
+const DEFAULT_REPORT_DEBOUNCE_TIME = 5000;
 
 const LIFT_PERCENTAGE_ATTRIBUTE = 'currentPositionLiftPercentage';
 const LIFT_PERCENTAGE_CAPABILITY = 'windowcoverings_set';
@@ -21,6 +21,7 @@ export async function initLiftPercentageCapability(
     endpointId,
     invertPercentage = false,
     invertSetting,
+    positionUpdatesAfterSetDebounceTime: debounceTime,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   if (!device.hasCapability(LIFT_PERCENTAGE_CAPABILITY)) {
@@ -36,7 +37,7 @@ export async function initLiftPercentageCapability(
 
   const setParser = (value: number): Promise<null | {
     percentageLiftValue: number
-  }> => LiftPercentageCapabilitySetParser(device, cluster, invertPercentage, invertSetting, value);
+  }> => LiftPercentageCapabilitySetParser(device, cluster, invertPercentage, invertSetting, debounceTime, value);
   const reportParser = (value: number): number | null => LiftPercentageCapabilityReportParser(device, invertPercentage, invertSetting, value);
 
   await readInitialValue(device, zclNode, LIFT_PERCENTAGE_CAPABILITY, CLUSTER_SPEC, LIFT_PERCENTAGE_ATTRIBUTE, reportParser, endpoint);
@@ -68,13 +69,14 @@ async function LiftPercentageCapabilitySetParser(
   cluster: WindowCoveringsCluster,
   invertPercentage: boolean,
   invertSetting: string | undefined,
+  debounceTime: number | undefined,
   value: number,
 ): Promise<null | { percentageLiftValue: number }> {
   if (invertSetting !== undefined && device.getSetting(invertSetting)) {
     value = 1 - value;
   }
 
-  setPositionUpdateDebounce(device);
+  setPositionUpdateDebounce(device, debounceTime);
 
   device.debug(`Newly set value for ${LIFT_PERCENTAGE_CAPABILITY}`, invertPercentage ? 1 - value : value);
 
@@ -133,14 +135,18 @@ function LiftPercentageCapabilityReportParser(
   return parsedValue;
 }
 
-function setPositionUpdateDebounce(device: ZigbeeWindowCoveringsDevice): void {
+function setPositionUpdateDebounce(device: ZigbeeWindowCoveringsDevice, time: number = DEFAULT_REPORT_DEBOUNCE_TIME): void {
+  if (time === 0) {
+    return;
+  }
+
   if (device.positionUpdateDebounce) {
     device.positionUpdateDebounce.refresh();
   } else {
     device.positionUpdateDebounce = device.homey.setTimeout(() => {
       device.positionUpdateDebounceActive = false;
       device.positionUpdateDebounce = null;
-    }, REPORT_DEBOUNCE_TIME);
+    }, time);
   }
 
   device.positionUpdateDebounceActive = true;

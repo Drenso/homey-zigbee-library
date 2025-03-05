@@ -54,4 +54,5 @@ export type ArgumentOverrides = {
   endpointId?: number,
   invertPercentage?: boolean,
   invertSetting?: string,
+  positionUpdatesAfterSetDebounceTime?: number,
 }
