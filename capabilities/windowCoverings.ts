@@ -10,7 +10,7 @@ const SET_CAPABILITY = 'windowcoverings_set';
 const STATE_CAPABILITY = 'windowcoverings_state';
 const SET_TILT_CAPABILITY = 'windowcoverings_tilt_set';
 const CLUSTER_SPEC = CLUSTER.WINDOW_COVERING;
-const REPORT_DEBOUNCE_TIME = 5000;
+const REPORT_DEBOUNCE_TIME = 1000;
 
 const STATE_COMMAND_MAP = {
   up: 'upOpen',
