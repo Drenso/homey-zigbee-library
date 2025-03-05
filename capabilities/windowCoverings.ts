@@ -11,7 +11,7 @@ export default async function initWindowCoveringsDevice(
   argumentOverrides: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   await initLiftPercentageCapability(device, zclNode, argumentOverrides);
-  await initLiftStateCapability(device);
+  await initLiftStateCapability(device, argumentOverrides);
   await initTiltPercentageCapability(device, zclNode, argumentOverrides);
 }
 
