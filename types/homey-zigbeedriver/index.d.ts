@@ -39,7 +39,7 @@ declare module 'homey-zigbeedriver' {
   }
 
   class ZigBeeDevice extends Homey.Device {
-    onNodeInit(payload: {zclNode: ZCLNode, node: ZigBeeNode, supportsHueAndSaturation?: boolean, supportsColorTemperature?: boolean}): void;
+    onNodeInit(payload: {zclNode: ZCLNode, node: ZigBeeNode, supportsHueAndSaturation?: boolean, supportsColorTemperature?: boolean}): Promise<void>;
     onMeshInit(): void;
     onEndDeviceAnnounce(): void;
     triggerFlow(payload: {id: string, tokens?: Object, state?: Object}): Promise<void>;

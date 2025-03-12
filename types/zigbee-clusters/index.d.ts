@@ -78,7 +78,9 @@ declare module 'zigbee-clusters' {
   }
 
   type CommandFunctions<T extends CommandDefinitions> = Cluster & {
-    [commandName in keyof T]: (a: T[commandName]['args']) => Promise<unknown>;
+    [commandName in keyof T]: (T[commandName] extends { args: any }
+      ? (a: T[commandName]['args']) => Promise<unknown>
+      : () => Promise<unknown>);
   }
 
   class Cluster extends EventEmitter {
@@ -92,9 +94,13 @@ declare module 'zigbee-clusters' {
 
     static get COMMANDS(): CommandDefinitions;
 
-    async readAttributes(attributeNames: string[], opts?: { timeout: number }): Promise<{ [attributeName: string]: any }>;
+    async readAttributes(attributeNames: string[], opts?: { timeout: number }): Promise<{
+      [attributeName: string]: any
+    }>;
 
-    async writeAttributes(attributes: { [attributeName: string]: any }): Promise<{ [attributeName: string]: { id: number, status: 'SUCCESS' | 'FAILURE' } }>;
+    async writeAttributes(attributes: { [attributeName: string]: any }): Promise<{
+      [attributeName: string]: { id: number, status: 'SUCCESS' | 'FAILURE' }
+    }>;
 
     async discoverAttributes(): Promise<[string | number]>;
 
@@ -108,9 +114,9 @@ declare module 'zigbee-clusters' {
     static DIRECTION_CLIENT_TO_SERVER = 'DIRECTION_CLIENT_TO_SERVER' as const;
   }
 
-  interface Bitmap<T> {
-    getBits(): T[];
-
+  interface Bitmap<T extends ReadonlyArray<string | null>> {
+    getBits(): T;
+    getBit(index: number): boolean;
     setBit(index: number, value = true): void;
   }
 
@@ -149,7 +155,10 @@ declare module 'zigbee-clusters' {
   };
 
   class IASZoneCluster extends Cluster {
-    zoneEnrollResponse: (payload: { enrollResponseCode: keyof enrollResponseCodes, zoneId: number }, options?: ZigBeeCommandOptions) => Promise<void>;
+    zoneEnrollResponse: (payload: {
+      enrollResponseCode: keyof enrollResponseCodes,
+      zoneId: number
+    }, options?: ZigBeeCommandOptions) => Promise<void>;
     initiateNormalOperationMode: (payload?: Record<string, never>, options?: ZigBeeCommandOptions) => Promise<void>;
   }
 
@@ -173,19 +182,24 @@ declare module 'zigbee-clusters' {
   }
 
   class ZCLDataTypes {
-    static enum8: (enumArgs: object) => any;
-    static enum16: (enumArgs: object) => any;
-    static uint8: any;
-    static uint16: any;
-    static uint24: any;
-    static uint32: any;
-    static int8: any;
-    static int16: any;
-    static map8: (mapArgs: object) => any;
-    static map16: (mapArgs: object) => any;
-    static bool: any;
-    static octstr: any;
-    static string: any;
+    static enum8<T>(enumArgs: T): keyof T;
+
+    static enum16<T>(enumArgs: T): keyof T;
+
+    static uint8: number;
+    static uint16: number;
+    static uint24: number;
+    static uint32: number;
+    static int8: number;
+    static int16: number;
+
+    static map8<T extends(ReadonlyArray<string | null>)>(mapArgs: T): Bitmap<T>;
+
+    static map16<T extends(ReadonlyArray<string | null>)>(mapArgs: T): Bitmap<T>;
+
+    static bool: boolean;
+    static octstr: Buffer;
+    static string: Buffer;
   }
 
   type ZCLDataType = ZCLDataTypes[keyof typeof ZCLDataTypes];
@@ -198,4 +212,9 @@ declare module 'zigbee-clusters' {
   class ScenesCluster extends Cluster {}
   class DoorLockCluster extends Cluster {}
   class ElectricalMeasurementCluster extends Cluster {}
+  class ThermostatCluster extends Cluster {}
+  class TemperatureMeasurementCluster extends Cluster {}
+  class MeteringCluster extends Cluster {}
+  class BallastConfigurationCluster extends Cluster {}
+  class AlarmsCluster extends Cluster {}
 }
