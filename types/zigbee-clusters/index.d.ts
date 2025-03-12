@@ -2,6 +2,7 @@
 declare module 'zigbee-clusters' {
   import EventEmitter from 'events';
   import { ZigBeeNode } from 'homey';
+  import {DefaultResponseCommand} from "../../lib/clusters/ZCL";
 
   function debug(flag?: boolean, namespaces?: string): void;
 
@@ -99,7 +100,7 @@ declare module 'zigbee-clusters' {
     }>;
 
     async writeAttributes(attributes: { [attributeName: string]: any }): Promise<{
-      [attributeName: string]: { id: number, status: 'SUCCESS' | 'FAILURE' }
+      [attributeName: string]: DefaultResponseCommand
     }>;
 
     async discoverAttributes(): Promise<[string | number]>;

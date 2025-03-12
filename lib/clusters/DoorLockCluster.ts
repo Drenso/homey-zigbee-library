@@ -1,4 +1,12 @@
-import { AttributesDefinition, Cluster, CommandDefinitions, CommandFunctions, DoorLockCluster as HomeyDoorLockCluster, ZCLDataTypes } from 'zigbee-clusters';
+import {
+  AttributesDefinition,
+  Cluster,
+  CommandDefinitions,
+  CommandFunctions,
+  DoorLockCluster as HomeyDoorLockCluster,
+  ZCLDataTypes,
+} from 'zigbee-clusters';
+import {DefaultResponseCommand} from "./ZCL";
 
 export const LOCK_STATE_ENUM = {
   not_fully_locked: 0x00,
@@ -352,6 +360,24 @@ class DoorLockCluster extends HomeyDoorLockCluster {
       ...CommandsReceived,
       ...CommandsGenerated,
     } as const;
+  }
+
+  readAttributes<T extends keyof typeof Attributes>(attributeNames: T[], opts?: { timeout: number }): Promise<{
+    [p in T]: typeof Attributes[p]["type"]
+  }> {
+    return super.readAttributes(attributeNames, opts) as unknown as Promise<{
+      [p in T]: typeof Attributes[p]["type"]
+    }>;
+  }
+
+  writeAttributes<T extends keyof typeof Attributes>(attributes: {
+    [p in T]: typeof Attributes[p]["type"]
+  }): Promise<{
+    [p in T]: DefaultResponseCommand
+  }> {
+    return super.writeAttributes(attributes) as unknown as Promise<{
+      [p in T]: DefaultResponseCommand
+    }>;
   }
 }
 

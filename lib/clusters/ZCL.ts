@@ -1,0 +1,29 @@
+type DefaultResponseStatus =
+  "SUCCESS"
+  | "FAILURE"
+  | "NOT_AUTHORIZED"
+  | "MALFORMED_COMMAND"
+  | "UNSUP_COMMAND"
+  | "INVALID_FIELD"
+  | "UNSUPPORTED_ATTRIBUTE"
+  | "INVALID_VALUE"
+  | "READ_ONLY"
+  | "INSUFFICIENT_SPACE"
+  | "NOT_FOUND"
+  | "UNREPORTABLE_ATTRIBUTE"
+  | "INVALID_DATA_TYPE"
+  | "INVALID_SELECTOR"
+  | "TIMEOUT"
+  | "ABORT"
+  | "INVALID_IMAGE"
+  | "WAIT_FOR_DATA"
+  | "NO_IMAGE_AVAILABLE"
+  | "REQUIRE_MORE_IMAGE"
+  | "NOTIFICATION_PENDING"
+  | "UNSUPPORTED_CLUSTER"
+  ;
+
+export type DefaultResponseCommand = {
+  id: number,
+  status: DefaultResponseStatus
+}
