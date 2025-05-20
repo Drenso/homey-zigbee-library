@@ -4,6 +4,7 @@ import {ZCLNode} from 'zigbee-clusters';
 export interface ZigbeeFactorDeviceProperties {
   acVoltageFactor?: number;
   acCurrentFactor?: number;
+  acFrequencyFactor?: number;
   activePowerFactor?: number;
   instantaneousDemandFactor?: number;
   meteringFactor?: number;
@@ -28,6 +29,9 @@ const factorProperties: Record<keyof ZigbeeFactorDeviceProperties, {
   },
   acCurrentFactor: {
     value: 'rmsCurrent', multiplier: 'acCurrentMultiplier', divisor: 'acCurrentDivisor',
+  },
+  acFrequencyFactor: {
+    value: 'acFrequency', multiplier: 'acFrequencyMultiplier', divisor: 'acFrequencyDivisor',
   },
   activePowerFactor: {
     value: 'activePower', multiplier: 'acPowerMultiplier', divisor: 'acPowerDivisor',

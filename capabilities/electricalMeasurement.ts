@@ -15,12 +15,14 @@ type ArgumentOverrides = {
   minVoltageMeasurementChange?: number,
   minCurrentMeasurementChange?: number,
   minPowerMeasurementChange?: number,
+  minFrequencyMeasurementChange?: number,
   minMeasurementInterval?: number,
   maxMeasurementInterval?: number,
   sumAverageUpdateInterval?: number,
   additionalVoltageMultiplier?: number,
   additionalCurrentMultiplier?: number,
   additionalPowerMultiplier?: number,
+  additionalFrequencyMultiplier?: number,
 }
 
 export default async function initElectricalMeasurementDevice(
@@ -33,12 +35,14 @@ export default async function initElectricalMeasurementDevice(
     minVoltageMeasurementChange,
     minCurrentMeasurementChange,
     minPowerMeasurementChange,
+    minFrequencyMeasurementChange,
     minMeasurementInterval,
     maxMeasurementInterval,
     sumAverageUpdateInterval,
     additionalVoltageMultiplier,
     additionalCurrentMultiplier,
     additionalPowerMultiplier,
+    additionalFrequencyMultiplier,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   device.log('Determining measurement type');
@@ -85,6 +89,30 @@ export default async function initElectricalMeasurementDevice(
       device.setCapabilityValue(summationCapability, values.reduce((value, sum) => value + sum, 0)).catch(device.error);
     };
   };
+
+  if (device.hasCapability('measure_frequency')) {
+    device.log('Initialising measure_frequency capability');
+
+    await initFactorImplementation(
+      device,
+      zclNode,
+      'measure_frequency',
+      ExtendedElectricalMeasurementCluster,
+      'acFrequencyFactor',
+      endpointId,
+      noPowerFactorReporting,
+      {
+        minMeasurementInterval,
+        maxMeasurementInterval,
+        minMeasurementChange: minFrequencyMeasurementChange,
+      },
+      undefined,
+      undefined,
+      additionalFrequencyMultiplier,
+    )
+      .then(() => device.log('Initialised measure_frequency capability'))
+      .catch(e => device.error('Failed to initialise measure_frequency capability', e));
+  }
 
   if (hasPhaseA) {
     if (device.hasCapability('measure_voltage.phase_a')) {
