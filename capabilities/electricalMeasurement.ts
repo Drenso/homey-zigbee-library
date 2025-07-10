@@ -1,7 +1,7 @@
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
 import initFactorImplementation, {
   factorReportParserBuilder,
-  ZigbeeFactorDevice,
+  ZigbeeFactorDevice, ZigbeeFactorDeviceProperties,
 } from '../lib/helper/deviceFactor';
 import {
   ExtendedElectricalMeasurementCluster,
@@ -11,6 +11,7 @@ import {initReadOnlyCapability} from '../lib/attributeDevice';
 type ArgumentOverrides = {
   endpointId?: number,
   useInstantaneousDemand?: boolean,
+  useTotalActivePower?: boolean,
   noPowerFactorReporting?: boolean,
   minVoltageMeasurementChange?: number,
   minCurrentMeasurementChange?: number,
@@ -31,6 +32,7 @@ export default async function initElectricalMeasurementDevice(
   {
     endpointId,
     useInstantaneousDemand,
+    useTotalActivePower,
     noPowerFactorReporting,
     minVoltageMeasurementChange,
     minCurrentMeasurementChange,
@@ -95,6 +97,7 @@ export default async function initElectricalMeasurementDevice(
       minCurrentMeasurementChange,
       additionalCurrentMultiplier,
       useInstantaneousDemand,
+      useTotalActivePower,
       minPowerMeasurementChange,
       additionalPowerMultiplier
     );
@@ -142,6 +145,7 @@ async function initPhaseA(
   minCurrentMeasurementChange: number | undefined,
   additionalCurrentMultiplier: number | undefined,
   useInstantaneousDemand: boolean | undefined,
+  useTotalActivePower: boolean | undefined,
   minPowerMeasurementChange: number | undefined,
   additionalPowerMultiplier: number | undefined
 ): Promise<void> {
@@ -237,6 +241,20 @@ async function initPhaseA(
       .catch(e => device.error('Failed to initialise measure_current capability', e));
   }
 
+  if (useTotalActivePower && useInstantaneousDemand) {
+    throw new Error('Cannot use totalActivePower and instantaneousDemand at the same time');
+  }
+
+  let measurePowerStoreProperty: keyof ZigbeeFactorDeviceProperties;
+
+  if (useTotalActivePower) {
+    measurePowerStoreProperty = 'totalActivePowerFactor';
+  } else if (useInstantaneousDemand) {
+    measurePowerStoreProperty = 'instantaneousDemandFactor';
+  } else {
+    measurePowerStoreProperty = 'activePowerFactor';
+  }
+
   if (device.hasCapability('measure_power.phase_a')) {
     device.log('Initialising measure_power.phase_a capability with summation if it exists');
 
@@ -245,7 +263,7 @@ async function initPhaseA(
       zclNode,
       'measure_power.phase_a',
       useInstantaneousDemand ? CLUSTER.METERING : ExtendedElectricalMeasurementCluster,
-      useInstantaneousDemand ? 'instantaneousDemandFactor' : 'activePowerFactor',
+      measurePowerStoreProperty,
       endpointId,
       noPowerFactorReporting,
       {
@@ -268,7 +286,7 @@ async function initPhaseA(
       zclNode,
       'measure_power',
       useInstantaneousDemand ? CLUSTER.METERING : ExtendedElectricalMeasurementCluster,
-      useInstantaneousDemand ? 'instantaneousDemandFactor' : 'activePowerFactor',
+      measurePowerStoreProperty,
       endpointId,
       noPowerFactorReporting,
       {

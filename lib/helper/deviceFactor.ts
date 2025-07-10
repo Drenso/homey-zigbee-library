@@ -8,6 +8,7 @@ export interface ZigbeeFactorDeviceProperties {
   activePowerFactor?: number;
   instantaneousDemandFactor?: number;
   meteringFactor?: number;
+  totalActivePowerFactor?: number;
 }
 
 export interface ZigbeeFactorDevice extends ZigBeeDevice, ZigbeeFactorDeviceProperties {
@@ -41,6 +42,9 @@ const factorProperties: Record<keyof ZigbeeFactorDeviceProperties, {
   },
   meteringFactor: {
     value: 'currentSummationDelivered', multiplier: 'multiplier', divisor: 'divisor',
+  },
+  totalActivePowerFactor: {
+    value: 'totalActivePower', multiplier: 'powerMultiplier', divisor: 'powerDivisor',
   },
 };
 

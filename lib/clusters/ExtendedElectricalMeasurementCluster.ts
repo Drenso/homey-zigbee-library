@@ -8,12 +8,14 @@ import {
 export class ExtendedElectricalMeasurementCluster extends ElectricalMeasurementCluster {
   static get ATTRIBUTES(): AttributesDefinition {
     return {...super.ATTRIBUTES, ...{
-        rmsVoltagePhB: { id: 2309, type: ZCLDataTypes.uint16 },
-        rmsCurrentPhB: { id: 2312, type: ZCLDataTypes.uint16 },
-        activePowerPhB: { id: 2315, type: ZCLDataTypes.int16 },
-        rmsVoltagePhC: { id: 2565, type: ZCLDataTypes.uint16 },
-        rmsCurrentPhC: { id: 2568, type: ZCLDataTypes.uint16 },
-        activePowerPhC: { id: 2571, type: ZCLDataTypes.int16 },
+        powerMultiplier: { id: 0x0402, type: ZCLDataTypes.uint32 },
+        powerDivisor: { id: 0x0403, type: ZCLDataTypes.uint32 },
+        rmsVoltagePhB: { id: 0x0905, type: ZCLDataTypes.uint16 },
+        rmsCurrentPhB: { id: 0x0908, type: ZCLDataTypes.uint16 },
+        activePowerPhB: { id: 0x090b, type: ZCLDataTypes.int16 },
+        rmsVoltagePhC: { id: 0x0a05, type: ZCLDataTypes.uint16 },
+        rmsCurrentPhC: { id: 0x0a08, type: ZCLDataTypes.uint16 },
+        activePowerPhC: { id: 0x0a0b, type: ZCLDataTypes.int16 },
     }};
   }
 }
