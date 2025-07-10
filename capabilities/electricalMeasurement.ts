@@ -57,39 +57,6 @@ export default async function initElectricalMeasurementDevice(
   // Configure phase A if there are no measurement types, if it is explicitly reported or if no phase is reported at all
   const hasPhaseA = !measurementFlags || measurementFlags.includes('phaseAMeasurement') || (!measurementFlags.includes('phaseAMeasurement') && !measurementFlags.includes('phaseBMeasurement') && !measurementFlags.includes('phaseCMeasurement'));
 
-  const updateAverageCapabilityFactory = (averageCapability: string): () => void => {
-    return (): void => {
-      if (!device.hasCapability(averageCapability)) {
-        return;
-      }
-      const capabilities = [averageCapability + '.phase_a', averageCapability + '.phase_b', averageCapability + '.phase_c'];
-      const values = [];
-      for (const capability of capabilities) {
-        values.push(device.hasCapability(capability) ? device.getCapabilityValue(capability) : 0);
-      }
-      const count = values.filter(n => n > 0).length;
-      device.setCapabilityValue(averageCapability,
-        count !== 0
-          ? values.reduce((value, sum) => value + sum, 0) / count
-          : 0,
-      ).catch(device.error);
-    };
-  };
-
-  const updateSummationCapabilityFactory = (summationCapability: string): () => void => {
-    return (): void => {
-      if (!device.hasCapability(summationCapability)) {
-        return;
-      }
-      const capabilities = [summationCapability + '.phase_a', summationCapability + '.phase_b', summationCapability + '.phase_c'];
-      const values = [];
-      for (const capability of capabilities) {
-        values.push(device.hasCapability(capability) ? device.getCapabilityValue(capability) : 0);
-      }
-      device.setCapabilityValue(summationCapability, values.reduce((value, sum) => value + sum, 0)).catch(device.error);
-    };
-  };
-
   if (device.hasCapability('measure_frequency')) {
     device.log('Initialising measure_frequency capability');
 
@@ -131,7 +98,7 @@ export default async function initElectricalMeasurementDevice(
           maxMeasurementInterval,
           minMeasurementChange: minVoltageMeasurementChange,
         },
-        updateAverageCapabilityFactory('measure_voltage'),
+        updateAverageCapabilityFactory('measure_voltage', device),
         sumAverageUpdateInterval,
         additionalVoltageMultiplier,
       )
@@ -177,7 +144,7 @@ export default async function initElectricalMeasurementDevice(
           maxMeasurementInterval,
           minMeasurementChange: minCurrentMeasurementChange,
         },
-        updateSummationCapabilityFactory('measure_current'),
+        updateSummationCapabilityFactory('measure_current', device),
         sumAverageUpdateInterval,
         additionalCurrentMultiplier,
       )
@@ -223,7 +190,7 @@ export default async function initElectricalMeasurementDevice(
           maxMeasurementInterval,
           minMeasurementChange: minPowerMeasurementChange,
         },
-        updateSummationCapabilityFactory('measure_power'),
+        updateSummationCapabilityFactory('measure_power', device),
         sumAverageUpdateInterval,
         // Fall back to 1000 additional multiplier as the cluster definition for instantaneous demand defines kW as unit of measurement
         additionalPowerMultiplier ?? (useInstantaneousDemand ? 1000 : undefined),
@@ -270,7 +237,7 @@ export default async function initElectricalMeasurementDevice(
         'rmsVoltagePhB',
         factorReportParserBuilder(
           () => device['acVoltageFactor'] ?? 1,
-          updateAverageCapabilityFactory('measure_voltage'),
+          updateAverageCapabilityFactory('measure_voltage', device),
           sumAverageUpdateInterval,
           device,
         ),
@@ -295,7 +262,7 @@ export default async function initElectricalMeasurementDevice(
         'rmsCurrentPhB',
         factorReportParserBuilder(
           () => device['acCurrentFactor'] ?? 1,
-          updateSummationCapabilityFactory('measure_current'),
+          updateSummationCapabilityFactory('measure_current', device),
           sumAverageUpdateInterval,
           device,
         ),
@@ -320,7 +287,7 @@ export default async function initElectricalMeasurementDevice(
         'activePowerPhB',
         factorReportParserBuilder(
           () => device['activePowerFactor'] ?? 1,
-          updateSummationCapabilityFactory('measure_power'),
+          updateSummationCapabilityFactory('measure_power', device),
           sumAverageUpdateInterval,
           device,
         ),
@@ -349,7 +316,7 @@ export default async function initElectricalMeasurementDevice(
         'rmsVoltagePhC',
         factorReportParserBuilder(
           () => device['acVoltageFactor'] ?? 1,
-          updateAverageCapabilityFactory('measure_voltage'),
+          updateAverageCapabilityFactory('measure_voltage', device),
           sumAverageUpdateInterval,
           device,
         ),
@@ -374,7 +341,7 @@ export default async function initElectricalMeasurementDevice(
         'rmsCurrentPhC',
         factorReportParserBuilder(
           () => device['acCurrentFactor'] ?? 1,
-          updateSummationCapabilityFactory('measure_current'),
+          updateSummationCapabilityFactory('measure_current', device),
           sumAverageUpdateInterval,
           device,
         ),
@@ -399,7 +366,7 @@ export default async function initElectricalMeasurementDevice(
         'activePowerPhC',
         factorReportParserBuilder(
           () => device['activePowerFactor'] ?? 1,
-          updateSummationCapabilityFactory('measure_power'),
+          updateSummationCapabilityFactory('measure_power', device),
           sumAverageUpdateInterval,
           device,
         ),
@@ -415,4 +382,37 @@ export default async function initElectricalMeasurementDevice(
   }
 
   device.log('Electrical measurement device initialized!');
+}
+
+function updateAverageCapabilityFactory(averageCapability: string, device: ZigbeeFactorDevice): () => void {
+  return (): void => {
+    if (!device.hasCapability(averageCapability)) {
+      return;
+    }
+    const capabilities = [averageCapability + '.phase_a', averageCapability + '.phase_b', averageCapability + '.phase_c'];
+    const values = [];
+    for (const capability of capabilities) {
+      values.push(device.hasCapability(capability) ? device.getCapabilityValue(capability) : 0);
+    }
+    const count = values.filter(n => n > 0).length;
+    device.setCapabilityValue(averageCapability,
+      count !== 0
+        ? values.reduce((value, sum) => value + sum, 0) / count
+        : 0,
+    ).catch(device.error);
+  };
+}
+
+function updateSummationCapabilityFactory(summationCapability: string, device: ZigbeeFactorDevice): () => void {
+  return (): void => {
+    if (!device.hasCapability(summationCapability)) {
+      return;
+    }
+    const capabilities = [summationCapability + '.phase_a', summationCapability + '.phase_b', summationCapability + '.phase_c'];
+    const values = [];
+    for (const capability of capabilities) {
+      values.push(device.hasCapability(capability) ? device.getCapabilityValue(capability) : 0);
+    }
+    device.setCapabilityValue(summationCapability, values.reduce((value, sum) => value + sum, 0)).catch(device.error);
+  };
 }
