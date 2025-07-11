@@ -8,6 +8,7 @@ import {
 export class ExtendedElectricalMeasurementCluster extends ElectricalMeasurementCluster {
   static get ATTRIBUTES(): AttributesDefinition {
     return {...super.ATTRIBUTES, ...{
+        totalActivePower: { id: 0x0304, type: ZCLDataTypes.int32},
         powerMultiplier: { id: 0x0402, type: ZCLDataTypes.uint32 },
         powerDivisor: { id: 0x0403, type: ZCLDataTypes.uint32 },
         rmsVoltagePhB: { id: 0x0905, type: ZCLDataTypes.uint16 },

@@ -193,6 +193,7 @@ declare module 'zigbee-clusters' {
     static uint32: number;
     static int8: number;
     static int16: number;
+    static int32: number;
 
     static map8<T extends(ReadonlyArray<string | null>)>(mapArgs: T): Bitmap<T>;
 
