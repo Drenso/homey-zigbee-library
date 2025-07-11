@@ -1,7 +1,8 @@
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
 import initFactorImplementation, {
   factorReportParserBuilder,
-  ZigbeeFactorDevice, ZigbeeFactorDeviceProperties,
+  ZigbeeFactorDevice,
+  ZigbeeFactorDeviceProperties,
 } from '../lib/helper/deviceFactor';
 import {
   ExtendedElectricalMeasurementCluster,
@@ -29,24 +30,17 @@ type ArgumentOverrides = {
 export default async function initElectricalMeasurementDevice(
   device: ZigbeeFactorDevice,
   zclNode: ZCLNode,
-  {
+  argumentOverrides: Partial<ArgumentOverrides> = {},
+): Promise<void> {
+  const {
     endpointId,
-    useInstantaneousDemand,
-    useTotalActivePower,
     noPowerFactorReporting,
-    minVoltageMeasurementChange,
-    minCurrentMeasurementChange,
-    minPowerMeasurementChange,
     minFrequencyMeasurementChange,
     minMeasurementInterval,
     maxMeasurementInterval,
-    sumAverageUpdateInterval,
-    additionalVoltageMultiplier,
-    additionalCurrentMultiplier,
-    additionalPowerMultiplier,
     additionalFrequencyMultiplier,
-  }: Partial<ArgumentOverrides> = {},
-): Promise<void> {
+  } = argumentOverrides;
+
   device.log('Determining measurement type');
   const measurementType = await zclNode
     .endpoints[endpointId ?? device.getClusterEndpoint(ExtendedElectricalMeasurementCluster) ?? 1]
@@ -87,19 +81,7 @@ export default async function initElectricalMeasurementDevice(
     await initPhaseA(
       device,
       zclNode,
-      endpointId,
-      noPowerFactorReporting,
-      minMeasurementInterval,
-      maxMeasurementInterval,
-      minVoltageMeasurementChange,
-      sumAverageUpdateInterval,
-      additionalVoltageMultiplier,
-      minCurrentMeasurementChange,
-      additionalCurrentMultiplier,
-      useInstantaneousDemand,
-      useTotalActivePower,
-      minPowerMeasurementChange,
-      additionalPowerMultiplier
+      argumentOverrides,
     );
   }
 
@@ -107,12 +89,7 @@ export default async function initElectricalMeasurementDevice(
     await initPhaseB(
       device,
       zclNode,
-      sumAverageUpdateInterval,
-      minMeasurementInterval,
-      maxMeasurementInterval,
-      minVoltageMeasurementChange,
-      minCurrentMeasurementChange,
-      minPowerMeasurementChange
+      argumentOverrides
     );
   }
 
@@ -120,12 +97,7 @@ export default async function initElectricalMeasurementDevice(
     await initPhaseC(
       device,
       zclNode,
-      sumAverageUpdateInterval,
-      minMeasurementInterval,
-      maxMeasurementInterval,
-      minVoltageMeasurementChange,
-      minCurrentMeasurementChange,
-      minPowerMeasurementChange
+      argumentOverrides
     );
   }
 
@@ -135,19 +107,21 @@ export default async function initElectricalMeasurementDevice(
 async function initPhaseA(
   device: ZigbeeFactorDevice,
   zclNode: ZCLNode,
-  endpointId: number | undefined,
-  noPowerFactorReporting: boolean | undefined,
-  minMeasurementInterval: number | undefined,
-  maxMeasurementInterval: number | undefined,
-  minVoltageMeasurementChange: number | undefined,
-  sumAverageUpdateInterval: number | undefined,
-  additionalVoltageMultiplier: number | undefined,
-  minCurrentMeasurementChange: number | undefined,
-  additionalCurrentMultiplier: number | undefined,
-  useInstantaneousDemand: boolean | undefined,
-  useTotalActivePower: boolean | undefined,
-  minPowerMeasurementChange: number | undefined,
-  additionalPowerMultiplier: number | undefined
+  {
+    endpointId,
+    noPowerFactorReporting,
+    minMeasurementInterval,
+    maxMeasurementInterval,
+    minVoltageMeasurementChange,
+    sumAverageUpdateInterval,
+    additionalVoltageMultiplier,
+    minCurrentMeasurementChange,
+    additionalCurrentMultiplier,
+    useInstantaneousDemand,
+    useTotalActivePower,
+    minPowerMeasurementChange,
+    additionalPowerMultiplier,
+  }: Partial<ArgumentOverrides>
 ): Promise<void> {
   if (device.hasCapability('measure_voltage.phase_a')) {
     device.log('Initialising measure_voltage.phase_a capability with measure_voltage average if it exists');
@@ -307,12 +281,14 @@ async function initPhaseA(
 async function initPhaseB(
   device: ZigbeeFactorDevice,
   zclNode: ZCLNode,
-  sumAverageUpdateInterval: number | undefined,
-  minMeasurementInterval: number | undefined,
-  maxMeasurementInterval: number | undefined,
-  minVoltageMeasurementChange: number | undefined,
-  minCurrentMeasurementChange: number | undefined,
-  minPowerMeasurementChange: number | undefined
+  {
+    sumAverageUpdateInterval,
+    minMeasurementInterval,
+    maxMeasurementInterval,
+    minVoltageMeasurementChange,
+    minCurrentMeasurementChange,
+    minPowerMeasurementChange,
+  }: Partial<ArgumentOverrides>
 ): Promise<void> {
   device.log('Initialising Phase B measurements');
 
@@ -395,12 +371,14 @@ async function initPhaseB(
 async function initPhaseC(
   device: ZigbeeFactorDevice,
   zclNode: ZCLNode,
-  sumAverageUpdateInterval: number | undefined,
-  minMeasurementInterval: number | undefined,
-  maxMeasurementInterval: number | undefined,
-  minVoltageMeasurementChange: number | undefined,
-  minCurrentMeasurementChange: number | undefined,
-  minPowerMeasurementChange: number | undefined
+  {
+    sumAverageUpdateInterval,
+    minMeasurementInterval,
+    maxMeasurementInterval,
+    minVoltageMeasurementChange,
+    minCurrentMeasurementChange,
+    minPowerMeasurementChange,
+  }: Partial<ArgumentOverrides>
 ): Promise<void> {
   device.log('Initialising Phase C measurements');
 
