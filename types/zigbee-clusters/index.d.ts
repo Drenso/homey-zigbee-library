@@ -202,6 +202,11 @@ declare module 'zigbee-clusters' {
     static bool: boolean;
     static octstr: Buffer;
     static string: Buffer;
+
+    static buffer: Buffer;
+    static data16: number;
+    static Array0<T>(mapArgs: T): keyof T;
+    static enum8Status: string;
   }
 
   type ZCLDataType = ZCLDataTypes[keyof typeof ZCLDataTypes];
