@@ -68,6 +68,16 @@ export const GENERAL_RESPONSE_STATUS_ENUM = {
 
 export type GeneralResponseStatus = keyof typeof GENERAL_RESPONSE_STATUS_ENUM;
 
+export const OPERATING_MODE_ENUM = {
+  normal: 0x00,
+  vacation: 0x01,
+  privacy: 0x02,
+  norRfOperation: 0x03,
+  passage: 0x04,
+} as const;
+
+export type OperatingMode = keyof typeof OPERATING_MODE_ENUM;
+
 export type DoorLockClusterWithFunctions = DoorLockCluster & CommandFunctions<typeof CommandsReceived>;
 
 export type DoorLockClusterAttributes = keyof typeof Attributes;
@@ -112,6 +122,10 @@ const Attributes = {
   soundVolume: {
     id: 0x0024,
     type: ZCLDataTypes.uint8,
+  },
+  operatingMode: {
+    id: 0x0025,
+    type: ZCLDataTypes.enum8(OPERATING_MODE_ENUM),
   },
 } as const;
 
