@@ -147,6 +147,7 @@ export default async function initFactorImplementation(
 
   // Configure the capability
   device.registerCapability(capability, clusterSpec, {
+    endpoint,
     get: properties.value,
     report: properties.value,
     getOpts: {
