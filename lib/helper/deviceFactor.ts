@@ -48,14 +48,17 @@ const factorProperties: Record<keyof ZigbeeFactorDeviceProperties, {
   },
 };
 
+type InvalidFactorValueFunction = (value: number) => boolean;
+
 export function factorReportParserBuilder(
   factor: () => number,
   onReport?: () => void,
   onReportTimeout?: number,
   device?: ZigbeeFactorDevice,
+  invalidValue?: InvalidFactorValueFunction,
 ): (value: number) => (number | null) {
   return function (value: number): number | null {
-    if (value < 0) {
+    if (invalidValue && invalidValue(value)) {
       return null;
     }
 
@@ -87,6 +90,7 @@ export default async function initFactorImplementation(
   onReport?: () => void,
   onReportTimeout = 1,
   additionalMultiplier?: number,
+  invalidFactorValue?: InvalidFactorValueFunction,
 ): Promise<void> {
   // Restore factor from store
   await updateDeviceFactor(device, storeProperty, undefined, undefined, additionalMultiplier)
@@ -97,7 +101,13 @@ export default async function initFactorImplementation(
     .endpoints[endpoint]
     .clusters[clusterSpec.NAME];
 
-  const reportParser = factorReportParserBuilder(() => device[storeProperty] ?? 1, onReport, onReportTimeout, device);
+  const reportParser = factorReportParserBuilder(
+    () => device[storeProperty] ?? 1,
+    onReport,
+    onReportTimeout,
+    device,
+    invalidFactorValue
+  );
 
   const properties = factorProperties[storeProperty];
 

@@ -72,6 +72,7 @@ export default async function initElectricalMeasurementDevice(
       undefined,
       undefined,
       additionalFrequencyMultiplier,
+      value => value < 0,
     )
       .then(() => device.log('Initialised measure_frequency capability'))
       .catch(e => device.error('Failed to initialise measure_frequency capability', e));
@@ -142,6 +143,7 @@ async function initPhaseA(
       updateAverageCapabilityFactory('measure_voltage', device),
       sumAverageUpdateInterval,
       additionalVoltageMultiplier,
+      value => value < 0,
     )
       .then(() => device.log('Initialised measure_voltage.phase_a capability'))
       .catch(e => device.error('Failed to initialise measure_voltage.phase_a capability', e));
@@ -164,6 +166,7 @@ async function initPhaseA(
       undefined,
       undefined,
       additionalVoltageMultiplier,
+      value => value < 0,
     )
       .then(() => device.log('Initialised measure_voltage capability'))
       .catch(e => device.error('Failed to initialise measure_voltage capability', e));
@@ -249,6 +252,7 @@ async function initPhaseA(
       sumAverageUpdateInterval,
       // Fall back to 1000 additional multiplier as the cluster definition for instantaneous demand and total active power define kW as unit of measurement
       additionalPowerMultiplier ?? ((useInstantaneousDemand || useTotalActivePower) ? 1000 : undefined),
+      value => value === 0xFFFF,
     )
       .then(() => device.log('Initialised measure_power.phase_a capability'))
       .catch(e => device.error('Failed to initialise measure_power.phase_a capability', e));
@@ -272,6 +276,7 @@ async function initPhaseA(
       undefined,
       // Fall back to 1000 additional multiplier as the cluster definition for instantaneous demand and total active power define kW as unit of measurement
       additionalPowerMultiplier ?? ((useInstantaneousDemand || useTotalActivePower) ? 1000 : undefined),
+      value => value === 0xFFFF,
     )
       .then(() => device.log('Initialised measure_power capability'))
       .catch(e => device.error('Failed to initialise measure_power capability', e));
@@ -306,6 +311,7 @@ async function initPhaseB(
         updateAverageCapabilityFactory('measure_voltage', device),
         sumAverageUpdateInterval,
         device,
+        value => value < 0,
       ),
       {
         minInterval: minMeasurementInterval,
@@ -356,6 +362,7 @@ async function initPhaseB(
         updateSummationCapabilityFactory('measure_power', device),
         sumAverageUpdateInterval,
         device,
+        value => value === 0xFFFF,
       ),
       {
         minInterval: minMeasurementInterval,
@@ -396,6 +403,7 @@ async function initPhaseC(
         updateAverageCapabilityFactory('measure_voltage', device),
         sumAverageUpdateInterval,
         device,
+        value => value < 0,
       ),
       {
         minInterval: minMeasurementInterval,
@@ -446,6 +454,7 @@ async function initPhaseC(
         updateSummationCapabilityFactory('measure_power', device),
         sumAverageUpdateInterval,
         device,
+        value => value === 0xFFFF,
       ),
       {
         minInterval: minMeasurementInterval,
