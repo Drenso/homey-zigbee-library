@@ -1,13 +1,14 @@
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import initFactorImplementation, {
-  factorReportParserBuilder,
-  ZigbeeFactorDevice,
-  ZigbeeFactorDeviceProperties,
-} from '../lib/helper/deviceFactor';
+import {initReadOnlyCapability} from '../lib/attributeDevice';
 import {
   ExtendedElectricalMeasurementCluster,
 } from '../lib/clusters/ExtendedElectricalMeasurementCluster';
-import {initReadOnlyCapability} from '../lib/attributeDevice';
+import initFactorImplementation, {
+  factorReportParserBuilder,
+  type InvalidFactorValueFunction,
+  ZigbeeFactorDevice,
+  ZigbeeFactorDeviceProperties,
+} from '../lib/helper/deviceFactor';
 
 type ArgumentOverrides = {
   endpointId?: number,
@@ -25,7 +26,13 @@ type ArgumentOverrides = {
   additionalCurrentMultiplier?: number,
   additionalPowerMultiplier?: number,
   additionalFrequencyMultiplier?: number,
+  invalidCurrentValueFunction?: InvalidFactorValueFunction,
+  invalidPowerValueFunction?: InvalidFactorValueFunction,
 }
+
+const defaultInvalidVoltageValueFunction: InvalidFactorValueFunction = value => value < 0;
+const defaultInvalidCurrentValueFunction = undefined;
+const defaultInvalidPowerValueFunction: InvalidFactorValueFunction = value => value == 0xFFFF;
 
 export default async function initElectricalMeasurementDevice(
   device: ZigbeeFactorDevice,
@@ -122,6 +129,8 @@ async function initPhaseA(
     useTotalActivePower,
     minPowerMeasurementChange,
     additionalPowerMultiplier,
+    invalidCurrentValueFunction,
+    invalidPowerValueFunction,
   }: Partial<ArgumentOverrides>
 ): Promise<void> {
   if (device.hasCapability('measure_voltage.phase_a')) {
@@ -143,7 +152,7 @@ async function initPhaseA(
       updateAverageCapabilityFactory('measure_voltage', device),
       sumAverageUpdateInterval,
       additionalVoltageMultiplier,
-      value => value < 0,
+      defaultInvalidVoltageValueFunction,
     )
       .then(() => device.log('Initialised measure_voltage.phase_a capability'))
       .catch(e => device.error('Failed to initialise measure_voltage.phase_a capability', e));
@@ -166,7 +175,7 @@ async function initPhaseA(
       undefined,
       undefined,
       additionalVoltageMultiplier,
-      value => value < 0,
+      defaultInvalidVoltageValueFunction,
     )
       .then(() => device.log('Initialised measure_voltage capability'))
       .catch(e => device.error('Failed to initialise measure_voltage capability', e));
@@ -191,6 +200,7 @@ async function initPhaseA(
       updateSummationCapabilityFactory('measure_current', device),
       sumAverageUpdateInterval,
       additionalCurrentMultiplier,
+      invalidCurrentValueFunction ?? defaultInvalidCurrentValueFunction,
     )
       .then(() => device.log('Initialised measure_current.phase_a capability'))
       .catch(e => device.error('Failed to initialise measure_current.phase_a capability', e));
@@ -213,6 +223,7 @@ async function initPhaseA(
       undefined,
       undefined,
       additionalCurrentMultiplier,
+      invalidCurrentValueFunction ?? defaultInvalidCurrentValueFunction,
     )
       .then(() => device.log('Initialised measure_current capability'))
       .catch(e => device.error('Failed to initialise measure_current capability', e));
@@ -252,7 +263,7 @@ async function initPhaseA(
       sumAverageUpdateInterval,
       // Fall back to 1000 additional multiplier as the cluster definition for instantaneous demand and total active power define kW as unit of measurement
       additionalPowerMultiplier ?? ((useInstantaneousDemand || useTotalActivePower) ? 1000 : undefined),
-      value => value == 0xFFFF,
+      invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
     )
       .then(() => device.log('Initialised measure_power.phase_a capability'))
       .catch(e => device.error('Failed to initialise measure_power.phase_a capability', e));
@@ -276,7 +287,7 @@ async function initPhaseA(
       undefined,
       // Fall back to 1000 additional multiplier as the cluster definition for instantaneous demand and total active power define kW as unit of measurement
       additionalPowerMultiplier ?? ((useInstantaneousDemand || useTotalActivePower) ? 1000 : undefined),
-      value => value == 0xFFFF,
+      invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
     )
       .then(() => device.log('Initialised measure_power capability'))
       .catch(e => device.error('Failed to initialise measure_power capability', e));
@@ -293,6 +304,8 @@ async function initPhaseB(
     minVoltageMeasurementChange,
     minCurrentMeasurementChange,
     minPowerMeasurementChange,
+    invalidCurrentValueFunction,
+    invalidPowerValueFunction,
   }: Partial<ArgumentOverrides>
 ): Promise<void> {
   device.log('Initialising Phase B measurements');
@@ -311,7 +324,7 @@ async function initPhaseB(
         updateAverageCapabilityFactory('measure_voltage', device),
         sumAverageUpdateInterval,
         device,
-        value => value < 0,
+        defaultInvalidVoltageValueFunction,
       ),
       {
         minInterval: minMeasurementInterval,
@@ -337,6 +350,7 @@ async function initPhaseB(
         updateSummationCapabilityFactory('measure_current', device),
         sumAverageUpdateInterval,
         device,
+        invalidCurrentValueFunction ?? defaultInvalidCurrentValueFunction,
       ),
       {
         minInterval: minMeasurementInterval,
@@ -362,7 +376,7 @@ async function initPhaseB(
         updateSummationCapabilityFactory('measure_power', device),
         sumAverageUpdateInterval,
         device,
-        value => value == 0xFFFF,
+        invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
       ),
       {
         minInterval: minMeasurementInterval,
@@ -385,6 +399,8 @@ async function initPhaseC(
     minVoltageMeasurementChange,
     minCurrentMeasurementChange,
     minPowerMeasurementChange,
+    invalidCurrentValueFunction,
+    invalidPowerValueFunction,
   }: Partial<ArgumentOverrides>
 ): Promise<void> {
   device.log('Initialising Phase C measurements');
@@ -403,7 +419,7 @@ async function initPhaseC(
         updateAverageCapabilityFactory('measure_voltage', device),
         sumAverageUpdateInterval,
         device,
-        value => value < 0,
+        defaultInvalidVoltageValueFunction,
       ),
       {
         minInterval: minMeasurementInterval,
@@ -429,6 +445,7 @@ async function initPhaseC(
         updateSummationCapabilityFactory('measure_current', device),
         sumAverageUpdateInterval,
         device,
+        invalidCurrentValueFunction ?? defaultInvalidCurrentValueFunction,
       ),
       {
         minInterval: minMeasurementInterval,
@@ -454,7 +471,7 @@ async function initPhaseC(
         updateSummationCapabilityFactory('measure_power', device),
         sumAverageUpdateInterval,
         device,
-        value => value == 0xFFFF,
+        invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
       ),
       {
         minInterval: minMeasurementInterval,

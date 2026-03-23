@@ -48,7 +48,7 @@ const factorProperties: Record<keyof ZigbeeFactorDeviceProperties, {
   },
 };
 
-type InvalidFactorValueFunction = (value: number) => boolean;
+export type InvalidFactorValueFunction = (value: number) => boolean;
 
 export function factorReportParserBuilder(
   factor: () => number,
