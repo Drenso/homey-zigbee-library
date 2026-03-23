@@ -147,11 +147,11 @@ export default async function initFactorImplementation(
 
   // Register listener for incoming report
   cluster.on('attr.' + properties.multiplier, (value) => {
-    console.log(properties.multiplier + ' attribute report received', value);
+    device.log(properties.multiplier + ' attribute report received', value);
     updateDeviceFactor(device, storeProperty, value);
   });
   cluster.on('attr.' + properties.divisor, (value) => {
-    console.log(properties.divisor + ' attribute report received', value);
+    device.log(properties.divisor + ' attribute report received', value);
     updateDeviceFactor(device, storeProperty, undefined, value);
   });
 
