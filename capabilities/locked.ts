@@ -1,7 +1,9 @@
 import { ZigBeeDevice } from 'homey-zigbeedriver';
-import { CLUSTER, ZCLNode } from 'zigbee-clusters';
-import {LockState} from "../lib/clusters/DoorLockCluster";
+import {CLUSTER, ZCLNode} from 'zigbee-clusters';
 import {DefaultConfiguration, initReadCommandCapability} from '../lib/attributeDevice';
+import {DoorLockClusterAttributes} from 'zigbee-clusters/index';
+
+type LockState = DoorLockClusterAttributes['lockState']
 
 type ArgumentOverrides = DefaultConfiguration & {
   reportParser: (value: LockState) => unknown,
