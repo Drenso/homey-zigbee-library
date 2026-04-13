@@ -1,14 +1,11 @@
-import {ZigBeeDevice} from 'homey-zigbeedriver';
-import zbClusters, {type ZCLNode} from 'zigbee-clusters';
-import {
-  DefaultConfiguration,
-  initReadCommandCapability,
-  ReportingConfiguration,
-} from '../lib/attributeDevice.mjs';
+import { ZigBeeDevice } from 'homey-zigbeedriver';
+import zbClusters, { type ZCLNode } from 'zigbee-clusters';
+import { DefaultConfiguration, initReadCommandCapability, ReportingConfiguration } from '../lib/attributeDevice.mjs';
 
-type ArgumentOverrides = DefaultConfiguration & ReportingConfiguration & {
-  pollInterval?: number,
-}
+type ArgumentOverrides = DefaultConfiguration &
+  ReportingConfiguration & {
+    pollInterval?: number;
+  };
 
 export default async function initOnOffDevice(
   device: ZigBeeDevice,
@@ -22,7 +19,7 @@ export default async function initOnOffDevice(
     pollInterval,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
-  const command = (value: boolean): string => value ? 'setOn' : 'setOff';
+  const command = (value: boolean): string => (value ? 'setOn' : 'setOff');
   // Return empty object, the command specifies the action for this cluster ('setOn'/setOff')
   const commandArgParser = (): Record<string, never> => ({});
 
@@ -37,7 +34,7 @@ export default async function initOnOffDevice(
     commandArgParser,
     'onOff',
     reportParser,
-    {minInterval, maxInterval, minChange},
+    { minInterval, maxInterval, minChange },
     endpointId,
     pollInterval,
   );

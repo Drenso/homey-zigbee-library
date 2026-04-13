@@ -1,8 +1,6 @@
-import zbClusters, {type ZCLNode} from 'zigbee-clusters';
-import {initReadOnlyCapability} from '../lib/attributeDevice.mjs';
-import {
-  ExtendedElectricalMeasurementCluster,
-} from '../lib/clusters/ExtendedElectricalMeasurementCluster.mjs';
+import zbClusters, { type ZCLNode } from 'zigbee-clusters';
+import { initReadOnlyCapability } from '../lib/attributeDevice.mjs';
+import { ExtendedElectricalMeasurementCluster } from '../lib/clusters/ExtendedElectricalMeasurementCluster.mjs';
 import initFactorImplementation, {
   factorReportParserBuilder,
   type InvalidFactorValueFunction,
@@ -11,28 +9,28 @@ import initFactorImplementation, {
 } from '../lib/helper/deviceFactor.mjs';
 
 type ArgumentOverrides = {
-  endpointId?: number,
-  useInstantaneousDemand?: boolean,
-  useTotalActivePower?: boolean,
-  noPowerFactorReporting?: boolean,
-  minVoltageMeasurementChange?: number,
-  minCurrentMeasurementChange?: number,
-  minPowerMeasurementChange?: number,
-  minFrequencyMeasurementChange?: number,
-  minMeasurementInterval?: number,
-  maxMeasurementInterval?: number,
-  sumAverageUpdateInterval?: number,
-  additionalVoltageMultiplier?: number,
-  additionalCurrentMultiplier?: number,
-  additionalPowerMultiplier?: number,
-  additionalFrequencyMultiplier?: number,
-  invalidCurrentValueFunction?: InvalidFactorValueFunction,
-  invalidPowerValueFunction?: InvalidFactorValueFunction,
-}
+  endpointId?: number;
+  useInstantaneousDemand?: boolean;
+  useTotalActivePower?: boolean;
+  noPowerFactorReporting?: boolean;
+  minVoltageMeasurementChange?: number;
+  minCurrentMeasurementChange?: number;
+  minPowerMeasurementChange?: number;
+  minFrequencyMeasurementChange?: number;
+  minMeasurementInterval?: number;
+  maxMeasurementInterval?: number;
+  sumAverageUpdateInterval?: number;
+  additionalVoltageMultiplier?: number;
+  additionalCurrentMultiplier?: number;
+  additionalPowerMultiplier?: number;
+  additionalFrequencyMultiplier?: number;
+  invalidCurrentValueFunction?: InvalidFactorValueFunction;
+  invalidPowerValueFunction?: InvalidFactorValueFunction;
+};
 
 const defaultInvalidVoltageValueFunction: InvalidFactorValueFunction = value => value < 0;
 const defaultInvalidCurrentValueFunction = undefined;
-const defaultInvalidPowerValueFunction: InvalidFactorValueFunction = value => value == 0xFFFF;
+const defaultInvalidPowerValueFunction: InvalidFactorValueFunction = value => value == 0xffff;
 
 export default async function initElectricalMeasurementDevice(
   device: ZigbeeFactorDevice,
@@ -49,18 +47,25 @@ export default async function initElectricalMeasurementDevice(
   } = argumentOverrides;
 
   device.log('Determining measurement type');
-  const measurementType = await zclNode
-    .endpoints[endpointId ?? device.getClusterEndpoint(ExtendedElectricalMeasurementCluster) ?? 1]
-    ?.clusters[ExtendedElectricalMeasurementCluster.NAME]
+  const measurementType = await zclNode.endpoints[
+    endpointId ?? device.getClusterEndpoint(ExtendedElectricalMeasurementCluster) ?? 1
+  ]?.clusters[ExtendedElectricalMeasurementCluster.NAME]
     ?.readAttributes(['measurementType'])
-    ?.catch(e => device.error('Failed to read', 'measurementType', 'from', ExtendedElectricalMeasurementCluster.NAME, e));
+    ?.catch(e =>
+      device.error('Failed to read', 'measurementType', 'from', ExtendedElectricalMeasurementCluster.NAME, e),
+    );
 
   device.log('Measurement type is', measurementType ?? 'not provided by device');
   // todo: remove ignore
   // @ts-expect-error getBits definition isn't correct
   const measurementFlags = measurementType?.measurementType?.getBits();
   // Configure phase A if there are no measurement types, if it is explicitly reported or if no phase is reported at all
-  const hasPhaseA = !measurementFlags || measurementFlags.includes('phaseAMeasurement') || (!measurementFlags.includes('phaseAMeasurement') && !measurementFlags.includes('phaseBMeasurement') && !measurementFlags.includes('phaseCMeasurement'));
+  const hasPhaseA =
+    !measurementFlags ||
+    measurementFlags.includes('phaseAMeasurement') ||
+    (!measurementFlags.includes('phaseAMeasurement') &&
+      !measurementFlags.includes('phaseBMeasurement') &&
+      !measurementFlags.includes('phaseCMeasurement'));
 
   if (device.hasCapability('measure_frequency')) {
     device.log('Initialising measure_frequency capability');
@@ -88,27 +93,15 @@ export default async function initElectricalMeasurementDevice(
   }
 
   if (hasPhaseA) {
-    await initPhaseA(
-      device,
-      zclNode,
-      argumentOverrides,
-    );
+    await initPhaseA(device, zclNode, argumentOverrides);
   }
 
   if (measurementFlags && measurementFlags.includes('phaseBMeasurement')) {
-    await initPhaseB(
-      device,
-      zclNode,
-      argumentOverrides
-    );
+    await initPhaseB(device, zclNode, argumentOverrides);
   }
 
   if (measurementFlags && measurementFlags.includes('phaseCMeasurement')) {
-    await initPhaseC(
-      device,
-      zclNode,
-      argumentOverrides
-    );
+    await initPhaseC(device, zclNode, argumentOverrides);
   }
 
   device.log('Electrical measurement device initialized!');
@@ -133,7 +126,7 @@ async function initPhaseA(
     additionalPowerMultiplier,
     invalidCurrentValueFunction,
     invalidPowerValueFunction,
-  }: Partial<ArgumentOverrides>
+  }: Partial<ArgumentOverrides>,
 ): Promise<void> {
   if (device.hasCapability('measure_voltage.phase_a')) {
     device.log('Initialising measure_voltage.phase_a capability with measure_voltage average if it exists');
@@ -264,7 +257,7 @@ async function initPhaseA(
       updateSummationCapabilityFactory('measure_power', device),
       sumAverageUpdateInterval,
       // Fall back to 1000 additional multiplier as the cluster definition for instantaneous demand and total active power define kW as unit of measurement
-      additionalPowerMultiplier ?? ((useInstantaneousDemand || useTotalActivePower) ? 1000 : undefined),
+      additionalPowerMultiplier ?? (useInstantaneousDemand || useTotalActivePower ? 1000 : undefined),
       invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
     )
       .then(() => device.log('Initialised measure_power.phase_a capability'))
@@ -288,7 +281,7 @@ async function initPhaseA(
       undefined,
       undefined,
       // Fall back to 1000 additional multiplier as the cluster definition for instantaneous demand and total active power define kW as unit of measurement
-      additionalPowerMultiplier ?? ((useInstantaneousDemand || useTotalActivePower) ? 1000 : undefined),
+      additionalPowerMultiplier ?? (useInstantaneousDemand || useTotalActivePower ? 1000 : undefined),
       invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
     )
       .then(() => device.log('Initialised measure_power capability'))
@@ -308,7 +301,7 @@ async function initPhaseB(
     minPowerMeasurementChange,
     invalidCurrentValueFunction,
     invalidPowerValueFunction,
-  }: Partial<ArgumentOverrides>
+  }: Partial<ArgumentOverrides>,
 ): Promise<void> {
   device.log('Initialising Phase B measurements');
 
@@ -403,7 +396,7 @@ async function initPhaseC(
     minPowerMeasurementChange,
     invalidCurrentValueFunction,
     invalidPowerValueFunction,
-  }: Partial<ArgumentOverrides>
+  }: Partial<ArgumentOverrides>,
 ): Promise<void> {
   device.log('Initialising Phase C measurements');
 
@@ -486,23 +479,24 @@ async function initPhaseC(
   }
 }
 
-
 function updateAverageCapabilityFactory(averageCapability: string, device: ZigbeeFactorDevice): () => void {
   return (): void => {
     if (!device.hasCapability(averageCapability)) {
       return;
     }
-    const capabilities = [averageCapability + '.phase_a', averageCapability + '.phase_b', averageCapability + '.phase_c'];
+    const capabilities = [
+      averageCapability + '.phase_a',
+      averageCapability + '.phase_b',
+      averageCapability + '.phase_c',
+    ];
     const values = [];
     for (const capability of capabilities) {
       values.push(device.hasCapability(capability) ? device.getCapabilityValue(capability) : 0);
     }
     const count = values.filter(n => n > 0).length;
-    device.setCapabilityValue(averageCapability,
-      count !== 0
-        ? values.reduce((value, sum) => value + sum, 0) / count
-        : 0,
-    ).catch(device.error);
+    device
+      .setCapabilityValue(averageCapability, count !== 0 ? values.reduce((value, sum) => value + sum, 0) / count : 0)
+      .catch(device.error);
   };
 }
 
@@ -511,11 +505,20 @@ function updateSummationCapabilityFactory(summationCapability: string, device: Z
     if (!device.hasCapability(summationCapability)) {
       return;
     }
-    const capabilities = [summationCapability + '.phase_a', summationCapability + '.phase_b', summationCapability + '.phase_c'];
+    const capabilities = [
+      summationCapability + '.phase_a',
+      summationCapability + '.phase_b',
+      summationCapability + '.phase_c',
+    ];
     const values = [];
     for (const capability of capabilities) {
       values.push(device.hasCapability(capability) ? device.getCapabilityValue(capability) : 0);
     }
-    device.setCapabilityValue(summationCapability, values.reduce((value, sum) => value + sum, 0)).catch(device.error);
+    device
+      .setCapabilityValue(
+        summationCapability,
+        values.reduce((value, sum) => value + sum, 0),
+      )
+      .catch(device.error);
   };
 }

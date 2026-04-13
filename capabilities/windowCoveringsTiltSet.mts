@@ -1,10 +1,6 @@
-import {CLUSTER, ZCLNode} from "zigbee-clusters";
-import {readInitialValue} from "../lib/attributeDevice.mjs";
-import {
-  ArgumentOverrides,
-  parsePercentageValue,
-  ZigbeeWindowCoveringsDevice,
-} from "./windowCoverings.mjs";
+import { CLUSTER, ZCLNode } from 'zigbee-clusters';
+import { readInitialValue } from '../lib/attributeDevice.mjs';
+import { ArgumentOverrides, parsePercentageValue, ZigbeeWindowCoveringsDevice } from './windowCoverings.mjs';
 
 const CLUSTER_SPEC = CLUSTER.WINDOW_COVERING;
 
@@ -14,11 +10,7 @@ const TILT_PERCENTAGE_CAPABILITY = 'windowcoverings_tilt_set';
 export async function initTiltPercentageCapability(
   device: ZigbeeWindowCoveringsDevice,
   zclNode: ZCLNode,
-  {
-    endpointId,
-    invertPercentage = false,
-    invertSetting,
-  }: Partial<ArgumentOverrides> = {},
+  { endpointId, invertPercentage = false, invertSetting }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   if (!device.hasCapability(TILT_PERCENTAGE_CAPABILITY)) {
     return;
@@ -35,9 +27,9 @@ export async function initTiltPercentageCapability(
     if (invertPercentage) {
       value = 1 - value;
     }
-    return ({
+    return {
       percentageTiltValue: value * 100,
-    });
+    };
   };
 
   const reportParser = (value: number): number | null => {
@@ -56,7 +48,15 @@ export async function initTiltPercentageCapability(
     return parsedValue;
   };
 
-  await readInitialValue(device, zclNode, TILT_PERCENTAGE_CAPABILITY, CLUSTER_SPEC, TILT_PERCENTAGE_ATTRIBUTE, reportParser, endpoint);
+  await readInitialValue(
+    device,
+    zclNode,
+    TILT_PERCENTAGE_CAPABILITY,
+    CLUSTER_SPEC,
+    TILT_PERCENTAGE_ATTRIBUTE,
+    reportParser,
+    endpoint,
+  );
 
   device.registerCapability(TILT_PERCENTAGE_CAPABILITY, CLUSTER_SPEC, {
     endpoint,

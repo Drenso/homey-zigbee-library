@@ -11,6 +11,9 @@ export default function mapValueRange(
   if (typeof newRangeEnd !== 'number') throw new TypeError('expected_new_range_end_number');
   if (typeof value !== 'number') throw new TypeError('expected_value_number');
 
-  return newRangeStart + ((newRangeEnd - newRangeStart) / (originalRangeEnd - originalRangeStart))
-    * (Math.min(Math.max(originalRangeStart, value), originalRangeEnd) - originalRangeStart);
+  return (
+    newRangeStart +
+    ((newRangeEnd - newRangeStart) / (originalRangeEnd - originalRangeStart)) *
+      (Math.min(Math.max(originalRangeStart, value), originalRangeEnd) - originalRangeStart)
+  );
 }

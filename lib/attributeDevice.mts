@@ -1,30 +1,30 @@
-import {ClusterSpecification, ZigBeeDevice} from 'homey-zigbeedriver';
-import {ZCLNode} from 'zigbee-clusters';
+import { ClusterSpecification, ZigBeeDevice } from 'homey-zigbeedriver';
+import { ZCLNode } from 'zigbee-clusters';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SetName = string | ((value: any) => string);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SetParser = (setValue: any, opts?: any) => any | null | Promise<any | null>;
-const defaultSetParser: SetParser = (x) => x;
+const defaultSetParser: SetParser = x => x;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ReportParser = (reportValue: any) => null | any | Promise<any>;
-const defaultReportParser: ReportParser = (x) => x;
+const defaultReportParser: ReportParser = x => x;
 
 export interface DefaultConfiguration {
-  capabilityId: string,
-  endpointId?: number,
+  capabilityId: string;
+  endpointId?: number;
 }
 
 export interface ReportingConfiguration {
-  minChange?: number,
-  minInterval?: number,
-  maxInterval?: number,
+  minChange?: number;
+  minInterval?: number;
+  maxInterval?: number;
 }
 
 export interface AttributeConfiguration extends DefaultConfiguration, ReportingConfiguration {
-  cluster: ClusterSpecification,
-  attributeName: string,
+  cluster: ClusterSpecification;
+  attributeName: string;
 }
 
 export async function readInitialValue(
@@ -38,9 +38,7 @@ export async function readInitialValue(
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
 
-  const clusterInstance = zclNode
-    .endpoints[endpoint]
-    .clusters[cluster.NAME];
+  const clusterInstance = zclNode.endpoints[endpoint].clusters[cluster.NAME];
   if (!clusterInstance) {
     throw new Error(`Cluster ${cluster.NAME} not found on endpoint ${endpoint}`);
   }
@@ -63,11 +61,7 @@ export async function initReadWriteCapability(
   attributeName: string,
   reportParser: ReportParser = defaultReportParser,
   setParser: SetParser = defaultSetParser,
-  {
-    minInterval = 0,
-    maxInterval = 3600,
-    minChange = 1,
-  }: ReportingConfiguration = {},
+  { minInterval = 0, maxInterval = 3600, minChange = 1 }: ReportingConfiguration = {},
   endpointId?: number,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
@@ -93,7 +87,7 @@ export async function initReadWriteCapability(
     reportParser,
     set: 'writeAttributes',
     setParser: value => {
-      return {[attributeName]: setParser(value)};
+      return { [attributeName]: setParser(value) };
     },
   });
 
@@ -108,12 +102,8 @@ export async function initReadCommandCapability(
   commandName: SetName,
   commandArgParser: SetParser = defaultSetParser,
   attributeName: string,
-  reportParser: ReportParser  = defaultReportParser,
-  {
-    minInterval = 0,
-    maxInterval = 3600,
-    minChange = 1,
-  }: ReportingConfiguration = {},
+  reportParser: ReportParser = defaultReportParser,
+  { minInterval = 0, maxInterval = 3600, minChange = 1 }: ReportingConfiguration = {},
   endpointId?: number,
   pollInterval?: number,
 ): Promise<void> {
@@ -153,11 +143,7 @@ export async function initReadOnlyCapability(
   cluster: ClusterSpecification,
   attributeName: string,
   reportParser: ReportParser = defaultReportParser,
-  {
-    minInterval = 0,
-    maxInterval = 3600,
-    minChange = 1,
-  }: ReportingConfiguration = {},
+  { minInterval = 0, maxInterval = 3600, minChange = 1 }: ReportingConfiguration = {},
   endpointId?: number,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;

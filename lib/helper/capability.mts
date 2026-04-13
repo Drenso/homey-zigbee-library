@@ -1,8 +1,8 @@
-import {Device} from 'homey';
+import { Device } from 'homey';
 
 export async function addCapabilityIfNotExists(device: Device, capabilityId: string): Promise<void> {
   if (device.hasCapability(capabilityId)) {
-    return;  
+    return;
   }
 
   await device.addCapability(capabilityId);

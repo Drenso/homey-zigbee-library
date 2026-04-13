@@ -1,11 +1,11 @@
-import {BoundCluster} from 'zigbee-clusters';
+import { BoundCluster } from 'zigbee-clusters';
 
 type OnOffType = () => void;
 
 export default class OnOffBoundCluster extends BoundCluster {
-  private readonly _onSetOn ?: OnOffType;
-  private readonly _onSetOff ?: OnOffType;
-  private readonly _onToggle ?: OnOffType;
+  private readonly _onSetOn?: OnOffType;
+  private readonly _onSetOff?: OnOffType;
+  private readonly _onToggle?: OnOffType;
 
   constructor(onSetOn?: OnOffType, onSetOff?: OnOffType, onToggle?: OnOffType) {
     super();

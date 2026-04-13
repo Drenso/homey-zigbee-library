@@ -4,8 +4,8 @@ import {
   STATE_COMMAND_MAP,
   StateCommand,
   ZigbeeWindowCoveringsDevice,
-} from "./windowCoverings.mjs";
-import {CLUSTER} from "zigbee-clusters";
+} from './windowCoverings.mjs';
+import { CLUSTER } from 'zigbee-clusters';
 
 const CLUSTER_SPEC = CLUSTER.WINDOW_COVERING;
 
@@ -13,10 +13,7 @@ const LIFT_STATE_CAPABILITY = 'windowcoverings_state';
 
 export async function initLiftStateCapability(
   device: ZigbeeWindowCoveringsDevice,
-  {
-    endpointId,
-    invertSetting,
-  }: Partial<ArgumentOverrides> = {},
+  { endpointId, invertSetting }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   if (!device.hasCapability(LIFT_STATE_CAPABILITY)) {
     return;
@@ -26,7 +23,7 @@ export async function initLiftStateCapability(
 
   const endpoint = endpointId ?? device.getClusterEndpoint(CLUSTER_SPEC) ?? 1;
 
-  const set = (value: StateCommand): typeof STATE_COMMAND_MAP[StateCommand] => {
+  const set = (value: StateCommand): (typeof STATE_COMMAND_MAP)[StateCommand] => {
     if (invertSetting !== undefined && device.getSetting(invertSetting)) {
       value = invertStateCommand(value);
     }

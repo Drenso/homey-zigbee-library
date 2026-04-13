@@ -1,9 +1,9 @@
-import {ZigBeeDevice} from 'homey-zigbeedriver';
-import {Cluster, ZCLNode} from 'zigbee-clusters';
+import { ZigBeeDevice } from 'homey-zigbeedriver';
+import { Cluster, ZCLNode } from 'zigbee-clusters';
 import mapValueRange from '../lib/helper/valueRange.mjs';
-import {initLiftPercentageCapability} from "./windowCoveringsSet.mjs";
-import {initTiltPercentageCapability} from "./windowCoveringsTiltSet.mjs";
-import {initLiftStateCapability} from "./windowCoveringsState.mjs";
+import { initLiftPercentageCapability } from './windowCoveringsSet.mjs';
+import { initTiltPercentageCapability } from './windowCoveringsTiltSet.mjs';
+import { initLiftStateCapability } from './windowCoveringsState.mjs';
 
 export default async function initWindowCoveringsDevice(
   device: ZigbeeWindowCoveringsDevice,
@@ -30,9 +30,12 @@ export type StateCommand = keyof typeof STATE_COMMAND_MAP;
 
 export function invertStateCommand(command: StateCommand): StateCommand {
   switch (command) {
-    case "up": return "down";
-    case "down": return "up";
-    default: return command;
+    case 'up':
+      return 'down';
+    case 'down':
+      return 'up';
+    default:
+      return command;
   }
 }
 
@@ -41,8 +44,7 @@ export interface WindowCoveringsProperties {
   positionUpdateDebounceActive?: boolean;
 }
 
-export interface ZigbeeWindowCoveringsDevice extends ZigBeeDevice, WindowCoveringsProperties {
-}
+export interface ZigbeeWindowCoveringsDevice extends ZigBeeDevice, WindowCoveringsProperties {}
 
 export type WindowCoveringsCluster = Cluster & {
   upOpen: () => Promise<void>;
@@ -51,8 +53,8 @@ export type WindowCoveringsCluster = Cluster & {
 };
 
 export type ArgumentOverrides = {
-  endpointId?: number,
-  invertPercentage?: boolean,
-  invertSetting?: string,
-  positionUpdatesAfterSetDebounceTime?: number,
-}
+  endpointId?: number;
+  invertPercentage?: boolean;
+  invertSetting?: string;
+  positionUpdatesAfterSetDebounceTime?: number;
+};

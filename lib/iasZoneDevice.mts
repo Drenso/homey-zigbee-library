@@ -1,8 +1,10 @@
-import {ZigBeeDevice} from 'homey-zigbeedriver';
+import { ZigBeeDevice } from 'homey-zigbeedriver';
 import {
   IASZoneCluster,
   ZCLNode,
-  ZoneEnrollRequestParams, ZoneStatus, ZoneStatusChangedPayload,
+  ZoneEnrollRequestParams,
+  ZoneStatus,
+  ZoneStatusChangedPayload,
 } from 'zigbee-clusters';
 
 export default async function initIasZoneDevice(
@@ -13,7 +15,6 @@ export default async function initIasZoneDevice(
   endpointId?: number,
   autoEnrollResponse?: boolean,
 ): Promise<void> {
-
   if (statusParsers.length !== capabilityIds.length) {
     throw new Error('Amount of capabilities and flag names should match!');
   }
@@ -22,16 +23,18 @@ export default async function initIasZoneDevice(
 
   device.log(`Initialising IasZone on endpoint ${endpoint}`);
 
-  const cluster = zclNode.endpoints[endpoint]
-    .clusters[IASZoneCluster.NAME] as unknown as IASZoneCluster;
+  const cluster = zclNode.endpoints[endpoint].clusters[IASZoneCluster.NAME] as unknown as IASZoneCluster;
 
   const zoneId = Math.floor(Math.random() * 255);
   const sendZoneEnrollResponse = (): void => {
     cluster
-      .zoneEnrollResponse({
-        enrollResponseCode: 'success',
-        zoneId: zoneId,
-      }, {waitForResponse: false})
+      .zoneEnrollResponse(
+        {
+          enrollResponseCode: 'success',
+          zoneId: zoneId,
+        },
+        { waitForResponse: false },
+      )
       .catch(e => device.error('Failed to write response', e));
   };
 
@@ -65,8 +68,9 @@ export default async function initIasZoneDevice(
         await device.setCapabilityValue(capabilityId, await statusParser(payload));
       }
     }
-
   };
 
-  device.log(`Initialised IasZone on endpoint ${endpoint}, ${autoEnrollResponse ? 'zone enroll response already sent' : 'waiting for zone enroll request'}`);
+  device.log(
+    `Initialised IasZone on endpoint ${endpoint}, ${autoEnrollResponse ? 'zone enroll response already sent' : 'waiting for zone enroll request'}`,
+  );
 }

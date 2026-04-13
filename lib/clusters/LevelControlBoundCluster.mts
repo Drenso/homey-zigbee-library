@@ -1,4 +1,4 @@
-import {BoundCluster} from 'zigbee-clusters';
+import { BoundCluster } from 'zigbee-clusters';
 
 type MoveType = (direction: 'up' | 'down') => void;
 type StopType = () => void;

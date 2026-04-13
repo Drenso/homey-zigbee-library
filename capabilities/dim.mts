@@ -1,15 +1,12 @@
-import {ZigBeeDevice} from 'homey-zigbeedriver';
-import zbClusters, {type ZCLNode} from 'zigbee-clusters';
-import {
-  DefaultConfiguration,
-  initReadCommandCapability,
-  ReportingConfiguration,
-} from '../lib/attributeDevice.mjs';
+import { ZigBeeDevice } from 'homey-zigbeedriver';
+import zbClusters, { type ZCLNode } from 'zigbee-clusters';
+import { DefaultConfiguration, initReadCommandCapability, ReportingConfiguration } from '../lib/attributeDevice.mjs';
 
-type ArgumentOverrides = DefaultConfiguration & ReportingConfiguration & {
-  onOffCapabilityId: string | false,
-  maxDimValue: number,
-}
+type ArgumentOverrides = DefaultConfiguration &
+  ReportingConfiguration & {
+    onOffCapabilityId: string | false;
+    maxDimValue: number;
+  };
 
 export default async function initDimDevice(
   device: ZigBeeDevice,
@@ -17,7 +14,7 @@ export default async function initDimDevice(
   {
     capabilityId = 'dim',
     onOffCapabilityId = 'onoff',
-    maxDimValue = 0xFE,
+    maxDimValue = 0xfe,
     minInterval,
     maxInterval,
     minChange,
@@ -30,9 +27,12 @@ export default async function initDimDevice(
     capabilityId,
     zbClusters.CLUSTER.LEVEL_CONTROL,
     'moveToLevelWithOnOff',
-    async (value: number, opts: { duration?: number }): Promise<{
-      transitionTime: number,
-      level: number
+    async (
+      value: number,
+      opts: { duration?: number },
+    ): Promise<{
+      transitionTime: number;
+      level: number;
     }> => {
       return {
         level: Math.round(value * maxDimValue),
@@ -54,7 +54,7 @@ export default async function initDimDevice(
 
       return value / maxDimValue;
     },
-    {minInterval, maxInterval, minChange},
+    { minInterval, maxInterval, minChange },
     endpointId,
   );
 }
@@ -62,7 +62,7 @@ export default async function initDimDevice(
 function calculateDimDuration(durationSetting: number | undefined): number {
   if (durationSetting === undefined) {
     // Use the default transition time of the device
-    return 0xFFFF;
+    return 0xffff;
   }
 
   // Convert from milliseconds to tenth of second, then cap the range between 0 and 65534

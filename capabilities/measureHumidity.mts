@@ -1,6 +1,6 @@
-import {ZigBeeDevice} from 'homey-zigbeedriver';
-import zbClusters, {type ZCLNode} from 'zigbee-clusters';
-import {initReadOnlyCapability, AttributeConfiguration} from '../lib/attributeDevice.mjs';
+import { ZigBeeDevice } from 'homey-zigbeedriver';
+import zbClusters, { type ZCLNode } from 'zigbee-clusters';
+import { initReadOnlyCapability, AttributeConfiguration } from '../lib/attributeDevice.mjs';
 
 type ArgumentOverrides = AttributeConfiguration;
 
@@ -26,7 +26,7 @@ export default async function initMeasureHumidityDevice(
     (value: number) => {
       // Value comes from uint16
       // Check for invalid values
-      if (value == 0xFFFF) return null;
+      if (value == 0xffff) return null;
       if (value < 0x0000 || value > 0x2710) {
         device.error('Humidity value outside valid range');
         return null;
@@ -36,7 +36,7 @@ export default async function initMeasureHumidityDevice(
       // MeasuredValue = 100 x Relative humidity
       return Math.round((value / 100) * 10) / 10;
     },
-    {minInterval, maxInterval, minChange},
+    { minInterval, maxInterval, minChange },
     endpointId,
   );
 }

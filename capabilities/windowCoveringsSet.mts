@@ -1,12 +1,13 @@
-import {CLUSTER, ZCLNode} from "zigbee-clusters";
-import {readInitialValue} from "../lib/attributeDevice.mjs";
-import mapValueRange from "../lib/helper/valueRange.mjs";
+import { CLUSTER, ZCLNode } from 'zigbee-clusters';
+import { readInitialValue } from '../lib/attributeDevice.mjs';
+import mapValueRange from '../lib/helper/valueRange.mjs';
 import {
   ArgumentOverrides,
-  parsePercentageValue, STATE_COMMAND_MAP,
+  parsePercentageValue,
+  STATE_COMMAND_MAP,
   WindowCoveringsCluster,
   ZigbeeWindowCoveringsDevice,
-} from "./windowCoverings.mjs";
+} from './windowCoverings.mjs';
 
 const CLUSTER_SPEC = CLUSTER.WINDOW_COVERING;
 const DEFAULT_REPORT_DEBOUNCE_TIME = 5000;
@@ -31,16 +32,25 @@ export async function initLiftPercentageCapability(
   device.log(`Initialising ${LIFT_PERCENTAGE_CAPABILITY} capability`);
 
   const endpoint = endpointId ?? device.getClusterEndpoint(CLUSTER_SPEC) ?? 1;
-  const cluster = zclNode
-    .endpoints[endpoint]
-    .clusters[CLUSTER_SPEC.NAME] as unknown as WindowCoveringsCluster;
+  const cluster = zclNode.endpoints[endpoint].clusters[CLUSTER_SPEC.NAME] as unknown as WindowCoveringsCluster;
 
-  const setParser = (value: number): Promise<null | {
-    percentageLiftValue: number
+  const setParser = (
+    value: number,
+  ): Promise<null | {
+    percentageLiftValue: number;
   }> => LiftPercentageCapabilitySetParser(device, cluster, invertPercentage, invertSetting, debounceTime, value);
-  const reportParser = (value: number): number | null => LiftPercentageCapabilityReportParser(device, invertPercentage, invertSetting, value);
+  const reportParser = (value: number): number | null =>
+    LiftPercentageCapabilityReportParser(device, invertPercentage, invertSetting, value);
 
-  await readInitialValue(device, zclNode, LIFT_PERCENTAGE_CAPABILITY, CLUSTER_SPEC, LIFT_PERCENTAGE_ATTRIBUTE, reportParser, endpoint);
+  await readInitialValue(
+    device,
+    zclNode,
+    LIFT_PERCENTAGE_CAPABILITY,
+    CLUSTER_SPEC,
+    LIFT_PERCENTAGE_ATTRIBUTE,
+    reportParser,
+    endpoint,
+  );
 
   device.registerCapability(LIFT_PERCENTAGE_CAPABILITY, CLUSTER_SPEC, {
     endpoint,
@@ -123,7 +133,6 @@ function LiftPercentageCapabilityReportParser(
     return null;
   }
 
-
   if (invertSetting !== undefined && device.getSetting(invertSetting)) {
     parsedValue = 1 - parsedValue;
   }
@@ -135,7 +144,10 @@ function LiftPercentageCapabilityReportParser(
   return parsedValue;
 }
 
-function setPositionUpdateDebounce(device: ZigbeeWindowCoveringsDevice, time: number = DEFAULT_REPORT_DEBOUNCE_TIME): void {
+function setPositionUpdateDebounce(
+  device: ZigbeeWindowCoveringsDevice,
+  time: number = DEFAULT_REPORT_DEBOUNCE_TIME,
+): void {
   if (time === 0) {
     return;
   }

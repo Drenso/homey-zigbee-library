@@ -1,9 +1,6 @@
-import {
-  initReadWriteCapability,
-  AttributeConfiguration,
-} from '../lib/attributeDevice.mjs';
-import {ZigBeeDevice} from 'homey-zigbeedriver';
-import zbClusters, {type ZCLNode} from 'zigbee-clusters';
+import { initReadWriteCapability, AttributeConfiguration } from '../lib/attributeDevice.mjs';
+import { ZigBeeDevice } from 'homey-zigbeedriver';
+import zbClusters, { type ZCLNode } from 'zigbee-clusters';
 
 type ArgumentOverrides = AttributeConfiguration;
 
@@ -30,7 +27,7 @@ export default async function initTargetTemperatureDevice(
       // Value comes from int16
       // Check for invalid values
       if (value == 0x8000) return null;
-      if (value < -0x154D || value > 0x7FFE) {
+      if (value < -0x154d || value > 0x7ffe) {
         device.error('Temperature value outside valid range');
         return null;
       }
@@ -39,8 +36,8 @@ export default async function initTargetTemperatureDevice(
       // MeasuredValue = 100 x Temperature in degrees Celsius
       return Math.round((value / 100) * 10) / 10;
     },
-    (value) => Math.round(value * 100),
-    {minChange, minInterval, maxInterval},
+    value => Math.round(value * 100),
+    { minChange, minInterval, maxInterval },
     endpointId,
   );
 }

@@ -1,5 +1,5 @@
-import {ClusterSpecification, ZigBeeDevice} from 'homey-zigbeedriver';
-import {ZCLNode} from 'zigbee-clusters';
+import { ClusterSpecification, ZigBeeDevice } from 'homey-zigbeedriver';
+import { ZCLNode } from 'zigbee-clusters';
 
 export interface ZigbeeFactorDeviceProperties {
   acVoltageFactor?: number;
@@ -11,40 +11,56 @@ export interface ZigbeeFactorDeviceProperties {
   totalActivePowerFactor?: number;
 }
 
-export interface ZigbeeFactorDevice extends ZigBeeDevice, ZigbeeFactorDeviceProperties {
-}
+export interface ZigbeeFactorDevice extends ZigBeeDevice, ZigbeeFactorDeviceProperties {}
 
 export interface MeasurementReportingInterface {
-  minMeasurementChange?: number,
-  minMeasurementInterval?: number,
-  maxMeasurementInterval?: number,
+  minMeasurementChange?: number;
+  minMeasurementInterval?: number;
+  maxMeasurementInterval?: number;
 }
 
-const factorProperties: Record<keyof ZigbeeFactorDeviceProperties, {
-  value: string,
-  multiplier: string,
-  divisor: string,
-}> = {
+const factorProperties: Record<
+  keyof ZigbeeFactorDeviceProperties,
+  {
+    value: string;
+    multiplier: string;
+    divisor: string;
+  }
+> = {
   acVoltageFactor: {
-    value: 'rmsVoltage', multiplier: 'acVoltageMultiplier', divisor: 'acVoltageDivisor',
+    value: 'rmsVoltage',
+    multiplier: 'acVoltageMultiplier',
+    divisor: 'acVoltageDivisor',
   },
   acCurrentFactor: {
-    value: 'rmsCurrent', multiplier: 'acCurrentMultiplier', divisor: 'acCurrentDivisor',
+    value: 'rmsCurrent',
+    multiplier: 'acCurrentMultiplier',
+    divisor: 'acCurrentDivisor',
   },
   acFrequencyFactor: {
-    value: 'acFrequency', multiplier: 'acFrequencyMultiplier', divisor: 'acFrequencyDivisor',
+    value: 'acFrequency',
+    multiplier: 'acFrequencyMultiplier',
+    divisor: 'acFrequencyDivisor',
   },
   activePowerFactor: {
-    value: 'activePower', multiplier: 'acPowerMultiplier', divisor: 'acPowerDivisor',
+    value: 'activePower',
+    multiplier: 'acPowerMultiplier',
+    divisor: 'acPowerDivisor',
   },
   instantaneousDemandFactor: {
-    value: 'instantaneousDemand', multiplier: 'multiplier', divisor: 'divisor',
+    value: 'instantaneousDemand',
+    multiplier: 'multiplier',
+    divisor: 'divisor',
   },
   meteringFactor: {
-    value: 'currentSummationDelivered', multiplier: 'multiplier', divisor: 'divisor',
+    value: 'currentSummationDelivered',
+    multiplier: 'multiplier',
+    divisor: 'divisor',
   },
   totalActivePowerFactor: {
-    value: 'totalActivePower', multiplier: 'powerMultiplier', divisor: 'powerDivisor',
+    value: 'totalActivePower',
+    multiplier: 'powerMultiplier',
+    divisor: 'powerDivisor',
   },
 };
 
@@ -56,7 +72,7 @@ export function factorReportParserBuilder(
   onReportTimeout?: number,
   device?: ZigbeeFactorDevice,
   invalidValue?: InvalidFactorValueFunction,
-): (value: number) => (number | null) {
+): (value: number) => number | null {
   return function (value: number): number | null {
     if (invalidValue && invalidValue(value)) {
       return null;
@@ -93,13 +109,12 @@ export default async function initFactorImplementation(
   invalidFactorValue?: InvalidFactorValueFunction,
 ): Promise<void> {
   // Restore factor from store
-  await updateDeviceFactor(device, storeProperty, undefined, undefined, additionalMultiplier)
-    .catch(e => device.error(`Failed to restore ${storeProperty}`, e));
+  await updateDeviceFactor(device, storeProperty, undefined, undefined, additionalMultiplier).catch(e =>
+    device.error(`Failed to restore ${storeProperty}`, e),
+  );
 
   const endpoint = endPointId ?? device.getClusterEndpoint(clusterSpec) ?? 1;
-  const cluster = zclNode
-    .endpoints[endpoint]
-    .clusters[clusterSpec.NAME];
+  const cluster = zclNode.endpoints[endpoint].clusters[clusterSpec.NAME];
   if (!cluster) {
     throw new Error(`Cluster ${clusterSpec.NAME} not found on endpoint ${endpoint}`);
   }
@@ -109,7 +124,7 @@ export default async function initFactorImplementation(
     onReport,
     onReportTimeout,
     device,
-    invalidFactorValue
+    invalidFactorValue,
   );
 
   const properties = factorProperties[storeProperty];
@@ -117,8 +132,13 @@ export default async function initFactorImplementation(
   // Retrieve initial values
   await cluster
     .readAttributes([properties.value, properties.multiplier, properties.divisor])
-    .then(async (result) => {
-      await updateDeviceFactor(device, storeProperty, result[properties.multiplier] as number, result[properties.divisor] as number);
+    .then(async result => {
+      await updateDeviceFactor(
+        device,
+        storeProperty,
+        result[properties.multiplier] as number,
+        result[properties.divisor] as number,
+      );
       await device
         .setCapabilityValue(capability, reportParser(result[properties.value] as number))
         .catch(e => device.error(`Failed to set ${capability} capability value`, e));
@@ -136,7 +156,8 @@ export default async function initFactorImplementation(
           minInterval: 0,
           maxInterval: 3600,
           minChange: 1,
-        }, {
+        },
+        {
           endpointId: endpoint,
           cluster: clusterSpec,
           attributeName: properties.divisor,
@@ -145,15 +166,20 @@ export default async function initFactorImplementation(
           minChange: 1,
         },
       ])
-      .catch(e => device.error(`Failed to configure ${clusterSpec.NAME} [${properties.multiplier}, ${properties.divisor}] attribute reporting`, e));
+      .catch(e =>
+        device.error(
+          `Failed to configure ${clusterSpec.NAME} [${properties.multiplier}, ${properties.divisor}] attribute reporting`,
+          e,
+        ),
+      );
   }
 
   // Register listener for incoming report
-  cluster.on('attr.' + properties.multiplier, (value) => {
+  cluster.on('attr.' + properties.multiplier, value => {
     device.log(properties.multiplier + ' attribute report received', value);
     updateDeviceFactor(device, storeProperty, value);
   });
-  cluster.on('attr.' + properties.divisor, (value) => {
+  cluster.on('attr.' + properties.divisor, value => {
     device.log(properties.divisor + ' attribute report received', value);
     updateDeviceFactor(device, storeProperty, undefined, value);
   });
@@ -191,21 +217,22 @@ async function updateDeviceFactor(
   const additionalMultiplierKey = storeProperty + '_additional_multiplier';
 
   if (multiplier) {
-    await device.setStoreValue(multiplierKey, multiplier)
+    await device
+      .setStoreValue(multiplierKey, multiplier)
       .catch(e => device.error(`Failed to store ${multiplierKey}`, e));
   } else {
     multiplier = device.getStoreValue(multiplierKey);
   }
 
   if (divisor) {
-    await device.setStoreValue(divisorKey, divisor)
-      .catch(e => device.error(`Failed to store ${divisorKey}`, e));
+    await device.setStoreValue(divisorKey, divisor).catch(e => device.error(`Failed to store ${divisorKey}`, e));
   } else {
     divisor = device.getStoreValue(divisorKey);
   }
 
   if (additionalMultiplier) {
-    await device.setStoreValue(additionalMultiplierKey, additionalMultiplier)
+    await device
+      .setStoreValue(additionalMultiplierKey, additionalMultiplier)
       .catch(e => device.error(`Failed to store ${additionalMultiplierKey}`, e));
   } else {
     additionalMultiplier = device.getStoreValue(additionalMultiplierKey);

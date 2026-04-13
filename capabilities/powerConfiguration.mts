@@ -1,10 +1,6 @@
-import {ZigBeeDevice} from 'homey-zigbeedriver';
-import zbClusters, {type ZCLNode} from 'zigbee-clusters';
-import {
-  DefaultConfiguration,
-  initReadOnlyCapability,
-  ReportingConfiguration,
-} from '../lib/attributeDevice.mjs';
+import { ZigBeeDevice } from 'homey-zigbeedriver';
+import zbClusters, { type ZCLNode } from 'zigbee-clusters';
+import { DefaultConfiguration, initReadOnlyCapability, ReportingConfiguration } from '../lib/attributeDevice.mjs';
 
 type ArgumentOverrides = DefaultConfiguration & ReportingConfiguration;
 
@@ -21,8 +17,8 @@ export default async function initPowerConfigurationDevice(
 ): Promise<void> {
   const reportParser = function (value: number): number | null {
     // Value comes from uint8
-    if (value == 0xFF) return null;
-    if (value < 0x00 || value > 0xFF) {
+    if (value == 0xff) return null;
+    if (value < 0x00 || value > 0xff) {
       device.error('Battery percentage value outside valid range');
       return null;
     }
@@ -38,7 +34,7 @@ export default async function initPowerConfigurationDevice(
     zbClusters.CLUSTER.POWER_CONFIGURATION,
     'batteryPercentageRemaining',
     reportParser,
-    {minInterval, maxInterval, minChange},
+    { minInterval, maxInterval, minChange },
     endpointId,
   );
 }

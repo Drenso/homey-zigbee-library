@@ -1,11 +1,11 @@
 import { ZigBeeDevice } from 'homey-zigbeedriver';
-import zbClusters, {type ZCLNode, type DoorLockClusterAttributes} from 'zigbee-clusters';
-import {DefaultConfiguration, initReadCommandCapability} from '../lib/attributeDevice.mjs';
+import zbClusters, { type ZCLNode, type DoorLockClusterAttributes } from 'zigbee-clusters';
+import { DefaultConfiguration, initReadCommandCapability } from '../lib/attributeDevice.mjs';
 
-type LockState = DoorLockClusterAttributes['lockState']
+type LockState = DoorLockClusterAttributes['lockState'];
 
 type ArgumentOverrides = DefaultConfiguration & {
-  reportParser: (value: LockState) => unknown,
+  reportParser: (value: LockState) => unknown;
 };
 
 export default async function initLockedDevice(
@@ -18,7 +18,7 @@ export default async function initLockedDevice(
     endpointId,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
-  const command = (value: boolean): string => value ? 'lockDoor' : 'unlockDoor';
+  const command = (value: boolean): string => (value ? 'lockDoor' : 'unlockDoor');
   // Return empty object, the command specifies the action for this cluster ('lockDoor'/unlockDoor')
   const commandArgParser = (): Record<string, never> => ({});
 
