@@ -1,8 +1,8 @@
 import type { ArgumentOverrides, StateCommand, ZigbeeWindowCoveringsDevice } from './windowCoverings.mjs';
 import { invertStateCommand, STATE_COMMAND_MAP } from './windowCoverings.mjs';
-import { CLUSTER } from 'zigbee-clusters';
+import zbClusters from 'zigbee-clusters';
 
-const CLUSTER_SPEC = CLUSTER.WINDOW_COVERING;
+const CLUSTER_SPEC = zbClusters.CLUSTER.WINDOW_COVERING;
 
 const LIFT_STATE_CAPABILITY = 'windowcoverings_state';
 

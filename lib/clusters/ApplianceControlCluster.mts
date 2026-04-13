@@ -1,4 +1,4 @@
-import { Cluster, ZCLDataTypes } from 'zigbee-clusters';
+import zbClusters from 'zigbee-clusters';
 import type { DefaultResponseCommand } from './ZCL.mjs';
 
 const COMMAND_ID_ENUM = {
@@ -63,41 +63,41 @@ const Attributes = {
   startTime: {
     // Encodes time format specified in table 15-4
     id: 0x0000,
-    type: ZCLDataTypes.uint16,
+    type: zbClusters.ZCLDataTypes.uint16,
   },
   finishTime: {
     // Encodes time format specified in table 15-4
     id: 0x0001,
-    type: ZCLDataTypes.uint16,
+    type: zbClusters.ZCLDataTypes.uint16,
   },
   remainingTime: {
     // Encodes time format specified in table 15-4
     id: 0x0002,
-    type: ZCLDataTypes.uint16,
+    type: zbClusters.ZCLDataTypes.uint16,
   },
 } as const;
 
 const CommandsGenerated = {
   signalStateResponse: {
     id: 0x00,
-    direction: Cluster.DIRECTION_SERVER_TO_CLIENT,
+    direction: zbClusters.Cluster.DIRECTION_SERVER_TO_CLIENT,
     args: {
-      applianceStatus: ZCLDataTypes.enum8(APPLIANCE_STATUS_ENUM),
+      applianceStatus: zbClusters.ZCLDataTypes.enum8(APPLIANCE_STATUS_ENUM),
       // Packed enums according to 15-10
-      remoteEnableAndDeviceStatusFlags: ZCLDataTypes.uint8,
+      remoteEnableAndDeviceStatusFlags: zbClusters.ZCLDataTypes.uint8,
       // Optional
-      applianceStatus2: ZCLDataTypes.uint24,
+      applianceStatus2: zbClusters.ZCLDataTypes.uint24,
     },
   },
   signalStateNotification: {
     id: 0x01,
-    direction: Cluster.DIRECTION_SERVER_TO_CLIENT,
+    direction: zbClusters.Cluster.DIRECTION_SERVER_TO_CLIENT,
     args: {
-      applianceStatus: ZCLDataTypes.enum8(APPLIANCE_STATUS_ENUM),
+      applianceStatus: zbClusters.ZCLDataTypes.enum8(APPLIANCE_STATUS_ENUM),
       // Packed enums according to 15-10
-      remoteEnableAndDeviceStatusFlags: ZCLDataTypes.uint8,
+      remoteEnableAndDeviceStatusFlags: zbClusters.ZCLDataTypes.uint8,
       // Optional
-      applianceStatus2: ZCLDataTypes.uint24,
+      applianceStatus2: zbClusters.ZCLDataTypes.uint24,
     },
   },
 } as const;
@@ -105,49 +105,49 @@ const CommandsGenerated = {
 const CommandsReceived = {
   executeCommand: {
     id: 0x00,
-    direction: Cluster.DIRECTION_CLIENT_TO_SERVER,
+    direction: zbClusters.Cluster.DIRECTION_CLIENT_TO_SERVER,
     args: {
-      commandId: ZCLDataTypes.enum8(COMMAND_ID_ENUM),
+      commandId: zbClusters.ZCLDataTypes.enum8(COMMAND_ID_ENUM),
     },
   },
   signalState: {
     id: 0x01,
-    direction: Cluster.DIRECTION_CLIENT_TO_SERVER,
+    direction: zbClusters.Cluster.DIRECTION_CLIENT_TO_SERVER,
     // args: undefined,
     response: CommandsGenerated.signalStateResponse,
   },
   writeFunctions: {
     id: 0x02,
-    direction: Cluster.DIRECTION_CLIENT_TO_SERVER,
+    direction: zbClusters.Cluster.DIRECTION_CLIENT_TO_SERVER,
     args: {
-      attributeIdentifier: ZCLDataTypes.uint16,
-      functionDataType: ZCLDataTypes.enum8(DATA_TYPE_ENUM),
+      attributeIdentifier: zbClusters.ZCLDataTypes.uint16,
+      functionDataType: zbClusters.ZCLDataTypes.enum8(DATA_TYPE_ENUM),
       // Variable
-      functionData: ZCLDataTypes.buffer,
+      functionData: zbClusters.ZCLDataTypes.buffer,
     },
   },
   // Resume normal behavior after being in pause mode from a OverloadPauseResume command
   overloadPauseResume: {
     id: 0x03,
-    direction: Cluster.DIRECTION_CLIENT_TO_SERVER,
+    direction: zbClusters.Cluster.DIRECTION_CLIENT_TO_SERVER,
     // args: undefined,
   },
   // Pause the appliance as a consequence of an imminent overload event
   overloadPause: {
     id: 0x04,
-    direction: Cluster.DIRECTION_CLIENT_TO_SERVER,
+    direction: zbClusters.Cluster.DIRECTION_CLIENT_TO_SERVER,
     // args: undefined,
   },
   overloadWarning: {
     id: 0x05,
-    direction: Cluster.DIRECTION_CLIENT_TO_SERVER,
+    direction: zbClusters.Cluster.DIRECTION_CLIENT_TO_SERVER,
     args: {
-      warningEvent: ZCLDataTypes.enum8(OVERLOAD_WARNING_ENUM),
+      warningEvent: zbClusters.ZCLDataTypes.enum8(OVERLOAD_WARNING_ENUM),
     },
   },
 } as const;
 
-class ApplianceControlCluster extends Cluster {
+class ApplianceControlCluster extends zbClusters.Cluster {
   public static get ID(): number {
     return 0x001b;
   }
@@ -189,6 +189,6 @@ class ApplianceControlCluster extends Cluster {
   }
 }
 
-Cluster.addCluster(ApplianceControlCluster);
+zbClusters.Cluster.addCluster(ApplianceControlCluster);
 
 export default ApplianceControlCluster;

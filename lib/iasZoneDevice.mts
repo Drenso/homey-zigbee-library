@@ -1,6 +1,6 @@
 import type { ZigBeeDevice } from 'homey-zigbeedriver';
 import type { ZCLNode, ZoneEnrollRequestParams, ZoneStatus, ZoneStatusChangedPayload } from 'zigbee-clusters';
-import { IASZoneCluster } from 'zigbee-clusters';
+import zbClusters from 'zigbee-clusters';
 
 export default async function initIasZoneDevice(
   device: ZigBeeDevice,
@@ -14,11 +14,11 @@ export default async function initIasZoneDevice(
     throw new Error('Amount of capabilities and flag names should match!');
   }
 
-  const endpoint = endpointId ?? device.getClusterEndpoint(IASZoneCluster) ?? 1;
+  const endpoint = endpointId ?? device.getClusterEndpoint(zbClusters.IASZoneCluster) ?? 1;
 
   device.log(`Initialising IasZone on endpoint ${endpoint}`);
 
-  const cluster = zclNode.endpoints[endpoint].clusters[IASZoneCluster.NAME] as unknown as IASZoneCluster;
+  const cluster = zclNode.endpoints[endpoint].clusters[zbClusters.IASZoneCluster.NAME] as unknown as zbClusters.IASZoneCluster;
 
   const zoneId = Math.floor(Math.random() * 255);
   const sendZoneEnrollResponse = (): void => {

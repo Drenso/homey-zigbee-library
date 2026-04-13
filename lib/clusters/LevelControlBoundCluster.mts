@@ -1,9 +1,9 @@
-import { BoundCluster } from 'zigbee-clusters';
+import zbClusters from 'zigbee-clusters';
 
 type MoveType = (direction: 'up' | 'down') => void;
 type StopType = () => void;
 
-export default class LevelControlBoundCluster extends BoundCluster {
+export default class LevelControlBoundCluster extends zbClusters.BoundCluster {
   private readonly _onMove?: MoveType;
   private readonly _onStop?: StopType;
 

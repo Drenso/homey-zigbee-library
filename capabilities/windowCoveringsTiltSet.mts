@@ -1,10 +1,10 @@
 import type { ZCLNode } from 'zigbee-clusters';
-import { CLUSTER } from 'zigbee-clusters';
+import zbClusters from 'zigbee-clusters';
 import { readInitialValue } from '../lib/attributeDevice.mjs';
 import type { ArgumentOverrides, ZigbeeWindowCoveringsDevice } from './windowCoverings.mjs';
 import { parsePercentageValue } from './windowCoverings.mjs';
 
-const CLUSTER_SPEC = CLUSTER.WINDOW_COVERING;
+const CLUSTER_SPEC = zbClusters.CLUSTER.WINDOW_COVERING;
 
 const TILT_PERCENTAGE_ATTRIBUTE = 'currentPositionTiltPercentage';
 const TILT_PERCENTAGE_CAPABILITY = 'windowcoverings_tilt_set';
