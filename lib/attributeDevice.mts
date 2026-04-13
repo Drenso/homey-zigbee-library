@@ -1,5 +1,5 @@
-import { ClusterSpecification, ZigBeeDevice } from 'homey-zigbeedriver';
-import { ZCLNode } from 'zigbee-clusters';
+import type { ClusterSpecification, ZigBeeDevice } from 'homey-zigbeedriver';
+import type { ZCLNode } from 'zigbee-clusters';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SetName = string | ((value: any) => string);

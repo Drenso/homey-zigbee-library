@@ -1,5 +1,5 @@
 import { Cluster, ZCLDataTypes } from 'zigbee-clusters';
-import { DefaultResponseCommand } from './ZCL.mjs';
+import type { DefaultResponseCommand } from './ZCL.mjs';
 
 const COMMAND_ID_ENUM = {
   Start: 0x01,
@@ -148,26 +148,26 @@ const CommandsReceived = {
 } as const;
 
 class ApplianceControlCluster extends Cluster {
-  static get ID(): number {
+  public static get ID(): number {
     return 0x001b;
   }
 
-  static get NAME(): string {
+  public static get NAME(): string {
     return 'applianceControl';
   }
 
-  static get ATTRIBUTES(): typeof Attributes {
+  public static get ATTRIBUTES(): typeof Attributes {
     return Attributes;
   }
 
-  static get COMMANDS(): typeof CommandsReceived & typeof CommandsGenerated {
+  public static get COMMANDS(): typeof CommandsReceived & typeof CommandsGenerated {
     return {
       ...CommandsReceived,
       ...CommandsGenerated,
     };
   }
 
-  readAttributes<T extends keyof typeof Attributes>(
+  public readAttributes<T extends keyof typeof Attributes>(
     attributeNames: T[],
     opts?: { timeout: number },
   ): Promise<{
@@ -178,7 +178,7 @@ class ApplianceControlCluster extends Cluster {
     }>;
   }
 
-  writeAttributes<T extends keyof typeof Attributes>(attributes: {
+  public writeAttributes<T extends keyof typeof Attributes>(attributes: {
     [p in T]: (typeof Attributes)[p]['type'];
   }): Promise<{
     [p in T]: DefaultResponseCommand;

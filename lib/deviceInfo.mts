@@ -1,4 +1,4 @@
-import { ZigBeeDevice } from 'homey-zigbeedriver';
+import type { ZigBeeDevice } from 'homey-zigbeedriver';
 import zbClusters, { type ZCLNode } from 'zigbee-clusters';
 
 export default async function retrieveDeviceInfo(

@@ -1,5 +1,5 @@
-import { ClusterSpecification, ZigBeeDevice } from 'homey-zigbeedriver';
-import { ZCLNode } from 'zigbee-clusters';
+import type { ClusterSpecification, ZigBeeDevice } from 'homey-zigbeedriver';
+import type { ZCLNode } from 'zigbee-clusters';
 
 export interface ZigbeeFactorDeviceProperties {
   acVoltageFactor?: number;

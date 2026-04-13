@@ -7,14 +7,14 @@ export default class OnOffBoundCluster extends BoundCluster {
   private readonly _onSetOff?: OnOffType;
   private readonly _onToggle?: OnOffType;
 
-  constructor(onSetOn?: OnOffType, onSetOff?: OnOffType, onToggle?: OnOffType) {
+  public constructor(onSetOn?: OnOffType, onSetOff?: OnOffType, onToggle?: OnOffType) {
     super();
     this._onSetOn = onSetOn;
     this._onSetOff = onSetOff;
     this._onToggle = onToggle;
   }
 
-  setOn(): void {
+  public setOn(): void {
     if (this._onSetOn) {
       this._onSetOn();
     }
@@ -24,7 +24,7 @@ export default class OnOffBoundCluster extends BoundCluster {
     }
   }
 
-  setOff(): void {
+  public setOff(): void {
     if (this._onSetOff) {
       this._onSetOff();
     }

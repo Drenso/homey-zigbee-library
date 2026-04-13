@@ -1,11 +1,6 @@
-import { ZigBeeDevice } from 'homey-zigbeedriver';
-import {
-  IASZoneCluster,
-  ZCLNode,
-  ZoneEnrollRequestParams,
-  ZoneStatus,
-  ZoneStatusChangedPayload,
-} from 'zigbee-clusters';
+import type { ZigBeeDevice } from 'homey-zigbeedriver';
+import type { ZCLNode, ZoneEnrollRequestParams, ZoneStatus, ZoneStatusChangedPayload } from 'zigbee-clusters';
+import { IASZoneCluster } from 'zigbee-clusters';
 
 export default async function initIasZoneDevice(
   device: ZigBeeDevice,
@@ -39,8 +34,6 @@ export default async function initIasZoneDevice(
   };
 
   // Register enroll request listener for automatic enrollment
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore Dynamic event handler
   cluster.onZoneEnrollRequest = (payload: ZoneEnrollRequestParams): void => {
     device.log('Zone enroll request received', payload);
     sendZoneEnrollResponse();
@@ -53,9 +46,7 @@ export default async function initIasZoneDevice(
   }
 
   // Register zone state change notification
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore Dynamic event handler
-  cluster.onZoneStatusChangeNotification = async (payload: ZoneStatusChangedPayload): void => {
+  cluster.onZoneStatusChangeNotification = async (payload: ZoneStatusChangedPayload): Promise<void> => {
     const flags = payload.zoneStatus.getBits();
     // device.log('Zone status change notification received', payload);
 

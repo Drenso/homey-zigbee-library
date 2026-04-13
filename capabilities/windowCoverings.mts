@@ -1,5 +1,5 @@
-import { ZigBeeDevice } from 'homey-zigbeedriver';
-import { Cluster, ZCLNode } from 'zigbee-clusters';
+import type { ZigBeeDevice } from 'homey-zigbeedriver';
+import type { Cluster, ZCLNode } from 'zigbee-clusters';
 import mapValueRange from '../lib/helper/valueRange.mjs';
 import { initLiftPercentageCapability } from './windowCoveringsSet.mjs';
 import { initTiltPercentageCapability } from './windowCoveringsTiltSet.mjs';

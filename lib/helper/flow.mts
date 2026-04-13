@@ -1,4 +1,4 @@
-import { ZigBeeDevice } from 'homey-zigbeedriver';
+import type { ZigBeeDevice } from 'homey-zigbeedriver';
 
 export function triggerFlowWithLog(
   device: ZigBeeDevice,

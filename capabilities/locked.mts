@@ -1,6 +1,7 @@
-import { ZigBeeDevice } from 'homey-zigbeedriver';
+import type { ZigBeeDevice } from 'homey-zigbeedriver';
 import zbClusters, { type ZCLNode, type DoorLockClusterAttributes } from 'zigbee-clusters';
-import { DefaultConfiguration, initReadCommandCapability } from '../lib/attributeDevice.mjs';
+import type { DefaultConfiguration } from '../lib/attributeDevice.mjs';
+import { initReadCommandCapability } from '../lib/attributeDevice.mjs';
 
 type LockState = DoorLockClusterAttributes['lockState'];
 

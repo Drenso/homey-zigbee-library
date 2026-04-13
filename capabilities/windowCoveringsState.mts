@@ -1,10 +1,5 @@
-import {
-  ArgumentOverrides,
-  invertStateCommand,
-  STATE_COMMAND_MAP,
-  StateCommand,
-  ZigbeeWindowCoveringsDevice,
-} from './windowCoverings.mjs';
+import type { ArgumentOverrides, StateCommand, ZigbeeWindowCoveringsDevice } from './windowCoverings.mjs';
+import { invertStateCommand, STATE_COMMAND_MAP } from './windowCoverings.mjs';
 import { CLUSTER } from 'zigbee-clusters';
 
 const CLUSTER_SPEC = CLUSTER.WINDOW_COVERING;

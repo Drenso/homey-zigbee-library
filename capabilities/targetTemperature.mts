@@ -1,5 +1,6 @@
-import { initReadWriteCapability, AttributeConfiguration } from '../lib/attributeDevice.mjs';
-import { ZigBeeDevice } from 'homey-zigbeedriver';
+import type { AttributeConfiguration } from '../lib/attributeDevice.mjs';
+import { initReadWriteCapability } from '../lib/attributeDevice.mjs';
+import type { ZigBeeDevice } from 'homey-zigbeedriver';
 import zbClusters, { type ZCLNode } from 'zigbee-clusters';
 
 type ArgumentOverrides = AttributeConfiguration;

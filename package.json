@@ -25,7 +25,7 @@
   "scripts": {
     "compile": "tsc",
     "clean": "tsc --build --clean",
-    "lint": "eslint --ext",
+    "lint": "eslint",
     "fix": "eslint --fix",
     "prettier": "prettier . --write",
     "prettier-check": "prettier . --check",

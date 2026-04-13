@@ -1,7 +1,8 @@
-import { AttributesDefinition, Cluster, ElectricalMeasurementCluster, ZCLDataTypes } from 'zigbee-clusters';
+import type { AttributesDefinition } from 'zigbee-clusters';
+import { Cluster, ElectricalMeasurementCluster, ZCLDataTypes } from 'zigbee-clusters';
 
 export class ExtendedElectricalMeasurementCluster extends ElectricalMeasurementCluster {
-  static get ATTRIBUTES(): AttributesDefinition {
+  public static get ATTRIBUTES(): AttributesDefinition {
     // todo: remove "as Record<string, unknown>"
     return {
       ...(super.ATTRIBUTES as Record<string, unknown>),

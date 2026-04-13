@@ -1,11 +1,10 @@
 import zbClusters, { type ZCLNode } from 'zigbee-clusters';
 import { initReadOnlyCapability } from '../lib/attributeDevice.mjs';
 import { ExtendedElectricalMeasurementCluster } from '../lib/clusters/ExtendedElectricalMeasurementCluster.mjs';
+import type { ZigbeeFactorDevice, ZigbeeFactorDeviceProperties } from '../lib/helper/deviceFactor.mjs';
 import initFactorImplementation, {
   factorReportParserBuilder,
   type InvalidFactorValueFunction,
-  ZigbeeFactorDevice,
-  ZigbeeFactorDeviceProperties,
 } from '../lib/helper/deviceFactor.mjs';
 
 type ArgumentOverrides = {

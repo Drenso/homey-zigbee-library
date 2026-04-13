@@ -1,6 +1,8 @@
-import { CLUSTER, ZCLNode } from 'zigbee-clusters';
+import type { ZCLNode } from 'zigbee-clusters';
+import { CLUSTER } from 'zigbee-clusters';
 import { readInitialValue } from '../lib/attributeDevice.mjs';
-import { ArgumentOverrides, parsePercentageValue, ZigbeeWindowCoveringsDevice } from './windowCoverings.mjs';
+import type { ArgumentOverrides, ZigbeeWindowCoveringsDevice } from './windowCoverings.mjs';
+import { parsePercentageValue } from './windowCoverings.mjs';
 
 const CLUSTER_SPEC = CLUSTER.WINDOW_COVERING;
 

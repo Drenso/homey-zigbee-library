@@ -1,6 +1,7 @@
-import { ZigBeeDevice } from 'homey-zigbeedriver';
+import type { ZigBeeDevice } from 'homey-zigbeedriver';
 import zbClusters, { type ZCLNode } from 'zigbee-clusters';
-import { DefaultConfiguration, initReadOnlyCapability, ReportingConfiguration } from '../lib/attributeDevice.mjs';
+import type { DefaultConfiguration, ReportingConfiguration } from '../lib/attributeDevice.mjs';
+import { initReadOnlyCapability } from '../lib/attributeDevice.mjs';
 
 type ArgumentOverrides = DefaultConfiguration & ReportingConfiguration;
 
