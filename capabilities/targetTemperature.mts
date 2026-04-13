@@ -1,23 +1,26 @@
+import {
+  initReadWriteCapability,
+  AttributeConfiguration,
+} from '../lib/attributeDevice.mjs';
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import {initReadOnlyCapability, AttributeConfiguration} from '../lib/attributeDevice';
 
 type ArgumentOverrides = AttributeConfiguration;
 
-export default async function initMeasureTemperatureDevice(
+export default async function initTargetTemperatureDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
   {
-    capabilityId = 'measure_temperature',
-    cluster = CLUSTER.TEMPERATURE_MEASUREMENT,
-    attributeName = 'measuredValue',
+    capabilityId = 'target_temperature',
+    cluster = CLUSTER.THERMOSTAT,
+    attributeName = 'occupiedHeatingSetpoint',
     minChange = 10,
     minInterval,
     maxInterval,
     endpointId,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
-  await initReadOnlyCapability(
+  await initReadWriteCapability(
     device,
     zclNode,
     capabilityId,
@@ -36,7 +39,8 @@ export default async function initMeasureTemperatureDevice(
       // MeasuredValue = 100 x Temperature in degrees Celsius
       return Math.round((value / 100) * 10) / 10;
     },
-    {minInterval, maxInterval, minChange},
+    (value) => Math.round(value * 100),
+    {minChange, minInterval, maxInterval},
     endpointId,
   );
 }

@@ -4,7 +4,7 @@ import {
   STATE_COMMAND_MAP,
   StateCommand,
   ZigbeeWindowCoveringsDevice,
-} from "./windowCoverings";
+} from "./windowCoverings.mjs";
 import {CLUSTER} from "zigbee-clusters";
 
 const CLUSTER_SPEC = CLUSTER.WINDOW_COVERING;

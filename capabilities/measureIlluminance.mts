@@ -1,6 +1,6 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import {initReadOnlyCapability, AttributeConfiguration} from '../lib/attributeDevice';
+import {initReadOnlyCapability, AttributeConfiguration} from '../lib/attributeDevice.mjs';
 
 type ArgumentOverrides = AttributeConfiguration;
 

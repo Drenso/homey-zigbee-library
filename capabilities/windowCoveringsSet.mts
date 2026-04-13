@@ -1,12 +1,12 @@
 import {CLUSTER, ZCLNode} from "zigbee-clusters";
-import {readInitialValue} from "../lib/attributeDevice";
-import mapValueRange from "../lib/helper/valueRange";
+import {readInitialValue} from "../lib/attributeDevice.mjs";
+import mapValueRange from "../lib/helper/valueRange.mjs";
 import {
   ArgumentOverrides,
   parsePercentageValue, STATE_COMMAND_MAP,
   WindowCoveringsCluster,
   ZigbeeWindowCoveringsDevice,
-} from "./windowCoverings";
+} from "./windowCoverings.mjs";
 
 const CLUSTER_SPEC = CLUSTER.WINDOW_COVERING;
 const DEFAULT_REPORT_DEBOUNCE_TIME = 5000;

@@ -1,5 +1,5 @@
 import {CLUSTER, ZCLNode} from 'zigbee-clusters';
-import initFactorImplementation, {ZigbeeFactorDevice} from '../lib/helper/deviceFactor';
+import initFactorImplementation, {ZigbeeFactorDevice} from '../lib/helper/deviceFactor.mjs';
 
 type ArgumentOverrides = {
   endpointId?: number,

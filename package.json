@@ -8,6 +8,7 @@
     "Tobias Feijten <tobias@drenso.nl>",
     "Joost Loohuis <joost@loohuis.dev>"
   ],
+  "type": "module",
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3",
     "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.4",
@@ -21,8 +22,8 @@
   "scripts": {
     "compile": "tsc",
     "clean": "tsc --build --clean",
-    "lint": "eslint --ext .ts .",
-    "fix": "eslint --fix  --ext .ts .",
+    "lint": "eslint --ext .mts .",
+    "fix": "eslint --fix  --ext .mts .",
     "prepare": "tsc"
   },
   "peerDependencies": {
@@ -31,8 +32,8 @@
   },
   "sideeffects": false,
   "files": [
-    "*/**/*.js",
-    "*/**/*.d.ts"
+    "*/**/*.mjs",
+    "*/**/*.d.mts"
   ],
   "engines": {
     "node": ">=20"

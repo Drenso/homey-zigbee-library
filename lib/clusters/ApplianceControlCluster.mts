@@ -1,5 +1,5 @@
 import { Cluster, ZCLDataTypes } from 'zigbee-clusters';
-import {DefaultResponseCommand} from "./ZCL";
+import {DefaultResponseCommand} from "./ZCL.mjs";
 
 const COMMAND_ID_ENUM = {
   Start: 0x01,

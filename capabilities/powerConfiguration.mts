@@ -4,7 +4,7 @@ import {
   DefaultConfiguration,
   initReadOnlyCapability,
   ReportingConfiguration,
-} from '../lib/attributeDevice';
+} from '../lib/attributeDevice.mjs';
 
 type ArgumentOverrides = DefaultConfiguration & ReportingConfiguration;
 

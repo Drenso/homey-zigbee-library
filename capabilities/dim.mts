@@ -4,7 +4,7 @@ import {
   DefaultConfiguration,
   initReadCommandCapability,
   ReportingConfiguration,
-} from '../lib/attributeDevice';
+} from '../lib/attributeDevice.mjs';
 
 type ArgumentOverrides = DefaultConfiguration & ReportingConfiguration & {
   onOffCapabilityId: string | false,

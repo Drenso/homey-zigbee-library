@@ -1,9 +1,9 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
 import {Cluster, ZCLNode} from 'zigbee-clusters';
-import mapValueRange from '../lib/helper/valueRange';
-import {initLiftPercentageCapability} from "./windowCoveringsSet";
-import {initTiltPercentageCapability} from "./windowCoveringsTiltSet";
-import {initLiftStateCapability} from "./windowCoveringsState";
+import mapValueRange from '../lib/helper/valueRange.mjs';
+import {initLiftPercentageCapability} from "./windowCoveringsSet.mjs";
+import {initTiltPercentageCapability} from "./windowCoveringsTiltSet.mjs";
+import {initLiftStateCapability} from "./windowCoveringsState.mjs";
 
 export default async function initWindowCoveringsDevice(
   device: ZigbeeWindowCoveringsDevice,
