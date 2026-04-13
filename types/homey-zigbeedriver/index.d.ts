@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/ban-types */
+// todo: remove file
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare module 'homey-zigbeedriver' {
   import Homey, {ZigBeeNode} from 'homey';
   import {Cluster, ZCLNode} from 'zigbee-clusters';
@@ -42,7 +43,7 @@ declare module 'homey-zigbeedriver' {
     onNodeInit(payload: {zclNode: ZCLNode, node: ZigBeeNode, supportsHueAndSaturation?: boolean, supportsColorTemperature?: boolean}): Promise<void>;
     onMeshInit(): void;
     onEndDeviceAnnounce(): void;
-    triggerFlow(payload: {id: string, tokens?: Object, state?: Object}): Promise<void>;
+    triggerFlow(payload: {id: string, tokens?: object, state?: object}): Promise<void>;
     registerCapability(capabilityId: string, cluster: ClusterSpecification, clusterCapabilityConfiguration?: ClusterCapabilityConfiguration): void;
     registerMultipleCapabilities(multipleCapabilitiesConfiguration: Array<any>, multipleCapabilitiesListener: () => any): void;
     getClusterEndpoint(cluster: ClusterSpecification): number|null;

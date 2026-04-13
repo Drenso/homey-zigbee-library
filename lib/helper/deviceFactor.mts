@@ -100,6 +100,9 @@ export default async function initFactorImplementation(
   const cluster = zclNode
     .endpoints[endpoint]
     .clusters[clusterSpec.NAME];
+  if (!cluster) {
+    throw new Error(`Cluster ${clusterSpec.NAME} not found on endpoint ${endpoint}`);
+  }
 
   const reportParser = factorReportParserBuilder(
     () => device[storeProperty] ?? 1,
@@ -115,9 +118,9 @@ export default async function initFactorImplementation(
   await cluster
     .readAttributes([properties.value, properties.multiplier, properties.divisor])
     .then(async (result) => {
-      await updateDeviceFactor(device, storeProperty, result[properties.multiplier], result[properties.divisor]);
+      await updateDeviceFactor(device, storeProperty, result[properties.multiplier] as number, result[properties.divisor] as number);
       await device
-        .setCapabilityValue(capability, reportParser(result[properties.value]))
+        .setCapabilityValue(capability, reportParser(result[properties.value] as number))
         .catch(e => device.error(`Failed to set ${capability} capability value`, e));
     })
     .catch(e => device.error(`Failed to read ${clusterSpec.NAME} ${Object.values(properties)} attributes`, e));

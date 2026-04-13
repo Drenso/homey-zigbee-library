@@ -1,5 +1,5 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
-import {CLUSTER, ZCLNode} from 'zigbee-clusters';
+import zbClusters, {type ZCLNode} from 'zigbee-clusters';
 import {
   DefaultConfiguration,
   initReadCommandCapability,
@@ -28,7 +28,7 @@ export default async function initDimDevice(
     device,
     zclNode,
     capabilityId,
-    CLUSTER.LEVEL_CONTROL,
+    zbClusters.CLUSTER.LEVEL_CONTROL,
     'moveToLevelWithOnOff',
     async (value: number, opts: { duration?: number }): Promise<{
       transitionTime: number,

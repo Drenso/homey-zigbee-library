@@ -38,9 +38,14 @@ export async function readInitialValue(
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
 
-  await zclNode
+  const clusterInstance = zclNode
     .endpoints[endpoint]
-    .clusters[cluster.NAME]
+    .clusters[cluster.NAME];
+  if (!clusterInstance) {
+    throw new Error(`Cluster ${cluster.NAME} not found on endpoint ${endpoint}`);
+  }
+
+  await clusterInstance
     .readAttributes([attributeName])
     .then(async result => {
       await device

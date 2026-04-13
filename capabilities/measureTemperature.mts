@@ -1,5 +1,5 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
-import {CLUSTER, ZCLNode} from 'zigbee-clusters';
+import zbClusters, {type ZCLNode} from 'zigbee-clusters';
 import {initReadOnlyCapability, AttributeConfiguration} from '../lib/attributeDevice.mjs';
 
 type ArgumentOverrides = AttributeConfiguration;
@@ -9,7 +9,7 @@ export default async function initMeasureTemperatureDevice(
   zclNode: ZCLNode,
   {
     capabilityId = 'measure_temperature',
-    cluster = CLUSTER.TEMPERATURE_MEASUREMENT,
+    cluster = zbClusters.CLUSTER.TEMPERATURE_MEASUREMENT,
     attributeName = 'measuredValue',
     minChange = 10,
     minInterval,

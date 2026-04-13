@@ -7,7 +7,8 @@ import {
 
 export class ExtendedElectricalMeasurementCluster extends ElectricalMeasurementCluster {
   static get ATTRIBUTES(): AttributesDefinition {
-    return {...super.ATTRIBUTES, ...{
+    // todo: remove "as Record<string, unknown>"
+    return {...super.ATTRIBUTES as Record<string, unknown>, ...{
         totalActivePower: { id: 0x0304, type: ZCLDataTypes.int32},
         powerMultiplier: { id: 0x0402, type: ZCLDataTypes.uint32 },
         powerDivisor: { id: 0x0403, type: ZCLDataTypes.uint32 },
@@ -21,4 +22,5 @@ export class ExtendedElectricalMeasurementCluster extends ElectricalMeasurementC
   }
 }
 
-Cluster.addCluster(ExtendedElectricalMeasurementCluster);
+// todo: remove "as unknown as typeof Cluster"
+Cluster.addCluster(ExtendedElectricalMeasurementCluster as unknown as typeof Cluster);

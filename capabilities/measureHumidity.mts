@@ -1,5 +1,5 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
-import {CLUSTER, ZCLNode} from 'zigbee-clusters';
+import zbClusters, {type ZCLNode} from 'zigbee-clusters';
 import {initReadOnlyCapability, AttributeConfiguration} from '../lib/attributeDevice.mjs';
 
 type ArgumentOverrides = AttributeConfiguration;
@@ -9,7 +9,7 @@ export default async function initMeasureHumidityDevice(
   zclNode: ZCLNode,
   {
     capabilityId = 'measure_humidity',
-    cluster = CLUSTER.RELATIVE_HUMIDITY_MEASUREMENT,
+    cluster = zbClusters.CLUSTER.RELATIVE_HUMIDITY_MEASUREMENT,
     attributeName = 'measuredValue',
     minChange = 10,
     minInterval,

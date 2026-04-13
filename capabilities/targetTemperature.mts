@@ -3,7 +3,7 @@ import {
   AttributeConfiguration,
 } from '../lib/attributeDevice.mjs';
 import {ZigBeeDevice} from 'homey-zigbeedriver';
-import {CLUSTER, ZCLNode} from 'zigbee-clusters';
+import zbClusters, {type ZCLNode} from 'zigbee-clusters';
 
 type ArgumentOverrides = AttributeConfiguration;
 
@@ -12,7 +12,7 @@ export default async function initTargetTemperatureDevice(
   zclNode: ZCLNode,
   {
     capabilityId = 'target_temperature',
-    cluster = CLUSTER.THERMOSTAT,
+    cluster = zbClusters.CLUSTER.THERMOSTAT,
     attributeName = 'occupiedHeatingSetpoint',
     minChange = 10,
     minInterval,

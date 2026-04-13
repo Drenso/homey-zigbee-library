@@ -1,5 +1,5 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
-import {CLUSTER, ZCLNode} from 'zigbee-clusters';
+import zbClusters, {type ZCLNode} from 'zigbee-clusters';
 import {
   DefaultConfiguration,
   initReadOnlyCapability,
@@ -35,7 +35,7 @@ export default async function initPowerConfigurationDevice(
     device,
     zclNode,
     capabilityId,
-    CLUSTER.POWER_CONFIGURATION,
+    zbClusters.CLUSTER.POWER_CONFIGURATION,
     'batteryPercentageRemaining',
     reportParser,
     {minInterval, maxInterval, minChange},

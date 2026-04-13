@@ -1,5 +1,5 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
-import {CLUSTER, ZCLNode} from 'zigbee-clusters';
+import zbClusters, {type ZCLNode} from 'zigbee-clusters';
 import {initReadOnlyCapability, AttributeConfiguration} from '../lib/attributeDevice.mjs';
 
 type ArgumentOverrides = AttributeConfiguration;
@@ -9,7 +9,7 @@ export default async function initMeasureIlluminanceDevice(
   zclNode: ZCLNode,
   {
     capabilityId = 'measure_luminance',
-    cluster = CLUSTER.ILLUMINANCE_MEASUREMENT,
+    cluster = zbClusters.CLUSTER.ILLUMINANCE_MEASUREMENT,
     attributeName = 'measuredValue',
     minChange = 1000,
     minInterval,

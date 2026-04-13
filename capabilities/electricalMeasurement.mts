@@ -1,4 +1,4 @@
-import {CLUSTER, ZCLNode} from 'zigbee-clusters';
+import zbClusters, {type ZCLNode} from 'zigbee-clusters';
 import {initReadOnlyCapability} from '../lib/attributeDevice.mjs';
 import {
   ExtendedElectricalMeasurementCluster,
@@ -56,6 +56,8 @@ export default async function initElectricalMeasurementDevice(
     ?.catch(e => device.error('Failed to read', 'measurementType', 'from', ExtendedElectricalMeasurementCluster.NAME, e));
 
   device.log('Measurement type is', measurementType ?? 'not provided by device');
+  // todo: remove ignore
+  // @ts-expect-error getBits definition isn't correct
   const measurementFlags = measurementType?.measurementType?.getBits();
   // Configure phase A if there are no measurement types, if it is explicitly reported or if no phase is reported at all
   const hasPhaseA = !measurementFlags || measurementFlags.includes('phaseAMeasurement') || (!measurementFlags.includes('phaseAMeasurement') && !measurementFlags.includes('phaseBMeasurement') && !measurementFlags.includes('phaseCMeasurement'));
@@ -250,7 +252,7 @@ async function initPhaseA(
       device,
       zclNode,
       'measure_power.phase_a',
-      useInstantaneousDemand ? CLUSTER.METERING : ExtendedElectricalMeasurementCluster,
+      useInstantaneousDemand ? zbClusters.CLUSTER.METERING : ExtendedElectricalMeasurementCluster,
       measurePowerStoreProperty,
       endpointId,
       noPowerFactorReporting,
@@ -274,7 +276,7 @@ async function initPhaseA(
       device,
       zclNode,
       'measure_power',
-      useInstantaneousDemand ? CLUSTER.METERING : ExtendedElectricalMeasurementCluster,
+      useInstantaneousDemand ? zbClusters.CLUSTER.METERING : ExtendedElectricalMeasurementCluster,
       measurePowerStoreProperty,
       endpointId,
       noPowerFactorReporting,

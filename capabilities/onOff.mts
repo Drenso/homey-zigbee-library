@@ -1,5 +1,5 @@
 import {ZigBeeDevice} from 'homey-zigbeedriver';
-import {CLUSTER, ZCLNode} from 'zigbee-clusters';
+import zbClusters, {type ZCLNode} from 'zigbee-clusters';
 import {
   DefaultConfiguration,
   initReadCommandCapability,
@@ -32,7 +32,7 @@ export default async function initOnOffDevice(
     device,
     zclNode,
     capabilityId,
-    CLUSTER.ON_OFF,
+    zbClusters.CLUSTER.ON_OFF,
     command,
     commandArgParser,
     'onOff',

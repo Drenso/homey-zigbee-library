@@ -1,6 +1,9 @@
+// todo: remove file
+export * from 'zigbee-clusters';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare module 'zigbee-clusters' {
-  import EventEmitter from 'events';
+  import {EventEmitter} from 'events';
   import { ZigBeeNode } from 'homey';
   import {DefaultResponseCommand} from "../../lib/clusters/ZCL";
 

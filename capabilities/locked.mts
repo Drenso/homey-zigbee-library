@@ -1,7 +1,6 @@
 import { ZigBeeDevice } from 'homey-zigbeedriver';
-import {CLUSTER, ZCLNode} from 'zigbee-clusters';
+import zbClusters, {type ZCLNode, type DoorLockClusterAttributes} from 'zigbee-clusters';
 import {DefaultConfiguration, initReadCommandCapability} from '../lib/attributeDevice.mjs';
-import {DoorLockClusterAttributes} from 'zigbee-clusters/index';
 
 type LockState = DoorLockClusterAttributes['lockState']
 
@@ -27,7 +26,7 @@ export default async function initLockedDevice(
     device,
     zclNode,
     capabilityId,
-    CLUSTER.DOOR_LOCK,
+    zbClusters.CLUSTER.DOOR_LOCK,
     command,
     commandArgParser,
     'lockState',
