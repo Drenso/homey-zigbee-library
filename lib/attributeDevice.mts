@@ -43,7 +43,7 @@ export async function readInitialValue(
     throw new Error(`Cluster ${cluster.NAME} not found on endpoint ${endpoint}`);
   }
 
-  await clusterInstance
+  clusterInstance
     .readAttributes([attributeName])
     .then(async result => {
       await device
