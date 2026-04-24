@@ -1,12 +1,11 @@
 // todo: remove file
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare module 'homey-zigbeedriver' {
-  import Homey, {ZigBeeNode} from 'homey';
-  import {Cluster, ZCLNode} from 'zigbee-clusters';
+  import type { ZigBeeNode } from 'homey';
+  import Homey from 'homey';
+  import type { Cluster, ZCLNode } from 'zigbee-clusters';
 
-  class Util {
-
-  }
+  class Util {}
 
   interface ClusterSpecification {
     NAME: string;
@@ -16,7 +15,7 @@ declare module 'homey-zigbeedriver' {
   interface ClusterCapabilityConfiguration {
     get?: string;
     set?: string | ((value: any) => string);
-    setParser?: (setValue: any) => object|null|Promise<object|null>;
+    setParser?: (setValue: any) => object | null | Promise<object | null>;
     report?: string;
     reportOpts?: {
       configureAttributeReporting?: AttributeReportingConfiguration;
@@ -27,7 +26,7 @@ declare module 'homey-zigbeedriver' {
       getOnStart?: boolean;
       getOnOnline?: boolean;
       pollInterval?: number | string;
-    }
+    };
   }
 
   interface AttributeReportingConfiguration {
@@ -40,17 +39,34 @@ declare module 'homey-zigbeedriver' {
   }
 
   class ZigBeeDevice extends Homey.Device {
-    onNodeInit(payload: {zclNode: ZCLNode, node: ZigBeeNode, supportsHueAndSaturation?: boolean, supportsColorTemperature?: boolean}): Promise<void>;
+    onNodeInit(payload: {
+      zclNode: ZCLNode;
+      node: ZigBeeNode;
+      supportsHueAndSaturation?: boolean;
+      supportsColorTemperature?: boolean;
+    }): Promise<void>;
     onMeshInit(): void;
     onEndDeviceAnnounce(): void;
-    triggerFlow(payload: {id: string, tokens?: object, state?: object}): Promise<void>;
-    registerCapability(capabilityId: string, cluster: ClusterSpecification, clusterCapabilityConfiguration?: ClusterCapabilityConfiguration): void;
-    registerMultipleCapabilities(multipleCapabilitiesConfiguration: Array<any>, multipleCapabilitiesListener: () => any): void;
-    getClusterEndpoint(cluster: ClusterSpecification): number|null;
+    triggerFlow(payload: { id: string; tokens?: object; state?: object }): Promise<void>;
+    registerCapability(
+      capabilityId: string,
+      cluster: ClusterSpecification,
+      clusterCapabilityConfiguration?: ClusterCapabilityConfiguration,
+    ): void;
+    registerMultipleCapabilities(
+      multipleCapabilitiesConfiguration: Array<any>,
+      multipleCapabilitiesListener: () => any,
+    ): void;
+    getClusterEndpoint(cluster: ClusterSpecification): number | null;
     configureAttributeReporting(attributeReportingConfigurations: AttributeReportingConfiguration[]): Promise<any>;
-    parseAttributeReport(capabilityId: string, cluster: ClusterSpecification, payload: any): Promise<any|null>;
+    parseAttributeReport(capabilityId: string, cluster: ClusterSpecification, payload: any): Promise<any | null>;
     getClusterCapabilityValue(capabilityId: string, cluster: ClusterSpecification): Promise<any>;
-    setClusterCapabilityValue(capabilityId: string, cluster: ClusterSpecification, value: any, opts: object): Promise<any|null>;
+    setClusterCapabilityValue(
+      capabilityId: string,
+      cluster: ClusterSpecification,
+      value: any,
+      opts: object,
+    ): Promise<any | null>;
     scheduleForNextEndDeviceAnnounce(method: any): Promise<unknown>;
     printNode(): void;
     debug(...args: any): void;
@@ -68,17 +84,16 @@ declare module 'homey-zigbeedriver' {
   class ZigBeeLightDevice extends ZigBeeDevice {
     get supportsHueAndSaturation(): boolean;
     get supportsColorTemperature(): boolean;
-    get colorTemperatureRange(): {min: any, max: any};
+    get colorTemperatureRange(): { min: any; max: any };
     get levelControlCluster(): Cluster;
     get onOffCluster(): Cluster;
     get colorControlCluster(): Cluster;
     readColorControlAttributes(): Promise<any>;
-    registerOnOffAndDimCapabilities(payload: {zclNode: ZCLNode}): void;
-    registerColorCapabilities(payload: {zclNode: ZCLNode}): void;
+    registerOnOffAndDimCapabilities(payload: { zclNode: ZCLNode }): void;
+    registerColorCapabilities(payload: { zclNode: ZCLNode }): void;
     changeOnOff(onoff: boolean): Promise<any>;
     changeDimLevel(dim: number, opts: object): Promise<any>;
     changeColorTemperature(temperature: number, opts: object): Promise<any>;
-    changeColor(payload: {hue: number, saturation: number, value: number}, opts: object): Promise<any>;
-
+    changeColor(payload: { hue: number; saturation: number; value: number }, opts: object): Promise<any>;
   }
 }

@@ -18,7 +18,9 @@ export default async function initIasZoneDevice(
 
   device.log(`Initialising IasZone on endpoint ${endpoint}`);
 
-  const cluster = zclNode.endpoints[endpoint].clusters[zbClusters.IASZoneCluster.NAME] as unknown as zbClusters.IASZoneCluster;
+  const cluster = zclNode.endpoints[endpoint].clusters[
+    zbClusters.IASZoneCluster.NAME
+  ] as unknown as zbClusters.IASZoneCluster;
 
   const zoneId = Math.floor(Math.random() * 255);
   const sendZoneEnrollResponse = (): void => {
