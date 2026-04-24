@@ -175,11 +175,11 @@ export default async function initFactorImplementation<Postfix extends string = 
   }
 
   // Register listener for incoming report
-  cluster.on('attr.' + properties.multiplier, value => {
+  cluster.on('attr.' + properties.multiplier, (value: number | undefined) => {
     device.debug(properties.multiplier + ' attribute report received', value);
     updateDeviceFactor(device, storeProperty, storePropertyPostfix, { multiplier: value });
   });
-  cluster.on('attr.' + properties.divisor, value => {
+  cluster.on('attr.' + properties.divisor, (value: number | undefined) => {
     device.debug(properties.divisor + ' attribute report received', value);
     updateDeviceFactor(device, storeProperty, storePropertyPostfix, { divisor: value });
   });

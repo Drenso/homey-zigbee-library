@@ -1,5 +1,5 @@
 import type { ZigBeeDevice } from 'homey-zigbeedriver';
-import type { Cluster, ZCLNode } from 'zigbee-clusters';
+import type { ZCLNode } from 'zigbee-clusters';
 import mapValueRange from '../lib/helper/valueRange.mjs';
 import { initLiftPercentageCapability } from './windowCoveringsSet.mjs';
 import { initTiltPercentageCapability } from './windowCoveringsTiltSet.mjs';
@@ -45,12 +45,6 @@ export interface WindowCoveringsProperties {
 }
 
 export interface ZigbeeWindowCoveringsDevice extends ZigBeeDevice, WindowCoveringsProperties {}
-
-export type WindowCoveringsCluster = Cluster & {
-  upOpen: () => Promise<void>;
-  downClose: () => Promise<void>;
-  stop: () => Promise<void>;
-};
 
 export type ArgumentOverrides = {
   endpointId?: number;

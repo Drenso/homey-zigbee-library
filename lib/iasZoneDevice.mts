@@ -1,6 +1,12 @@
+import type { Bitmap } from '@athombv/data-types';
 import type { ZigBeeDevice } from 'homey-zigbeedriver';
-import type { ZCLNode, ZoneEnrollRequestParams, ZoneStatus, ZoneStatusChangedPayload } from 'zigbee-clusters';
+import type { ZCLNode } from 'zigbee-clusters';
 import zbClusters from 'zigbee-clusters';
+import type { IASZoneCluster } from 'zigbee-clusters';
+
+type ZoneStatusChangedPayload = Required<Parameters<IASZoneCluster['onZoneStatusChangeNotification']>[0]>;
+type ZoneStatus = ZoneStatusChangedPayload['zoneStatus'] extends Bitmap<infer Flags> ? Flags : never;
+type ZoneEnrollRequestParams = Parameters<IASZoneCluster['onZoneEnrollRequest']>[0];
 
 export default async function initIasZoneDevice(
   device: ZigBeeDevice,
@@ -36,7 +42,7 @@ export default async function initIasZoneDevice(
   };
 
   // Register enroll request listener for automatic enrollment
-  cluster.onZoneEnrollRequest = (payload: ZoneEnrollRequestParams): void => {
+  cluster.onZoneEnrollRequest = async (payload: ZoneEnrollRequestParams): Promise<void> => {
     device.log('Zone enroll request received', payload);
     sendZoneEnrollResponse();
   };

@@ -1,8 +1,8 @@
-import type { ZCLNode } from 'zigbee-clusters';
+import type { WindowCoveringCluster, ZCLNode } from 'zigbee-clusters';
 import zbClusters from 'zigbee-clusters';
 import { readInitialValue } from '../lib/attributeDevice.mjs';
 import mapValueRange from '../lib/helper/valueRange.mjs';
-import type { ArgumentOverrides, WindowCoveringsCluster, ZigbeeWindowCoveringsDevice } from './windowCoverings.mjs';
+import type { ArgumentOverrides, ZigbeeWindowCoveringsDevice } from './windowCoverings.mjs';
 import { parsePercentageValue, STATE_COMMAND_MAP } from './windowCoverings.mjs';
 
 const CLUSTER_SPEC = zbClusters.CLUSTER.WINDOW_COVERING;
@@ -28,7 +28,7 @@ export async function initLiftPercentageCapability(
   device.log(`Initialising ${LIFT_PERCENTAGE_CAPABILITY} capability`);
 
   const endpoint = endpointId ?? device.getClusterEndpoint(CLUSTER_SPEC) ?? 1;
-  const cluster = zclNode.endpoints[endpoint].clusters[CLUSTER_SPEC.NAME] as unknown as WindowCoveringsCluster;
+  const cluster = zclNode.endpoints[endpoint].clusters[CLUSTER_SPEC.NAME] as unknown as WindowCoveringCluster;
 
   const setParser = (
     value: number,
@@ -72,7 +72,7 @@ export async function initLiftPercentageCapability(
 
 async function LiftPercentageCapabilitySetParser(
   device: ZigbeeWindowCoveringsDevice,
-  cluster: WindowCoveringsCluster,
+  cluster: WindowCoveringCluster,
   invertPercentage: boolean,
   invertSetting: string | undefined,
   debounceTime: number | undefined,

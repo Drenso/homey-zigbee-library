@@ -1,5 +1,5 @@
+import type { types } from 'zigbee-clusters';
 import zbClusters from 'zigbee-clusters';
-import type { DefaultResponseCommand } from './ZCL.mjs';
 
 const COMMAND_ID_ENUM = {
   Start: 0x01,
@@ -17,9 +17,9 @@ const COMMAND_ID_ENUM = {
 
 export type CommandId = keyof typeof COMMAND_ID_ENUM;
 
-const DATA_TYPE_ENUM = {
+const DATA_TYPE_ENUM: Record<string, number> = {
   // TODO
-} as const;
+};
 
 const OVERLOAD_WARNING_ENUM = {
   aboveAvailablePowerLevel: 0x00,
@@ -75,7 +75,7 @@ const Attributes = {
     id: 0x0002,
     type: zbClusters.ZCLDataTypes.uint16,
   },
-} as const;
+} as const satisfies types.AttributeDefinitions;
 
 const CommandsGenerated = {
   signalStateResponse: {
@@ -100,7 +100,7 @@ const CommandsGenerated = {
       applianceStatus2: zbClusters.ZCLDataTypes.uint24,
     },
   },
-} as const;
+} as const satisfies types.CommandDefinitions;
 
 const CommandsReceived = {
   executeCommand: {
@@ -145,9 +145,12 @@ const CommandsReceived = {
       warningEvent: zbClusters.ZCLDataTypes.enum8(OVERLOAD_WARNING_ENUM),
     },
   },
-} as const;
+} as const satisfies types.CommandDefinitions;
 
-class ApplianceControlCluster extends zbClusters.Cluster {
+class ApplianceControlCluster extends zbClusters.Cluster<
+  typeof Attributes,
+  typeof CommandsReceived & typeof CommandsGenerated
+> {
   public static get ID(): number {
     return 0x001b;
   }
@@ -165,27 +168,6 @@ class ApplianceControlCluster extends zbClusters.Cluster {
       ...CommandsReceived,
       ...CommandsGenerated,
     };
-  }
-
-  public readAttributes<T extends keyof typeof Attributes>(
-    attributeNames: T[],
-    opts?: { timeout: number },
-  ): Promise<{
-    [p in T]: (typeof Attributes)[p]['type'];
-  }> {
-    return super.readAttributes(attributeNames, opts) as unknown as Promise<{
-      [p in T]: (typeof Attributes)[p]['type'];
-    }>;
-  }
-
-  public writeAttributes<T extends keyof typeof Attributes>(attributes: {
-    [p in T]: (typeof Attributes)[p]['type'];
-  }): Promise<{
-    [p in T]: DefaultResponseCommand;
-  }> {
-    return super.writeAttributes(attributes) as unknown as Promise<{
-      [p in T]: DefaultResponseCommand;
-    }>;
   }
 }
 

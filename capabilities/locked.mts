@@ -2,8 +2,9 @@ import type { ZigBeeDevice } from 'homey-zigbeedriver';
 import zbClusters, { type ZCLNode, type DoorLockClusterAttributes } from 'zigbee-clusters';
 import type { DefaultConfiguration } from '../lib/attributeDevice.mjs';
 import { initReadCommandCapability } from '../lib/attributeDevice.mjs';
+import type { types as zigbeeClustersTypes } from 'zigbee-clusters';
 
-type LockState = DoorLockClusterAttributes['lockState'];
+type LockState = zigbeeClustersTypes.AttributesFromDefinition<DoorLockClusterAttributes>['lockState'];
 
 type ArgumentOverrides = DefaultConfiguration & {
   reportParser: (value: LockState) => unknown;
