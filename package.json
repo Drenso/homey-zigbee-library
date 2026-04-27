@@ -11,7 +11,7 @@
   "type": "module",
   "devDependencies": {
     "@drenso/eslint-config-homey-mts": "1.2.0",
-    "@drenso/prettier-config-homey-mts": "1.0.1",
+    "@drenso/prettier-config-homey-mts": "1.1.0",
     "@tsconfig/node24": "^24.0.4",
     "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.12",
     "@types/node": "^24.12.2",
