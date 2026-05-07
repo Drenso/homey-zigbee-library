@@ -109,7 +109,7 @@ export default async function initFactorImplementation(
   invalidFactorValue?: InvalidFactorValueFunction,
 ): Promise<void> {
   // Restore factor from store
-  await updateDeviceFactor(device, storeProperty, undefined, undefined, additionalMultiplier).catch(e =>
+  await updateDeviceFactor(device, storeProperty, { additionalMultiplier: additionalMultiplier }).catch(e =>
     device.error(`Failed to restore ${storeProperty}`, e),
   );
 
@@ -133,12 +133,10 @@ export default async function initFactorImplementation(
   await cluster
     .readAttributes([properties.value, properties.multiplier, properties.divisor])
     .then(async result => {
-      await updateDeviceFactor(
-        device,
-        storeProperty,
-        result[properties.multiplier] as number,
-        result[properties.divisor] as number,
-      );
+      await updateDeviceFactor(device, storeProperty, {
+        multiplier: result[properties.multiplier] as number,
+        divisor: result[properties.divisor] as number,
+      });
       await device
         .setCapabilityValue(capability, reportParser(result[properties.value] as number))
         .catch(e => device.error(`Failed to set ${capability} capability value`, e));
@@ -177,11 +175,11 @@ export default async function initFactorImplementation(
   // Register listener for incoming report
   cluster.on('attr.' + properties.multiplier, value => {
     device.log(properties.multiplier + ' attribute report received', value);
-    updateDeviceFactor(device, storeProperty, value);
+    updateDeviceFactor(device, storeProperty, { multiplier: value });
   });
   cluster.on('attr.' + properties.divisor, value => {
     device.log(properties.divisor + ' attribute report received', value);
-    updateDeviceFactor(device, storeProperty, undefined, value);
+    updateDeviceFactor(device, storeProperty, { divisor: value });
   });
 
   // Configure the capability
@@ -206,9 +204,11 @@ export default async function initFactorImplementation(
 async function updateDeviceFactor(
   device: ZigbeeFactorDevice,
   storeProperty: keyof ZigbeeFactorDeviceProperties,
-  multiplier?: number,
-  divisor?: number,
-  additionalMultiplier?: number,
+  {
+    multiplier,
+    divisor,
+    additionalMultiplier,
+  }: { multiplier?: number; divisor?: number; additionalMultiplier?: number } = {},
 ): Promise<void> {
   device.log(`Handling new ${storeProperty}`, multiplier, divisor);
 
