@@ -10,8 +10,8 @@ export type ZigbeeFactorKey =
   | 'meteringFactor'
   | 'totalActivePowerFactor';
 
-export interface ZigbeeFactorDevice extends ZigBeeDevice {
-  zigbeeFactors: Record<ZigbeeFactorKey, number>;
+export interface ZigbeeFactorDevice<Postfix extends string = ''> extends ZigBeeDevice {
+  zigbeeFactors: Record<`${ZigbeeFactorKey}${Postfix}`, number>;
 }
 
 export interface MeasurementReportingInterface {
@@ -67,11 +67,11 @@ const factorProperties: Record<
 
 export type InvalidFactorValueFunction = (value: number) => boolean;
 
-export function factorReportParserBuilder(
+export function factorReportParserBuilder<Postfix extends string = ''>(
   factor: () => number,
   onReport?: () => void,
   onReportTimeout?: number,
-  device?: ZigbeeFactorDevice,
+  device?: ZigbeeFactorDevice<Postfix>,
   invalidValue?: InvalidFactorValueFunction,
 ): (value: number) => number | null {
   return function (value: number): number | null {
@@ -91,12 +91,13 @@ export function factorReportParserBuilder(
   };
 }
 
-export default async function initFactorImplementation(
-  device: ZigbeeFactorDevice,
+export default async function initFactorImplementation<Postfix extends string = ''>(
+  device: ZigbeeFactorDevice<Postfix>,
   zclNode: ZCLNode,
   capability: string,
   clusterSpec: ClusterSpecification,
   storeProperty: ZigbeeFactorKey,
+  storePropertyPostfix: Postfix = '' as Postfix,
   endPointId?: number,
   noPowerFactorReporting?: boolean,
   {
@@ -110,9 +111,9 @@ export default async function initFactorImplementation(
   invalidFactorValue?: InvalidFactorValueFunction,
 ): Promise<void> {
   // Restore factor from store
-  await updateDeviceFactor(device, storeProperty, { additionalMultiplier: additionalMultiplier }).catch(e =>
-    device.error(`Failed to restore ${storeProperty}`, e),
-  );
+  await updateDeviceFactor<Postfix>(device, storeProperty, storePropertyPostfix, {
+    additionalMultiplier: additionalMultiplier,
+  }).catch(e => device.error(`Failed to restore ${storeProperty}`, e));
 
   const endpoint = endPointId ?? device.getClusterEndpoint(clusterSpec) ?? 1;
   const cluster = zclNode.endpoints[endpoint].clusters[clusterSpec.NAME];
@@ -121,7 +122,7 @@ export default async function initFactorImplementation(
   }
 
   const reportParser = factorReportParserBuilder(
-    () => device.zigbeeFactors[storeProperty] ?? 1,
+    () => device.zigbeeFactors[`${storeProperty}${storePropertyPostfix}`] ?? 1,
     onReport,
     onReportTimeout,
     device,
@@ -134,7 +135,7 @@ export default async function initFactorImplementation(
   await cluster
     .readAttributes([properties.value, properties.multiplier, properties.divisor])
     .then(async result => {
-      await updateDeviceFactor(device, storeProperty, {
+      await updateDeviceFactor(device, storeProperty, storePropertyPostfix, {
         multiplier: result[properties.multiplier] as number,
         divisor: result[properties.divisor] as number,
       });
@@ -176,11 +177,11 @@ export default async function initFactorImplementation(
   // Register listener for incoming report
   cluster.on('attr.' + properties.multiplier, value => {
     device.log(properties.multiplier + ' attribute report received', value);
-    updateDeviceFactor(device, storeProperty, { multiplier: value });
+    updateDeviceFactor(device, storeProperty, storePropertyPostfix, { multiplier: value });
   });
   cluster.on('attr.' + properties.divisor, value => {
     device.log(properties.divisor + ' attribute report received', value);
-    updateDeviceFactor(device, storeProperty, { divisor: value });
+    updateDeviceFactor(device, storeProperty, storePropertyPostfix, { divisor: value });
   });
 
   // Configure the capability
@@ -202,9 +203,10 @@ export default async function initFactorImplementation(
   });
 }
 
-async function updateDeviceFactor(
-  device: ZigbeeFactorDevice,
+async function updateDeviceFactor<Postfix extends string>(
+  device: ZigbeeFactorDevice<Postfix>,
   storeProperty: ZigbeeFactorKey,
+  storePropertyPostfix: Postfix,
   {
     multiplier,
     divisor,
@@ -239,6 +241,7 @@ async function updateDeviceFactor(
     additionalMultiplier = device.getStoreValue(additionalMultiplierKey);
   }
 
-  device.zigbeeFactors[storeProperty] = ((multiplier ?? 1) / (divisor ?? 1)) * (additionalMultiplier ?? 1);
-  device.log(`New active ${storeProperty}`, device.zigbeeFactors[storeProperty]);
+  device.zigbeeFactors[`${storeProperty}${storePropertyPostfix}`] =
+    ((multiplier ?? 1) / (divisor ?? 1)) * (additionalMultiplier ?? 1);
+  device.log(`New active ${storeProperty}`, device.zigbeeFactors[`${storeProperty}${storePropertyPostfix}`]);
 }

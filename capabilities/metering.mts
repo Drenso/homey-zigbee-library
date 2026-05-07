@@ -2,15 +2,16 @@ import zbClusters, { type ZCLNode } from 'zigbee-clusters';
 import type { ZigbeeFactorDevice } from '../lib/helper/deviceFactor.mjs';
 import initFactorImplementation from '../lib/helper/deviceFactor.mjs';
 
-type ArgumentOverrides = {
+type ArgumentOverrides<Postfix extends string> = {
   endpointId?: number;
   noPowerFactorReporting?: boolean;
+  storePropertyPostfix?: Postfix;
 };
 
-export default async function initMeteringDevice(
-  device: ZigbeeFactorDevice,
+export default async function initMeteringDevice<Postfix extends string = ''>(
+  device: ZigbeeFactorDevice<Postfix>,
   zclNode: ZCLNode,
-  { endpointId, noPowerFactorReporting }: Partial<ArgumentOverrides> = {},
+  { endpointId, noPowerFactorReporting, storePropertyPostfix }: ArgumentOverrides<Postfix> = {},
 ): Promise<void> {
   if (device.hasCapability('meter_power')) {
     device.log('Initialising meter_power capability');
@@ -21,6 +22,7 @@ export default async function initMeteringDevice(
       'meter_power',
       zbClusters.CLUSTER.METERING,
       'meteringFactor',
+      storePropertyPostfix,
       endpointId,
       noPowerFactorReporting,
     )

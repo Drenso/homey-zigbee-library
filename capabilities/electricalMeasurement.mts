@@ -7,7 +7,7 @@ import initFactorImplementation, {
   type InvalidFactorValueFunction,
 } from '../lib/helper/deviceFactor.mjs';
 
-type ArgumentOverrides = {
+type ArgumentOverrides<Postfix extends string> = {
   endpointId?: number;
   useInstantaneousDemand?: boolean;
   useTotalActivePower?: boolean;
@@ -25,16 +25,16 @@ type ArgumentOverrides = {
   additionalFrequencyMultiplier?: number;
   invalidCurrentValueFunction?: InvalidFactorValueFunction;
   invalidPowerValueFunction?: InvalidFactorValueFunction;
+  storePropertyPostfix?: Postfix;
 };
 
 const defaultInvalidVoltageValueFunction: InvalidFactorValueFunction = value => value < 0;
 const defaultInvalidCurrentValueFunction = undefined;
 const defaultInvalidPowerValueFunction: InvalidFactorValueFunction = value => value == 0xffff;
-
-export default async function initElectricalMeasurementDevice(
-  device: ZigbeeFactorDevice,
+export default async function initElectricalMeasurementDevice<Postfix extends string = ''>(
+  device: ZigbeeFactorDevice<Postfix>,
   zclNode: ZCLNode,
-  argumentOverrides: Partial<ArgumentOverrides> = {},
+  argumentOverrides: ArgumentOverrides<Postfix> = {},
 ): Promise<void> {
   const {
     endpointId,
@@ -43,6 +43,7 @@ export default async function initElectricalMeasurementDevice(
     minMeasurementInterval,
     maxMeasurementInterval,
     additionalFrequencyMultiplier,
+    storePropertyPostfix,
   } = argumentOverrides;
 
   device.log('Determining measurement type');
@@ -75,6 +76,7 @@ export default async function initElectricalMeasurementDevice(
       'measure_frequency',
       ExtendedElectricalMeasurementCluster,
       'acFrequencyFactor',
+      storePropertyPostfix,
       endpointId,
       noPowerFactorReporting,
       {
@@ -106,8 +108,8 @@ export default async function initElectricalMeasurementDevice(
   device.log('Electrical measurement device initialized!');
 }
 
-async function initPhaseA(
-  device: ZigbeeFactorDevice,
+async function initPhaseA<Postfix extends string>(
+  device: ZigbeeFactorDevice<Postfix>,
   zclNode: ZCLNode,
   {
     endpointId,
@@ -125,7 +127,8 @@ async function initPhaseA(
     additionalPowerMultiplier,
     invalidCurrentValueFunction,
     invalidPowerValueFunction,
-  }: Partial<ArgumentOverrides>,
+    storePropertyPostfix,
+  }: ArgumentOverrides<Postfix>,
 ): Promise<void> {
   if (device.hasCapability('measure_voltage.phase_a')) {
     device.log('Initialising measure_voltage.phase_a capability with measure_voltage average if it exists');
@@ -136,6 +139,7 @@ async function initPhaseA(
       'measure_voltage.phase_a',
       ExtendedElectricalMeasurementCluster,
       'acVoltageFactor',
+      storePropertyPostfix,
       endpointId,
       noPowerFactorReporting,
       {
@@ -159,6 +163,7 @@ async function initPhaseA(
       'measure_voltage',
       ExtendedElectricalMeasurementCluster,
       'acVoltageFactor',
+      storePropertyPostfix,
       endpointId,
       noPowerFactorReporting,
       {
@@ -184,6 +189,7 @@ async function initPhaseA(
       'measure_current.phase_a',
       ExtendedElectricalMeasurementCluster,
       'acCurrentFactor',
+      storePropertyPostfix,
       endpointId,
       noPowerFactorReporting,
       {
@@ -207,6 +213,7 @@ async function initPhaseA(
       'measure_current',
       ExtendedElectricalMeasurementCluster,
       'acCurrentFactor',
+      storePropertyPostfix,
       endpointId,
       noPowerFactorReporting,
       {
@@ -246,6 +253,7 @@ async function initPhaseA(
       'measure_power.phase_a',
       useInstantaneousDemand ? zbClusters.CLUSTER.METERING : ExtendedElectricalMeasurementCluster,
       measurePowerStoreProperty,
+      storePropertyPostfix,
       endpointId,
       noPowerFactorReporting,
       {
@@ -270,6 +278,7 @@ async function initPhaseA(
       'measure_power',
       useInstantaneousDemand ? zbClusters.CLUSTER.METERING : ExtendedElectricalMeasurementCluster,
       measurePowerStoreProperty,
+      storePropertyPostfix,
       endpointId,
       noPowerFactorReporting,
       {
@@ -288,8 +297,8 @@ async function initPhaseA(
   }
 }
 
-async function initPhaseB(
-  device: ZigbeeFactorDevice,
+async function initPhaseB<Postfix extends string>(
+  device: ZigbeeFactorDevice<Postfix>,
   zclNode: ZCLNode,
   {
     sumAverageUpdateInterval,
@@ -300,7 +309,8 @@ async function initPhaseB(
     minPowerMeasurementChange,
     invalidCurrentValueFunction,
     invalidPowerValueFunction,
-  }: Partial<ArgumentOverrides>,
+    storePropertyPostfix = '' as Postfix,
+  }: ArgumentOverrides<Postfix>,
 ): Promise<void> {
   device.log('Initialising Phase B measurements');
 
@@ -314,7 +324,7 @@ async function initPhaseB(
       ExtendedElectricalMeasurementCluster,
       'rmsVoltagePhB',
       factorReportParserBuilder(
-        () => device.zigbeeFactors['acVoltageFactor'] ?? 1,
+        () => device.zigbeeFactors[`acVoltageFactor${storePropertyPostfix}`] ?? 1,
         updateAverageCapabilityFactory('measure_voltage', device),
         sumAverageUpdateInterval,
         device,
@@ -340,7 +350,7 @@ async function initPhaseB(
       ExtendedElectricalMeasurementCluster,
       'rmsCurrentPhB',
       factorReportParserBuilder(
-        () => device.zigbeeFactors['acCurrentFactor'] ?? 1,
+        () => device.zigbeeFactors[`acCurrentFactor${storePropertyPostfix}`] ?? 1,
         updateSummationCapabilityFactory('measure_current', device),
         sumAverageUpdateInterval,
         device,
@@ -366,7 +376,7 @@ async function initPhaseB(
       ExtendedElectricalMeasurementCluster,
       'activePowerPhB',
       factorReportParserBuilder(
-        () => device.zigbeeFactors['activePowerFactor'] ?? 1,
+        () => device.zigbeeFactors[`activePowerFactor${storePropertyPostfix}`] ?? 1,
         updateSummationCapabilityFactory('measure_power', device),
         sumAverageUpdateInterval,
         device,
@@ -383,8 +393,8 @@ async function initPhaseB(
   }
 }
 
-async function initPhaseC(
-  device: ZigbeeFactorDevice,
+async function initPhaseC<Postfix extends string>(
+  device: ZigbeeFactorDevice<Postfix>,
   zclNode: ZCLNode,
   {
     sumAverageUpdateInterval,
@@ -395,7 +405,8 @@ async function initPhaseC(
     minPowerMeasurementChange,
     invalidCurrentValueFunction,
     invalidPowerValueFunction,
-  }: Partial<ArgumentOverrides>,
+    storePropertyPostfix = '' as Postfix,
+  }: ArgumentOverrides<Postfix>,
 ): Promise<void> {
   device.log('Initialising Phase C measurements');
 
@@ -409,7 +420,7 @@ async function initPhaseC(
       ExtendedElectricalMeasurementCluster,
       'rmsVoltagePhC',
       factorReportParserBuilder(
-        () => device.zigbeeFactors['acVoltageFactor'] ?? 1,
+        () => device.zigbeeFactors[`acVoltageFactor${storePropertyPostfix}`] ?? 1,
         updateAverageCapabilityFactory('measure_voltage', device),
         sumAverageUpdateInterval,
         device,
@@ -435,7 +446,7 @@ async function initPhaseC(
       ExtendedElectricalMeasurementCluster,
       'rmsCurrentPhC',
       factorReportParserBuilder(
-        () => device.zigbeeFactors['acCurrentFactor'] ?? 1,
+        () => device.zigbeeFactors[`acCurrentFactor${storePropertyPostfix}`] ?? 1,
         updateSummationCapabilityFactory('measure_current', device),
         sumAverageUpdateInterval,
         device,
@@ -461,7 +472,7 @@ async function initPhaseC(
       ExtendedElectricalMeasurementCluster,
       'activePowerPhC',
       factorReportParserBuilder(
-        () => device.zigbeeFactors['activePowerFactor'] ?? 1,
+        () => device.zigbeeFactors[`activePowerFactor${storePropertyPostfix}`] ?? 1,
         updateSummationCapabilityFactory('measure_power', device),
         sumAverageUpdateInterval,
         device,
@@ -478,7 +489,10 @@ async function initPhaseC(
   }
 }
 
-function updateAverageCapabilityFactory(averageCapability: string, device: ZigbeeFactorDevice): () => void {
+function updateAverageCapabilityFactory<Postfix extends string>(
+  averageCapability: string,
+  device: ZigbeeFactorDevice<Postfix>,
+): () => void {
   return (): void => {
     if (!device.hasCapability(averageCapability)) {
       return;
@@ -499,7 +513,10 @@ function updateAverageCapabilityFactory(averageCapability: string, device: Zigbe
   };
 }
 
-function updateSummationCapabilityFactory(summationCapability: string, device: ZigbeeFactorDevice): () => void {
+function updateSummationCapabilityFactory<Postfix extends string>(
+  summationCapability: string,
+  device: ZigbeeFactorDevice<Postfix>,
+): () => void {
   return (): void => {
     if (!device.hasCapability(summationCapability)) {
       return;
