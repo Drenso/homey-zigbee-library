@@ -26,6 +26,18 @@ type ArgumentOverrides<Postfix extends string> = {
   invalidCurrentValueFunction?: InvalidFactorValueFunction;
   invalidPowerValueFunction?: InvalidFactorValueFunction;
   storePropertyPostfix?: Postfix;
+  measureVoltageCapability?: string;
+  measureCurrentCapability?: string;
+  measurePowerCapability?: string;
+  measureVoltagePhaseACapability?: string;
+  measureCurrentPhaseACapability?: string;
+  measurePowerPhaseACapability?: string;
+  measureVoltagePhaseBCapability?: string;
+  measureCurrentPhaseBCapability?: string;
+  measurePowerPhaseBCapability?: string;
+  measureVoltagePhaseCCapability?: string;
+  measureCurrentPhaseCCapability?: string;
+  measurePowerPhaseCCapability?: string;
 };
 
 const defaultInvalidVoltageValueFunction: InvalidFactorValueFunction = value => value < 0;
@@ -128,15 +140,29 @@ async function initPhaseA<Postfix extends string>(
     invalidCurrentValueFunction,
     invalidPowerValueFunction,
     storePropertyPostfix,
+    measureVoltageCapability = 'measure_voltage',
+    measureCurrentCapability = 'measure_current',
+    measurePowerCapability = 'measure_power',
+    measureVoltagePhaseACapability = 'measure_voltage.phase_a',
+    measureCurrentPhaseACapability = 'measure_current.phase_a',
+    measurePowerPhaseACapability = 'measure_power.phase_a',
+    measureVoltagePhaseBCapability = 'measure_voltage.phase_b',
+    measureCurrentPhaseBCapability = 'measure_current.phase_b',
+    measurePowerPhaseBCapability = 'measure_power.phase_b',
+    measureVoltagePhaseCCapability = 'measure_voltage.phase_c',
+    measureCurrentPhaseCCapability = 'measure_current.phase_c',
+    measurePowerPhaseCCapability = 'measure_power.phase_c',
   }: ArgumentOverrides<Postfix>,
 ): Promise<void> {
-  if (device.hasCapability('measure_voltage.phase_a')) {
-    device.log('Initialising measure_voltage.phase_a capability with measure_voltage average if it exists');
+  if (device.hasCapability(measureVoltagePhaseACapability)) {
+    device.log(
+      `Initialising ${measureVoltagePhaseACapability} capability with ${measureVoltageCapability} average if it exists`,
+    );
 
     await initFactorImplementation(
       device,
       zclNode,
-      'measure_voltage.phase_a',
+      measureVoltagePhaseACapability,
       ExtendedElectricalMeasurementCluster,
       'acVoltageFactor',
       storePropertyPostfix,
@@ -147,20 +173,26 @@ async function initPhaseA<Postfix extends string>(
         maxMeasurementInterval,
         minMeasurementChange: minVoltageMeasurementChange,
       },
-      updateAverageCapabilityFactory('measure_voltage', device),
+      updateAverageCapabilityFactory(
+        measureVoltageCapability,
+        device,
+        measureVoltagePhaseACapability,
+        measureVoltagePhaseBCapability,
+        measureVoltagePhaseCCapability,
+      ),
       sumAverageUpdateInterval,
       additionalVoltageMultiplier,
       defaultInvalidVoltageValueFunction,
     )
-      .then(() => device.log('Initialised measure_voltage.phase_a capability'))
-      .catch(e => device.error('Failed to initialise measure_voltage.phase_a capability', e));
-  } else if (device.hasCapability('measure_voltage')) {
-    device.log('Initialising measure_voltage capability');
+      .then(() => device.log(`Initialised ${measureVoltagePhaseACapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measureVoltagePhaseACapability} capability`, e));
+  } else if (device.hasCapability(measureVoltageCapability)) {
+    device.log(`Initialising ${measureVoltageCapability} capability`);
 
     await initFactorImplementation(
       device,
       zclNode,
-      'measure_voltage',
+      measureVoltageCapability,
       ExtendedElectricalMeasurementCluster,
       'acVoltageFactor',
       storePropertyPostfix,
@@ -176,17 +208,19 @@ async function initPhaseA<Postfix extends string>(
       additionalVoltageMultiplier,
       defaultInvalidVoltageValueFunction,
     )
-      .then(() => device.log('Initialised measure_voltage capability'))
-      .catch(e => device.error('Failed to initialise measure_voltage capability', e));
+      .then(() => device.log(`Initialised ${measureVoltageCapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measureVoltageCapability} capability`, e));
   }
 
-  if (device.hasCapability('measure_current.phase_a')) {
-    device.log('Initialising measure_current.phase_a capability with summation if it exists');
+  if (device.hasCapability(measureCurrentPhaseACapability)) {
+    device.log(
+      `Initialising ${measureCurrentPhaseACapability} capability with ${measureCurrentCapability} summation if it exists`,
+    );
 
     await initFactorImplementation(
       device,
       zclNode,
-      'measure_current.phase_a',
+      measureCurrentPhaseACapability,
       ExtendedElectricalMeasurementCluster,
       'acCurrentFactor',
       storePropertyPostfix,
@@ -197,20 +231,26 @@ async function initPhaseA<Postfix extends string>(
         maxMeasurementInterval,
         minMeasurementChange: minCurrentMeasurementChange,
       },
-      updateSummationCapabilityFactory('measure_current', device),
+      updateSummationCapabilityFactory(
+        measureCurrentCapability,
+        device,
+        measureCurrentPhaseACapability,
+        measureCurrentPhaseBCapability,
+        measureCurrentPhaseCCapability,
+      ),
       sumAverageUpdateInterval,
       additionalCurrentMultiplier,
       invalidCurrentValueFunction ?? defaultInvalidCurrentValueFunction,
     )
-      .then(() => device.log('Initialised measure_current.phase_a capability'))
-      .catch(e => device.error('Failed to initialise measure_current.phase_a capability', e));
-  } else if (device.hasCapability('measure_current')) {
-    device.log('Initialising measure_current capability');
+      .then(() => device.log(`Initialised ${measureCurrentPhaseACapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measureCurrentPhaseACapability} capability`, e));
+  } else if (device.hasCapability(measureCurrentCapability)) {
+    device.log(`Initialising ${measureCurrentCapability} capability`);
 
     await initFactorImplementation(
       device,
       zclNode,
-      'measure_current',
+      measureCurrentCapability,
       ExtendedElectricalMeasurementCluster,
       'acCurrentFactor',
       storePropertyPostfix,
@@ -226,8 +266,8 @@ async function initPhaseA<Postfix extends string>(
       additionalCurrentMultiplier,
       invalidCurrentValueFunction ?? defaultInvalidCurrentValueFunction,
     )
-      .then(() => device.log('Initialised measure_current capability'))
-      .catch(e => device.error('Failed to initialise measure_current capability', e));
+      .then(() => device.log(`Initialised ${measureCurrentCapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measureCurrentCapability} capability`, e));
   }
 
   if (useTotalActivePower && useInstantaneousDemand) {
@@ -244,13 +284,15 @@ async function initPhaseA<Postfix extends string>(
     measurePowerStoreProperty = 'activePowerFactor';
   }
 
-  if (device.hasCapability('measure_power.phase_a')) {
-    device.log('Initialising measure_power.phase_a capability with summation if it exists');
+  if (device.hasCapability(measurePowerPhaseACapability)) {
+    device.log(
+      `Initialising ${measurePowerPhaseACapability} capability with ${measurePowerCapability} summation if it exists`,
+    );
 
     await initFactorImplementation(
       device,
       zclNode,
-      'measure_power.phase_a',
+      measurePowerPhaseACapability,
       useInstantaneousDemand ? zbClusters.CLUSTER.METERING : ExtendedElectricalMeasurementCluster,
       measurePowerStoreProperty,
       storePropertyPostfix,
@@ -261,21 +303,27 @@ async function initPhaseA<Postfix extends string>(
         maxMeasurementInterval,
         minMeasurementChange: minPowerMeasurementChange,
       },
-      updateSummationCapabilityFactory('measure_power', device),
+      updateSummationCapabilityFactory(
+        measurePowerCapability,
+        device,
+        measurePowerPhaseACapability,
+        measurePowerPhaseBCapability,
+        measurePowerPhaseCCapability,
+      ),
       sumAverageUpdateInterval,
       // Fall back to 1000 additional multiplier as the cluster definition for instantaneous demand and total active power define kW as unit of measurement
       additionalPowerMultiplier ?? (useInstantaneousDemand || useTotalActivePower ? 1000 : undefined),
       invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
     )
-      .then(() => device.log('Initialised measure_power.phase_a capability'))
-      .catch(e => device.error('Failed to initialise measure_power.phase_a capability', e));
-  } else if (device.hasCapability('measure_power')) {
-    device.log('Initialising measure_power capability');
+      .then(() => device.log(`Initialised ${measurePowerPhaseACapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measurePowerPhaseACapability} capability`, e));
+  } else if (device.hasCapability(measurePowerCapability)) {
+    device.log(`Initialising ${measurePowerCapability} capability`);
 
     await initFactorImplementation(
       device,
       zclNode,
-      'measure_power',
+      measurePowerCapability,
       useInstantaneousDemand ? zbClusters.CLUSTER.METERING : ExtendedElectricalMeasurementCluster,
       measurePowerStoreProperty,
       storePropertyPostfix,
@@ -292,8 +340,8 @@ async function initPhaseA<Postfix extends string>(
       additionalPowerMultiplier ?? (useInstantaneousDemand || useTotalActivePower ? 1000 : undefined),
       invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
     )
-      .then(() => device.log('Initialised measure_power capability'))
-      .catch(e => device.error('Failed to initialise measure_power capability', e));
+      .then(() => device.log(`Initialised ${measurePowerCapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measurePowerCapability} capability`, e));
   }
 }
 
@@ -310,22 +358,42 @@ async function initPhaseB<Postfix extends string>(
     invalidCurrentValueFunction,
     invalidPowerValueFunction,
     storePropertyPostfix = '' as Postfix,
+    measureVoltageCapability = 'measure_voltage',
+    measureCurrentCapability = 'measure_current',
+    measurePowerCapability = 'measure_power',
+    measureVoltagePhaseACapability = 'measure_voltage.phase_a',
+    measureCurrentPhaseACapability = 'measure_current.phase_a',
+    measurePowerPhaseACapability = 'measure_power.phase_a',
+    measureVoltagePhaseBCapability = 'measure_voltage.phase_b',
+    measureCurrentPhaseBCapability = 'measure_current.phase_b',
+    measurePowerPhaseBCapability = 'measure_power.phase_b',
+    measureVoltagePhaseCCapability = 'measure_voltage.phase_c',
+    measureCurrentPhaseCCapability = 'measure_current.phase_c',
+    measurePowerPhaseCCapability = 'measure_power.phase_c',
   }: ArgumentOverrides<Postfix>,
 ): Promise<void> {
   device.log('Initialising Phase B measurements');
 
-  if (device.hasCapability('measure_voltage.phase_b')) {
-    device.log('Initialising measure_voltage.phase_b capability');
+  if (device.hasCapability(measureVoltagePhaseBCapability)) {
+    device.log(
+      `Initialising ${measureVoltagePhaseBCapability} capability with ${measureVoltageCapability} average if it exists`,
+    );
 
     await initReadOnlyCapability(
       device,
       zclNode,
-      'measure_voltage.phase_b',
+      measureVoltagePhaseBCapability,
       ExtendedElectricalMeasurementCluster,
       'rmsVoltagePhB',
       factorReportParserBuilder(
         () => device.zigbeeFactors[`acVoltageFactor${storePropertyPostfix}`] ?? 1,
-        updateAverageCapabilityFactory('measure_voltage', device),
+        updateAverageCapabilityFactory(
+          measureVoltageCapability,
+          device,
+          measureVoltagePhaseACapability,
+          measureVoltagePhaseBCapability,
+          measureVoltagePhaseCCapability,
+        ),
         sumAverageUpdateInterval,
         device,
         defaultInvalidVoltageValueFunction,
@@ -336,22 +404,30 @@ async function initPhaseB<Postfix extends string>(
         minChange: minVoltageMeasurementChange,
       },
     )
-      .then(() => device.log('Initialised measure_voltage.phase_b capability'))
-      .catch(e => device.error('Failed to initialise measure_voltage.phase_b capability', e));
+      .then(() => device.log(`Initialised ${measureVoltagePhaseBCapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measureVoltagePhaseBCapability} capability`, e));
   }
 
-  if (device.hasCapability('measure_current.phase_b')) {
-    device.log('Initialising measure_current.phase_b capability');
+  if (device.hasCapability(measureCurrentPhaseBCapability)) {
+    device.log(
+      `Initialising ${measureCurrentPhaseBCapability} capability with ${measureCurrentCapability} summation if it exists`,
+    );
 
     await initReadOnlyCapability(
       device,
       zclNode,
-      'measure_current.phase_b',
+      measureCurrentPhaseBCapability,
       ExtendedElectricalMeasurementCluster,
       'rmsCurrentPhB',
       factorReportParserBuilder(
         () => device.zigbeeFactors[`acCurrentFactor${storePropertyPostfix}`] ?? 1,
-        updateSummationCapabilityFactory('measure_current', device),
+        updateSummationCapabilityFactory(
+          measureCurrentCapability,
+          device,
+          measureCurrentPhaseACapability,
+          measureCurrentPhaseBCapability,
+          measureCurrentPhaseCCapability,
+        ),
         sumAverageUpdateInterval,
         device,
         invalidCurrentValueFunction ?? defaultInvalidCurrentValueFunction,
@@ -362,22 +438,30 @@ async function initPhaseB<Postfix extends string>(
         minChange: minCurrentMeasurementChange,
       },
     )
-      .then(() => device.log('Initialised measure_current.phase_b capability'))
-      .catch(e => device.error('Failed to initialise measure_current.phase_b capability', e));
+      .then(() => device.log(`Initialised ${measureCurrentPhaseBCapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measureCurrentPhaseBCapability} capability`, e));
   }
 
-  if (device.hasCapability('measure_power.phase_b')) {
-    device.log('Initialising measure_power.phase_b capability');
+  if (device.hasCapability(measurePowerPhaseBCapability)) {
+    device.log(
+      `Initialising ${measurePowerPhaseBCapability} capability with ${measurePowerCapability} summation if it exists`,
+    );
 
     await initReadOnlyCapability(
       device,
       zclNode,
-      'measure_power.phase_b',
+      measurePowerPhaseBCapability,
       ExtendedElectricalMeasurementCluster,
       'activePowerPhB',
       factorReportParserBuilder(
         () => device.zigbeeFactors[`activePowerFactor${storePropertyPostfix}`] ?? 1,
-        updateSummationCapabilityFactory('measure_power', device),
+        updateSummationCapabilityFactory(
+          measurePowerCapability,
+          device,
+          measurePowerPhaseACapability,
+          measurePowerPhaseBCapability,
+          measurePowerPhaseCCapability,
+        ),
         sumAverageUpdateInterval,
         device,
         invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
@@ -388,8 +472,8 @@ async function initPhaseB<Postfix extends string>(
         minChange: minPowerMeasurementChange,
       },
     )
-      .then(() => device.log('Initialised measure_power.phase_b capability'))
-      .catch(e => device.error('Failed to initialise measure_power.phase_b capability', e));
+      .then(() => device.log(`Initialised ${measurePowerPhaseBCapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measureCurrentPhaseBCapability} capability`, e));
   }
 }
 
@@ -406,22 +490,42 @@ async function initPhaseC<Postfix extends string>(
     invalidCurrentValueFunction,
     invalidPowerValueFunction,
     storePropertyPostfix = '' as Postfix,
+    measureVoltageCapability = 'measure_voltage',
+    measureCurrentCapability = 'measure_current',
+    measurePowerCapability = 'measure_power',
+    measureVoltagePhaseACapability = 'measure_voltage.phase_a',
+    measureCurrentPhaseACapability = 'measure_current.phase_a',
+    measurePowerPhaseACapability = 'measure_power.phase_a',
+    measureVoltagePhaseBCapability = 'measure_voltage.phase_b',
+    measureCurrentPhaseBCapability = 'measure_current.phase_b',
+    measurePowerPhaseBCapability = 'measure_power.phase_b',
+    measureVoltagePhaseCCapability = 'measure_voltage.phase_c',
+    measureCurrentPhaseCCapability = 'measure_current.phase_c',
+    measurePowerPhaseCCapability = 'measure_power.phase_c',
   }: ArgumentOverrides<Postfix>,
 ): Promise<void> {
   device.log('Initialising Phase C measurements');
 
-  if (device.hasCapability('measure_voltage.phase_c')) {
-    device.log('Initialising measure_voltage.phase_c capability');
+  if (device.hasCapability(measureVoltagePhaseCCapability)) {
+    device.log(
+      `Initialising ${measureVoltagePhaseCCapability} capability with ${measureVoltageCapability} average if it exists`,
+    );
 
     await initReadOnlyCapability(
       device,
       zclNode,
-      'measure_voltage.phase_c',
+      measureVoltagePhaseCCapability,
       ExtendedElectricalMeasurementCluster,
       'rmsVoltagePhC',
       factorReportParserBuilder(
         () => device.zigbeeFactors[`acVoltageFactor${storePropertyPostfix}`] ?? 1,
-        updateAverageCapabilityFactory('measure_voltage', device),
+        updateAverageCapabilityFactory(
+          measureVoltageCapability,
+          device,
+          measureVoltagePhaseACapability,
+          measureVoltagePhaseBCapability,
+          measureVoltagePhaseCCapability,
+        ),
         sumAverageUpdateInterval,
         device,
         defaultInvalidVoltageValueFunction,
@@ -432,22 +536,30 @@ async function initPhaseC<Postfix extends string>(
         minChange: minVoltageMeasurementChange,
       },
     )
-      .then(() => device.log('Initialised measure_voltage.phase_c capability'))
-      .catch(e => device.error('Failed to initialise measure_voltage.phase_c capability', e));
+      .then(() => device.log(`Initialised ${measureVoltagePhaseCCapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measureVoltagePhaseCCapability} capability`, e));
   }
 
-  if (device.hasCapability('measure_current.phase_c')) {
-    device.log('Initialising measure_current.phase_c capability');
+  if (device.hasCapability(measureCurrentPhaseCCapability)) {
+    device.log(
+      `Initialising ${measureCurrentPhaseCCapability} capability with ${measureCurrentCapability} summation if it exists`,
+    );
 
     await initReadOnlyCapability(
       device,
       zclNode,
-      'measure_current.phase_c',
+      measureCurrentPhaseCCapability,
       ExtendedElectricalMeasurementCluster,
       'rmsCurrentPhC',
       factorReportParserBuilder(
         () => device.zigbeeFactors[`acCurrentFactor${storePropertyPostfix}`] ?? 1,
-        updateSummationCapabilityFactory('measure_current', device),
+        updateSummationCapabilityFactory(
+          measureCurrentCapability,
+          device,
+          measureCurrentPhaseACapability,
+          measureCurrentPhaseBCapability,
+          measureCurrentPhaseCCapability,
+        ),
         sumAverageUpdateInterval,
         device,
         invalidCurrentValueFunction ?? defaultInvalidCurrentValueFunction,
@@ -458,22 +570,30 @@ async function initPhaseC<Postfix extends string>(
         minChange: minCurrentMeasurementChange,
       },
     )
-      .then(() => device.log('Initialised measure_current.phase_c capability'))
-      .catch(e => device.error('Failed to initialise measure_current.phase_c capability', e));
+      .then(() => device.log(`Initialised ${measureCurrentPhaseCCapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measureCurrentPhaseCCapability} capability`, e));
   }
 
-  if (device.hasCapability('measure_power.phase_c')) {
-    device.log('Initialising measure_power.phase_c capability');
+  if (device.hasCapability(measurePowerPhaseCCapability)) {
+    device.log(
+      `Initialising ${measurePowerPhaseCCapability} capability with ${measurePowerCapability} summation if it exists`,
+    );
 
     await initReadOnlyCapability(
       device,
       zclNode,
-      'measure_power.phase_c',
+      measurePowerPhaseCCapability,
       ExtendedElectricalMeasurementCluster,
       'activePowerPhC',
       factorReportParserBuilder(
         () => device.zigbeeFactors[`activePowerFactor${storePropertyPostfix}`] ?? 1,
-        updateSummationCapabilityFactory('measure_power', device),
+        updateSummationCapabilityFactory(
+          measurePowerCapability,
+          device,
+          measurePowerPhaseACapability,
+          measurePowerPhaseBCapability,
+          measurePowerPhaseCCapability,
+        ),
         sumAverageUpdateInterval,
         device,
         invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
@@ -484,24 +604,23 @@ async function initPhaseC<Postfix extends string>(
         minChange: minPowerMeasurementChange,
       },
     )
-      .then(() => device.log('Initialised measure_power.phase_c capability'))
-      .catch(e => device.error('Failed to initialise measure_power.phase_c capability', e));
+      .then(() => device.log(`Initialised ${measurePowerPhaseCCapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measurePowerPhaseCCapability} capability`, e));
   }
 }
 
 function updateAverageCapabilityFactory<Postfix extends string>(
   averageCapability: string,
   device: ZigbeeFactorDevice<Postfix>,
+  phaseACapability: string,
+  phaseBCapability: string,
+  phaseCCapability: string,
 ): () => void {
   return (): void => {
     if (!device.hasCapability(averageCapability)) {
       return;
     }
-    const capabilities = [
-      averageCapability + '.phase_a',
-      averageCapability + '.phase_b',
-      averageCapability + '.phase_c',
-    ];
+    const capabilities = [phaseACapability, phaseBCapability, phaseCCapability];
     const values = [];
     for (const capability of capabilities) {
       values.push(device.hasCapability(capability) ? device.getCapabilityValue(capability) : 0);
@@ -516,16 +635,15 @@ function updateAverageCapabilityFactory<Postfix extends string>(
 function updateSummationCapabilityFactory<Postfix extends string>(
   summationCapability: string,
   device: ZigbeeFactorDevice<Postfix>,
+  phaseACapability: string,
+  phaseBCapability: string,
+  phaseCCapability: string,
 ): () => void {
   return (): void => {
     if (!device.hasCapability(summationCapability)) {
       return;
     }
-    const capabilities = [
-      summationCapability + '.phase_a',
-      summationCapability + '.phase_b',
-      summationCapability + '.phase_c',
-    ];
+    const capabilities = [phaseACapability, phaseBCapability, phaseCCapability];
     const values = [];
     for (const capability of capabilities) {
       values.push(device.hasCapability(capability) ? device.getCapabilityValue(capability) : 0);
