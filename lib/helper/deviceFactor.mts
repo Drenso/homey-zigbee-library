@@ -1,17 +1,18 @@
 import type { ClusterSpecification, ZigBeeDevice } from 'homey-zigbeedriver';
 import type { ZCLNode } from 'zigbee-clusters';
 
-export interface ZigbeeFactorDeviceProperties {
-  acVoltageFactor?: number;
-  acCurrentFactor?: number;
-  acFrequencyFactor?: number;
-  activePowerFactor?: number;
-  instantaneousDemandFactor?: number;
-  meteringFactor?: number;
-  totalActivePowerFactor?: number;
-}
+export type ZigbeeFactorKey =
+  | 'acVoltageFactor'
+  | 'acCurrentFactor'
+  | 'acFrequencyFactor'
+  | 'activePowerFactor'
+  | 'instantaneousDemandFactor'
+  | 'meteringFactor'
+  | 'totalActivePowerFactor';
 
-export interface ZigbeeFactorDevice extends ZigBeeDevice, ZigbeeFactorDeviceProperties {}
+export interface ZigbeeFactorDevice extends ZigBeeDevice {
+  zigbeeFactors: Record<ZigbeeFactorKey, number>;
+}
 
 export interface MeasurementReportingInterface {
   minMeasurementChange?: number;
@@ -20,7 +21,7 @@ export interface MeasurementReportingInterface {
 }
 
 const factorProperties: Record<
-  keyof ZigbeeFactorDeviceProperties,
+  ZigbeeFactorKey,
   {
     value: string;
     multiplier: string;
@@ -95,7 +96,7 @@ export default async function initFactorImplementation(
   zclNode: ZCLNode,
   capability: string,
   clusterSpec: ClusterSpecification,
-  storeProperty: keyof ZigbeeFactorDeviceProperties,
+  storeProperty: ZigbeeFactorKey,
   endPointId?: number,
   noPowerFactorReporting?: boolean,
   {
@@ -120,7 +121,7 @@ export default async function initFactorImplementation(
   }
 
   const reportParser = factorReportParserBuilder(
-    () => device[storeProperty] ?? 1,
+    () => device.zigbeeFactors[storeProperty] ?? 1,
     onReport,
     onReportTimeout,
     device,
@@ -203,7 +204,7 @@ export default async function initFactorImplementation(
 
 async function updateDeviceFactor(
   device: ZigbeeFactorDevice,
-  storeProperty: keyof ZigbeeFactorDeviceProperties,
+  storeProperty: ZigbeeFactorKey,
   {
     multiplier,
     divisor,
@@ -238,6 +239,6 @@ async function updateDeviceFactor(
     additionalMultiplier = device.getStoreValue(additionalMultiplierKey);
   }
 
-  device[storeProperty] = ((multiplier ?? 1) / (divisor ?? 1)) * (additionalMultiplier ?? 1);
-  device.log(`New active ${storeProperty}`, device[storeProperty]);
+  device.zigbeeFactors[storeProperty] = ((multiplier ?? 1) / (divisor ?? 1)) * (additionalMultiplier ?? 1);
+  device.log(`New active ${storeProperty}`, device.zigbeeFactors[storeProperty]);
 }

@@ -1,7 +1,7 @@
 import zbClusters, { type ZCLNode } from 'zigbee-clusters';
 import { initReadOnlyCapability } from '../lib/attributeDevice.mjs';
 import { ExtendedElectricalMeasurementCluster } from '../lib/clusters/ExtendedElectricalMeasurementCluster.mjs';
-import type { ZigbeeFactorDevice, ZigbeeFactorDeviceProperties } from '../lib/helper/deviceFactor.mjs';
+import type { ZigbeeFactorDevice, ZigbeeFactorKey } from '../lib/helper/deviceFactor.mjs';
 import initFactorImplementation, {
   factorReportParserBuilder,
   type InvalidFactorValueFunction,
@@ -227,7 +227,7 @@ async function initPhaseA(
     throw new Error('Cannot use totalActivePower and instantaneousDemand at the same time');
   }
 
-  let measurePowerStoreProperty: keyof ZigbeeFactorDeviceProperties;
+  let measurePowerStoreProperty: ZigbeeFactorKey;
 
   if (useTotalActivePower) {
     measurePowerStoreProperty = 'totalActivePowerFactor';
@@ -314,7 +314,7 @@ async function initPhaseB(
       ExtendedElectricalMeasurementCluster,
       'rmsVoltagePhB',
       factorReportParserBuilder(
-        () => device['acVoltageFactor'] ?? 1,
+        () => device.zigbeeFactors['acVoltageFactor'] ?? 1,
         updateAverageCapabilityFactory('measure_voltage', device),
         sumAverageUpdateInterval,
         device,
@@ -340,7 +340,7 @@ async function initPhaseB(
       ExtendedElectricalMeasurementCluster,
       'rmsCurrentPhB',
       factorReportParserBuilder(
-        () => device['acCurrentFactor'] ?? 1,
+        () => device.zigbeeFactors['acCurrentFactor'] ?? 1,
         updateSummationCapabilityFactory('measure_current', device),
         sumAverageUpdateInterval,
         device,
@@ -366,7 +366,7 @@ async function initPhaseB(
       ExtendedElectricalMeasurementCluster,
       'activePowerPhB',
       factorReportParserBuilder(
-        () => device['activePowerFactor'] ?? 1,
+        () => device.zigbeeFactors['activePowerFactor'] ?? 1,
         updateSummationCapabilityFactory('measure_power', device),
         sumAverageUpdateInterval,
         device,
@@ -409,7 +409,7 @@ async function initPhaseC(
       ExtendedElectricalMeasurementCluster,
       'rmsVoltagePhC',
       factorReportParserBuilder(
-        () => device['acVoltageFactor'] ?? 1,
+        () => device.zigbeeFactors['acVoltageFactor'] ?? 1,
         updateAverageCapabilityFactory('measure_voltage', device),
         sumAverageUpdateInterval,
         device,
@@ -435,7 +435,7 @@ async function initPhaseC(
       ExtendedElectricalMeasurementCluster,
       'rmsCurrentPhC',
       factorReportParserBuilder(
-        () => device['acCurrentFactor'] ?? 1,
+        () => device.zigbeeFactors['acCurrentFactor'] ?? 1,
         updateSummationCapabilityFactory('measure_current', device),
         sumAverageUpdateInterval,
         device,
@@ -461,7 +461,7 @@ async function initPhaseC(
       ExtendedElectricalMeasurementCluster,
       'activePowerPhC',
       factorReportParserBuilder(
-        () => device['activePowerFactor'] ?? 1,
+        () => device.zigbeeFactors['activePowerFactor'] ?? 1,
         updateSummationCapabilityFactory('measure_power', device),
         sumAverageUpdateInterval,
         device,
