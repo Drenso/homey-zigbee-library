@@ -3,7 +3,7 @@ import drensoConfig from '@drenso/eslint-config-homey-mts';
 
 export default tseslint.config(
   {
-    ignores: ['**/*.d.mts']
+    ignores: ['**/*.d.mts', 'types/**/*.d.ts']
   },
   ...drensoConfig
 );
