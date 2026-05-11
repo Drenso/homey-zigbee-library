@@ -11,7 +11,7 @@ export type ZigbeeFactorKey =
   | 'totalActivePowerFactor';
 
 export interface ZigbeeFactorDevice<Postfix extends string = ''> extends ZigBeeDevice {
-  zigbeeFactors: Record<`${ZigbeeFactorKey}${Postfix}`, number>;
+  zigbeeFactors: Partial<Record<`${ZigbeeFactorKey}${Postfix}`, number>>;
 }
 
 export interface MeasurementReportingInterface {
