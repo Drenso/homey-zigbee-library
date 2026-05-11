@@ -26,6 +26,7 @@ type ArgumentOverrides<Postfix extends string> = {
   invalidCurrentValueFunction?: InvalidFactorValueFunction;
   invalidPowerValueFunction?: InvalidFactorValueFunction;
   storePropertyPostfix?: Postfix;
+  measureFrequencyCapability?: string;
   measureVoltageCapability?: string;
   measureCurrentCapability?: string;
   measurePowerCapability?: string;
@@ -56,6 +57,7 @@ export default async function initElectricalMeasurementDevice<Postfix extends st
     maxMeasurementInterval,
     additionalFrequencyMultiplier,
     storePropertyPostfix,
+    measureFrequencyCapability = 'measure_frequency',
   } = argumentOverrides;
 
   device.log('Determining measurement type');
@@ -79,13 +81,13 @@ export default async function initElectricalMeasurementDevice<Postfix extends st
       !measurementFlags.includes('phaseBMeasurement') &&
       !measurementFlags.includes('phaseCMeasurement'));
 
-  if (device.hasCapability('measure_frequency')) {
-    device.log('Initialising measure_frequency capability');
+  if (device.hasCapability(measureFrequencyCapability)) {
+    device.log(`Initialising ${measureFrequencyCapability} capability`);
 
     await initFactorImplementation(
       device,
       zclNode,
-      'measure_frequency',
+      measureFrequencyCapability,
       ExtendedElectricalMeasurementCluster,
       'acFrequencyFactor',
       storePropertyPostfix,
@@ -101,8 +103,8 @@ export default async function initElectricalMeasurementDevice<Postfix extends st
       additionalFrequencyMultiplier,
       value => value < 0,
     )
-      .then(() => device.log('Initialised measure_frequency capability'))
-      .catch(e => device.error('Failed to initialise measure_frequency capability', e));
+      .then(() => device.log(`Initialised ${measureFrequencyCapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${measureFrequencyCapability} capability`, e));
   }
 
   if (hasPhaseA) {
