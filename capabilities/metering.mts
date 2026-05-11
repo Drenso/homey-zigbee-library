@@ -6,28 +6,34 @@ type ArgumentOverrides<Postfix extends string> = {
   endpointId?: number;
   noPowerFactorReporting?: boolean;
   storePropertyPostfix?: Postfix;
+  meterPowerCapability?: string;
 };
 
 export default async function initMeteringDevice<Postfix extends string = ''>(
   device: ZigbeeFactorDevice<Postfix>,
   zclNode: ZCLNode,
-  { endpointId, noPowerFactorReporting, storePropertyPostfix }: ArgumentOverrides<Postfix> = {},
+  {
+    endpointId,
+    noPowerFactorReporting,
+    storePropertyPostfix,
+    meterPowerCapability = 'meter_power',
+  }: ArgumentOverrides<Postfix> = {},
 ): Promise<void> {
-  if (device.hasCapability('meter_power')) {
-    device.log('Initialising meter_power capability');
+  if (device.hasCapability(meterPowerCapability)) {
+    device.log(`Initialising ${meterPowerCapability} capability`);
 
     await initFactorImplementation(
       device,
       zclNode,
-      'meter_power',
+      meterPowerCapability,
       zbClusters.CLUSTER.METERING,
       'meteringFactor',
       storePropertyPostfix,
       endpointId,
       noPowerFactorReporting,
     )
-      .then(() => device.log('Initialised meter_power capability'))
-      .catch(e => device.error('Failed to initialise meter_power capability', e));
+      .then(() => device.log(`Initialised ${meterPowerCapability} capability`))
+      .catch(e => device.error(`Failed to initialise ${meterPowerCapability} capability`, e));
   }
 
   device.log('Metering device initialised!');
