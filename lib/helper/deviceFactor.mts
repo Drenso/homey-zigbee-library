@@ -11,7 +11,7 @@ export type ZigbeeFactorKey =
   | 'totalActivePowerFactor';
 
 export interface ZigbeeFactorDevice<Postfix extends string = ''> extends ZigBeeDevice {
-  zigbeeFactors: Partial<Record<`${ZigbeeFactorKey}${Postfix}`, number>>;
+  zigbeeFactors?: Partial<Record<`${ZigbeeFactorKey}${Postfix}`, number>>;
 }
 
 export interface MeasurementReportingInterface {
@@ -122,7 +122,7 @@ export default async function initFactorImplementation<Postfix extends string = 
   }
 
   const reportParser = factorReportParserBuilder(
-    () => device.zigbeeFactors[`${storeProperty}${storePropertyPostfix}`] ?? 1,
+    () => device.zigbeeFactors?.[`${storeProperty}${storePropertyPostfix}`] ?? 1,
     onReport,
     onReportTimeout,
     device,
@@ -241,6 +241,9 @@ async function updateDeviceFactor<Postfix extends string>(
     additionalMultiplier = device.getStoreValue(additionalMultiplierKey);
   }
 
+  if (device.zigbeeFactors === undefined) {
+    device.zigbeeFactors = {};
+  }
   device.zigbeeFactors[`${storeProperty}${storePropertyPostfix}`] =
     ((multiplier ?? 1) / (divisor ?? 1)) * (additionalMultiplier ?? 1);
   device.log(`New active ${storeProperty}`, device.zigbeeFactors[`${storeProperty}${storePropertyPostfix}`]);

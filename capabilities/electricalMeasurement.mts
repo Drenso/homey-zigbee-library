@@ -388,7 +388,7 @@ async function initPhaseB<Postfix extends string>(
       ExtendedElectricalMeasurementCluster,
       'rmsVoltagePhB',
       factorReportParserBuilder(
-        () => device.zigbeeFactors[`acVoltageFactor${storePropertyPostfix}`] ?? 1,
+        () => device.zigbeeFactors?.[`acVoltageFactor${storePropertyPostfix}`] ?? 1,
         updateAverageCapabilityFactory(
           measureVoltageCapability,
           device,
@@ -422,7 +422,7 @@ async function initPhaseB<Postfix extends string>(
       ExtendedElectricalMeasurementCluster,
       'rmsCurrentPhB',
       factorReportParserBuilder(
-        () => device.zigbeeFactors[`acCurrentFactor${storePropertyPostfix}`] ?? 1,
+        () => device.zigbeeFactors?.[`acCurrentFactor${storePropertyPostfix}`] ?? 1,
         updateSummationCapabilityFactory(
           measureCurrentCapability,
           device,
@@ -456,7 +456,7 @@ async function initPhaseB<Postfix extends string>(
       ExtendedElectricalMeasurementCluster,
       'activePowerPhB',
       factorReportParserBuilder(
-        () => device.zigbeeFactors[`activePowerFactor${storePropertyPostfix}`] ?? 1,
+        () => device.zigbeeFactors?.[`activePowerFactor${storePropertyPostfix}`] ?? 1,
         updateSummationCapabilityFactory(
           measurePowerCapability,
           device,
@@ -520,7 +520,7 @@ async function initPhaseC<Postfix extends string>(
       ExtendedElectricalMeasurementCluster,
       'rmsVoltagePhC',
       factorReportParserBuilder(
-        () => device.zigbeeFactors[`acVoltageFactor${storePropertyPostfix}`] ?? 1,
+        () => device.zigbeeFactors?.[`acVoltageFactor${storePropertyPostfix}`] ?? 1,
         updateAverageCapabilityFactory(
           measureVoltageCapability,
           device,
@@ -554,7 +554,7 @@ async function initPhaseC<Postfix extends string>(
       ExtendedElectricalMeasurementCluster,
       'rmsCurrentPhC',
       factorReportParserBuilder(
-        () => device.zigbeeFactors[`acCurrentFactor${storePropertyPostfix}`] ?? 1,
+        () => device.zigbeeFactors?.[`acCurrentFactor${storePropertyPostfix}`] ?? 1,
         updateSummationCapabilityFactory(
           measureCurrentCapability,
           device,
@@ -588,7 +588,7 @@ async function initPhaseC<Postfix extends string>(
       ExtendedElectricalMeasurementCluster,
       'activePowerPhC',
       factorReportParserBuilder(
-        () => device.zigbeeFactors[`activePowerFactor${storePropertyPostfix}`] ?? 1,
+        () => device.zigbeeFactors?.[`activePowerFactor${storePropertyPostfix}`] ?? 1,
         updateSummationCapabilityFactory(
           measurePowerCapability,
           device,
