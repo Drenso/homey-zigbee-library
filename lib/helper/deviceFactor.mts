@@ -176,11 +176,11 @@ export default async function initFactorImplementation<Postfix extends string = 
 
   // Register listener for incoming report
   cluster.on('attr.' + properties.multiplier, value => {
-    device.log(properties.multiplier + ' attribute report received', value);
+    device.debug(properties.multiplier + ' attribute report received', value);
     updateDeviceFactor(device, storeProperty, storePropertyPostfix, { multiplier: value });
   });
   cluster.on('attr.' + properties.divisor, value => {
-    device.log(properties.divisor + ' attribute report received', value);
+    device.debug(properties.divisor + ' attribute report received', value);
     updateDeviceFactor(device, storeProperty, storePropertyPostfix, { divisor: value });
   });
 
@@ -213,7 +213,7 @@ async function updateDeviceFactor<Postfix extends string>(
     additionalMultiplier,
   }: { multiplier?: number; divisor?: number; additionalMultiplier?: number } = {},
 ): Promise<void> {
-  device.log(`Handling new ${storeProperty}`, multiplier, divisor);
+  device.debug(`Handling new ${storeProperty}`, multiplier, divisor);
 
   const multiplierKey = storeProperty + '_multiplier';
   const divisorKey = storeProperty + '_divisor';
@@ -244,7 +244,13 @@ async function updateDeviceFactor<Postfix extends string>(
   if (device.zigbeeFactors === undefined) {
     device.zigbeeFactors = {};
   }
-  device.zigbeeFactors[`${storeProperty}${storePropertyPostfix}`] =
-    ((multiplier ?? 1) / (divisor ?? 1)) * (additionalMultiplier ?? 1);
-  device.log(`New active ${storeProperty}`, device.zigbeeFactors[`${storeProperty}${storePropertyPostfix}`]);
+
+  const storeKey: keyof typeof device.zigbeeFactors = `${storeProperty}${storePropertyPostfix}`;
+  const newValue = ((multiplier ?? 1) / (divisor ?? 1)) * (additionalMultiplier ?? 1);
+  if (device.zigbeeFactors[storeKey] === newValue) {
+    return;
+  }
+
+  device.zigbeeFactors[storeKey] = newValue;
+  device.log(`New active ${storeProperty}`, device.zigbeeFactors[storeKey]);
 }
