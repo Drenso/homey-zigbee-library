@@ -147,11 +147,9 @@ export default async function initFactorImplementation(
 
   // Register listener for incoming report
   cluster.on('attr.' + properties.multiplier, (value) => {
-    device.log(properties.multiplier + ' attribute report received', value);
     updateDeviceFactor(device, storeProperty, value);
   });
   cluster.on('attr.' + properties.divisor, (value) => {
-    device.log(properties.divisor + ' attribute report received', value);
     updateDeviceFactor(device, storeProperty, undefined, value);
   });
 
@@ -181,33 +179,42 @@ async function updateDeviceFactor(
   divisor?: number,
   additionalMultiplier?: number,
 ): Promise<void> {
-  device.log(`Handling new ${storeProperty}`, multiplier, divisor);
-
   const multiplierKey = storeProperty + '_multiplier';
   const divisorKey = storeProperty + '_divisor';
   const additionalMultiplierKey = storeProperty + '_additional_multiplier';
 
   if (multiplier) {
-    await device.setStoreValue(multiplierKey, multiplier)
-      .catch(e => device.error(`Failed to store ${multiplierKey}`, e));
+    if (multiplier !== device.getStoreValue(multiplierKey)) {
+      await device.setStoreValue(multiplierKey, multiplier)
+        .catch(e => device.error(`Failed to store ${multiplierKey}`, e));
+    }
   } else {
     multiplier = device.getStoreValue(multiplierKey);
   }
 
   if (divisor) {
-    await device.setStoreValue(divisorKey, divisor)
-      .catch(e => device.error(`Failed to store ${divisorKey}`, e));
+    if (divisor !== device.getStoreValue(divisorKey)) {
+      await device.setStoreValue(divisorKey, divisor)
+        .catch(e => device.error(`Failed to store ${divisorKey}`, e));
+    }
   } else {
     divisor = device.getStoreValue(divisorKey);
   }
 
   if (additionalMultiplier) {
-    await device.setStoreValue(additionalMultiplierKey, additionalMultiplier)
-      .catch(e => device.error(`Failed to store ${additionalMultiplierKey}`, e));
+    if (additionalMultiplier !== device.getStoreValue(additionalMultiplierKey)) {
+      await device.setStoreValue(additionalMultiplierKey, additionalMultiplier)
+        .catch(e => device.error(`Failed to store ${additionalMultiplierKey}`, e));
+    }
   } else {
     additionalMultiplier = device.getStoreValue(additionalMultiplierKey);
   }
 
-  device[storeProperty] = ((multiplier ?? 1) / (divisor ?? 1)) * (additionalMultiplier ?? 1);
+  const newActiveValue = ((multiplier ?? 1) / (divisor ?? 1)) * (additionalMultiplier ?? 1);
+  if (device[storeProperty] === newActiveValue) {
+    return;
+  }
+
+  device[storeProperty] = newActiveValue;
   device.log(`New active ${storeProperty}`, device[storeProperty]);
 }
