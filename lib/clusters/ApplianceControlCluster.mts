@@ -59,7 +59,7 @@ export type SignalStateNotification = {
   applianceStatus2: number;
 };
 
-const Attributes = {
+const attributes = {
   startTime: {
     // Encodes time format specified in table 15-4
     id: 0x0000,
@@ -77,7 +77,7 @@ const Attributes = {
   },
 } as const satisfies types.AttributeDefinitions;
 
-const CommandsGenerated = {
+const commandsGenerated = {
   signalStateResponse: {
     id: 0x00,
     direction: zbClusters.Cluster.DIRECTION_SERVER_TO_CLIENT,
@@ -102,7 +102,7 @@ const CommandsGenerated = {
   },
 } as const satisfies types.CommandDefinitions;
 
-const CommandsReceived = {
+const commandsReceived = {
   executeCommand: {
     id: 0x00,
     direction: zbClusters.Cluster.DIRECTION_CLIENT_TO_SERVER,
@@ -114,7 +114,7 @@ const CommandsReceived = {
     id: 0x01,
     direction: zbClusters.Cluster.DIRECTION_CLIENT_TO_SERVER,
     // args: undefined,
-    response: CommandsGenerated.signalStateResponse,
+    response: commandsGenerated.signalStateResponse,
   },
   writeFunctions: {
     id: 0x02,
@@ -147,10 +147,10 @@ const CommandsReceived = {
   },
 } as const satisfies types.CommandDefinitions;
 
-class ApplianceControlCluster extends zbClusters.Cluster<
-  typeof Attributes,
-  typeof CommandsReceived & typeof CommandsGenerated
-> {
+type Attributes = typeof attributes;
+type Commands = typeof commandsReceived & typeof commandsGenerated;
+
+class ApplianceControlCluster extends zbClusters.Cluster<Attributes, Commands> {
   public static get ID(): number {
     return 0x001b;
   }
@@ -159,14 +159,14 @@ class ApplianceControlCluster extends zbClusters.Cluster<
     return 'applianceControl';
   }
 
-  public static get ATTRIBUTES(): typeof Attributes {
-    return Attributes;
+  public static get ATTRIBUTES(): Attributes {
+    return attributes;
   }
 
-  public static get COMMANDS(): typeof CommandsReceived & typeof CommandsGenerated {
+  public static get COMMANDS(): Commands {
     return {
-      ...CommandsReceived,
-      ...CommandsGenerated,
+      ...commandsReceived,
+      ...commandsGenerated,
     };
   }
 }
