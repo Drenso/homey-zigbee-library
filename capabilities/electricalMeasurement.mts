@@ -23,6 +23,7 @@ type ArgumentOverrides<Postfix extends string> = {
   additionalCurrentMultiplier?: number;
   additionalPowerMultiplier?: number;
   additionalFrequencyMultiplier?: number;
+  invalidVoltageValueFunction?: InvalidFactorValueFunction;
   invalidCurrentValueFunction?: InvalidFactorValueFunction;
   invalidPowerValueFunction?: InvalidFactorValueFunction;
   storePropertyPostfix?: Postfix;
@@ -139,6 +140,7 @@ async function initPhaseA<Postfix extends string>(
     useTotalActivePower,
     minPowerMeasurementChange,
     additionalPowerMultiplier,
+    invalidVoltageValueFunction,
     invalidCurrentValueFunction,
     invalidPowerValueFunction,
     storePropertyPostfix,
@@ -184,7 +186,7 @@ async function initPhaseA<Postfix extends string>(
       ),
       sumAverageUpdateInterval,
       additionalVoltageMultiplier,
-      defaultInvalidVoltageValueFunction,
+      invalidVoltageValueFunction ?? defaultInvalidVoltageValueFunction,
     )
       .then(() => device.log(`Initialised ${measureVoltagePhaseACapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measureVoltagePhaseACapability} capability`, e));
@@ -208,7 +210,7 @@ async function initPhaseA<Postfix extends string>(
       undefined,
       undefined,
       additionalVoltageMultiplier,
-      defaultInvalidVoltageValueFunction,
+      invalidVoltageValueFunction ?? defaultInvalidVoltageValueFunction,
     )
       .then(() => device.log(`Initialised ${measureVoltageCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measureVoltageCapability} capability`, e));
@@ -357,6 +359,7 @@ async function initPhaseB<Postfix extends string>(
     minVoltageMeasurementChange,
     minCurrentMeasurementChange,
     minPowerMeasurementChange,
+    invalidVoltageValueFunction,
     invalidCurrentValueFunction,
     invalidPowerValueFunction,
     storePropertyPostfix = '' as Postfix,
@@ -398,7 +401,7 @@ async function initPhaseB<Postfix extends string>(
         ),
         sumAverageUpdateInterval,
         device,
-        defaultInvalidVoltageValueFunction,
+        invalidVoltageValueFunction ?? defaultInvalidVoltageValueFunction,
       ),
       {
         minInterval: minMeasurementInterval,
@@ -489,6 +492,7 @@ async function initPhaseC<Postfix extends string>(
     minVoltageMeasurementChange,
     minCurrentMeasurementChange,
     minPowerMeasurementChange,
+    invalidVoltageValueFunction,
     invalidCurrentValueFunction,
     invalidPowerValueFunction,
     storePropertyPostfix = '' as Postfix,
@@ -530,7 +534,7 @@ async function initPhaseC<Postfix extends string>(
         ),
         sumAverageUpdateInterval,
         device,
-        defaultInvalidVoltageValueFunction,
+        invalidVoltageValueFunction ?? defaultInvalidVoltageValueFunction,
       ),
       {
         minInterval: minMeasurementInterval,
