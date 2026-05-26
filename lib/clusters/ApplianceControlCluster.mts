@@ -147,10 +147,13 @@ const commandsReceived = {
   },
 } as const satisfies types.CommandDefinitions;
 
-type Attributes = typeof attributes;
-type Commands = typeof commandsReceived & typeof commandsGenerated;
+export type ApplianceControlClusterAttributes = typeof attributes;
+export type ApplianceControlClusterCommands = typeof commandsReceived & typeof commandsGenerated;
 
-class ApplianceControlCluster extends zbClusters.Cluster<Attributes, Commands> {
+class ApplianceControlCluster<
+  Attributes extends types.AttributeDefinitions = ApplianceControlClusterAttributes,
+  Commands extends types.CommandDefinitions = ApplianceControlClusterCommands,
+> extends zbClusters.Cluster<Attributes, Commands> {
   public static get ID(): number {
     return 0x001b;
   }
@@ -159,11 +162,11 @@ class ApplianceControlCluster extends zbClusters.Cluster<Attributes, Commands> {
     return 'applianceControl';
   }
 
-  public static get ATTRIBUTES(): Attributes {
+  public static get ATTRIBUTES(): ApplianceControlClusterAttributes {
     return attributes;
   }
 
-  public static get COMMANDS(): Commands {
+  public static get COMMANDS(): ApplianceControlClusterCommands {
     return {
       ...commandsReceived,
       ...commandsGenerated,
