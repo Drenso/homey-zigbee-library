@@ -42,9 +42,15 @@ type ArgumentOverrides<Postfix extends string> = {
   measurePowerPhaseCCapability?: string;
 };
 
+type PowerValueFunctionFactorKey = Extract<ZigbeeFactorKey, 'totalActivePowerFactor' | 'instantaneousDemandFactor' | 'activePowerFactor'>
+
 const defaultInvalidVoltageValueFunction: InvalidFactorValueFunction = value => value == 0xffff || value < 0;
 const defaultInvalidCurrentValueFunction = undefined;
-const defaultInvalidPowerValueFunction: InvalidFactorValueFunction = value => value == 0xffff;
+const defaultInvalidPowerValueFunction: Record<PowerValueFunctionFactorKey, InvalidFactorValueFunction> = {
+  'activePowerFactor': value => value == 0xffff,
+  'instantaneousDemandFactor': value => value == 0xffffff,
+  'totalActivePowerFactor': value => value == 0xffffffff,
+};
 export default async function initElectricalMeasurementDevice<Postfix extends string = ''>(
   device: ZigbeeFactorDevice<Postfix>,
   zclNode: ZCLNode,
@@ -278,7 +284,7 @@ async function initPhaseA<Postfix extends string>(
     throw new Error('Cannot use totalActivePower and instantaneousDemand at the same time');
   }
 
-  let measurePowerStoreProperty: ZigbeeFactorKey;
+  let measurePowerStoreProperty: PowerValueFunctionFactorKey;
 
   if (useTotalActivePower) {
     measurePowerStoreProperty = 'totalActivePowerFactor';
@@ -317,7 +323,7 @@ async function initPhaseA<Postfix extends string>(
       sumAverageUpdateInterval,
       // Fall back to 1000 additional multiplier as the cluster definition for instantaneous demand and total active power define kW as unit of measurement
       additionalPowerMultiplier ?? (useInstantaneousDemand || useTotalActivePower ? 1000 : undefined),
-      invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
+      invalidPowerValueFunction ?? defaultInvalidPowerValueFunction[measurePowerStoreProperty],
     )
       .then(() => device.log(`Initialised ${measurePowerPhaseACapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measurePowerPhaseACapability} capability`, e));
@@ -342,7 +348,7 @@ async function initPhaseA<Postfix extends string>(
       undefined,
       // Fall back to 1000 additional multiplier as the cluster definition for instantaneous demand and total active power define kW as unit of measurement
       additionalPowerMultiplier ?? (useInstantaneousDemand || useTotalActivePower ? 1000 : undefined),
-      invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
+      invalidPowerValueFunction ?? defaultInvalidPowerValueFunction[measurePowerStoreProperty],
     )
       .then(() => device.log(`Initialised ${measurePowerCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measurePowerCapability} capability`, e));
@@ -469,7 +475,7 @@ async function initPhaseB<Postfix extends string>(
         ),
         sumAverageUpdateInterval,
         device,
-        invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
+        invalidPowerValueFunction ?? defaultInvalidPowerValueFunction['activePowerFactor'],
       ),
       {
         minInterval: minMeasurementInterval,
@@ -602,7 +608,7 @@ async function initPhaseC<Postfix extends string>(
         ),
         sumAverageUpdateInterval,
         device,
-        invalidPowerValueFunction ?? defaultInvalidPowerValueFunction,
+        invalidPowerValueFunction ?? defaultInvalidPowerValueFunction['activePowerFactor'],
       ),
       {
         minInterval: minMeasurementInterval,
