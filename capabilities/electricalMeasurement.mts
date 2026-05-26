@@ -42,7 +42,7 @@ type ArgumentOverrides<Postfix extends string> = {
   measurePowerPhaseCCapability?: string;
 };
 
-const defaultInvalidVoltageValueFunction: InvalidFactorValueFunction = value => value < 0;
+const defaultInvalidVoltageValueFunction: InvalidFactorValueFunction = value => value == 0xffff || value < 0;
 const defaultInvalidCurrentValueFunction = undefined;
 const defaultInvalidPowerValueFunction: InvalidFactorValueFunction = value => value == 0xffff;
 export default async function initElectricalMeasurementDevice<Postfix extends string = ''>(
