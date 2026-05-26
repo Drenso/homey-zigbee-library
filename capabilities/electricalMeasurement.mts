@@ -44,12 +44,12 @@ type ArgumentOverrides<Postfix extends string> = {
 
 type PowerValueFunctionFactorKey = Extract<ZigbeeFactorKey, 'totalActivePowerFactor' | 'instantaneousDemandFactor' | 'activePowerFactor'>
 
-const defaultInvalidVoltageValueFunction: InvalidFactorValueFunction = value => value == 0xffff || value < 0;
-const defaultInvalidCurrentValueFunction = undefined;
+const defaultInvalidVoltageValueFunction: InvalidFactorValueFunction = value => value == 65535 || value < 0;
+const defaultInvalidCurrentValueFunction: InvalidFactorValueFunction = value => value == 65535;
 const defaultInvalidPowerValueFunction: Record<PowerValueFunctionFactorKey, InvalidFactorValueFunction> = {
-  'activePowerFactor': value => value == 0xffff,
-  'instantaneousDemandFactor': value => value == 0xffffff,
-  'totalActivePowerFactor': value => value == 0xffffffff,
+  'activePowerFactor': value => value == -32768,
+  'instantaneousDemandFactor': value => value == -8388608,
+  'totalActivePowerFactor': value => value == -2147483648,
 };
 export default async function initElectricalMeasurementDevice<Postfix extends string = ''>(
   device: ZigbeeFactorDevice<Postfix>,
