@@ -172,6 +172,107 @@ class ApplianceControlCluster<
       ...commandsGenerated,
     };
   }
+
+  // Client to Server
+
+  public executeCommand!: (
+    args: {
+      manufacturerId?: number;
+      commandId: CommandId;
+    },
+    opts?: {
+      waitForResponse?: boolean;
+      timeout?: number;
+      disableDefaultResponse?: boolean;
+    },
+  ) => Promise<void>;
+
+  public signalState!: (
+    args?: {
+      manufacturerId?: number;
+    },
+    opts?: {
+      waitForResponse?: boolean;
+      timeout?: number;
+      disableDefaultResponse?: boolean;
+    },
+  ) => Promise<void>;
+
+  public writeFunctions!: (
+    args: {
+      manufacturerId?: number;
+      attributeIdentifier: number;
+      functionDataType: string;
+      functionData: Buffer;
+    },
+    opts?: {
+      waitForResponse?: boolean;
+      timeout?: number;
+      disableDefaultResponse?: boolean;
+    },
+  ) => Promise<void>;
+
+  public overloadPauseResume!: (
+    args?: {
+      manufacturerId?: number;
+    },
+    opts?: {
+      waitForResponse?: boolean;
+      timeout?: number;
+      disableDefaultResponse?: boolean;
+    },
+  ) => Promise<void>;
+
+  public overloadPause!: (
+    args?: {
+      manufacturerId?: number;
+    },
+    opts?: {
+      waitForResponse?: boolean;
+      timeout?: number;
+      disableDefaultResponse?: boolean;
+    },
+  ) => Promise<void>;
+
+  public overloadWarning!: (
+    args: {
+      manufacturerId?: number;
+      warningEvent: OverloadWarning;
+    },
+    opts?: {
+      waitForResponse?: boolean;
+      timeout?: number;
+      disableDefaultResponse?: boolean;
+    },
+  ) => Promise<void>;
+
+  // Server to Client
+
+  public onSignalStateResponse!: (
+    args: {
+      applianceStatus: ApplianceStatus;
+      // Packed enums according to 15-10
+      remoteEnableAndDeviceStatusFlags: number;
+      // Optional
+      applianceStatus2?: number;
+    },
+    meta: object,
+    frame: object,
+    rawFrame: Buffer,
+  ) => Promise<void>;
+
+  public onSignalStateNotification!: (
+    args: {
+      applianceStatus: ApplianceStatus;
+      // Packed enums according to 15-10
+      remoteEnableAndDeviceStatusFlags: number;
+      // Optional
+      applianceStatus2?: number;
+    },
+    meta: object,
+    frame: object,
+    rawFrame: Buffer,
+  ) => Promise<void>;
 }
 
 zbClusters.Cluster.addCluster(ApplianceControlCluster);
