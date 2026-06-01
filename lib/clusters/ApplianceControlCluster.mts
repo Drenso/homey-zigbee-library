@@ -175,7 +175,7 @@ class ApplianceControlCluster<
 
   // Client to Server
 
-  public executeCommand!: (
+  declare public executeCommand: (
     args: {
       manufacturerId?: number;
       commandId: CommandId;
@@ -187,7 +187,7 @@ class ApplianceControlCluster<
     },
   ) => Promise<void>;
 
-  public signalState!: (
+  declare public signalState: (
     args?: {
       manufacturerId?: number;
     },
@@ -198,7 +198,7 @@ class ApplianceControlCluster<
     },
   ) => Promise<void>;
 
-  public writeFunctions!: (
+  declare public writeFunctions: (
     args: {
       manufacturerId?: number;
       attributeIdentifier: number;
@@ -212,7 +212,7 @@ class ApplianceControlCluster<
     },
   ) => Promise<void>;
 
-  public overloadPauseResume!: (
+  declare public overloadPauseResume: (
     args?: {
       manufacturerId?: number;
     },
@@ -223,7 +223,7 @@ class ApplianceControlCluster<
     },
   ) => Promise<void>;
 
-  public overloadPause!: (
+  declare public overloadPause: (
     args?: {
       manufacturerId?: number;
     },
@@ -234,7 +234,7 @@ class ApplianceControlCluster<
     },
   ) => Promise<void>;
 
-  public overloadWarning!: (
+  declare public overloadWarning: (
     args: {
       manufacturerId?: number;
       warningEvent: OverloadWarning;
@@ -248,7 +248,7 @@ class ApplianceControlCluster<
 
   // Server to Client
 
-  public onSignalStateResponse!: (
+  declare public onSignalStateResponse: (
     args: {
       applianceStatus: ApplianceStatus;
       // Packed enums according to 15-10
@@ -261,7 +261,7 @@ class ApplianceControlCluster<
     rawFrame: Buffer,
   ) => Promise<void>;
 
-  public onSignalStateNotification!: (
+  declare public onSignalStateNotification: (
     args: {
       applianceStatus: ApplianceStatus;
       // Packed enums according to 15-10
