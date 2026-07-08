@@ -99,7 +99,7 @@ export default async function initFactorImplementation<Postfix extends string = 
   storeProperty: ZigbeeFactorKey,
   storePropertyPostfix: Postfix = '' as Postfix,
   endPointId?: number,
-  noPowerFactorReporting?: boolean,
+  noFactorReporting?: boolean,
   {
     minMeasurementInterval = 10,
     maxMeasurementInterval = 3600,
@@ -145,8 +145,8 @@ export default async function initFactorImplementation<Postfix extends string = 
     })
     .catch(e => device.error(`Failed to read ${clusterSpec.NAME} ${Object.values(properties)} attributes`, e));
 
-  // Configure reporting for the power factor
-  if (noPowerFactorReporting !== true) {
+  // Configure reporting for the factor
+  if (noFactorReporting !== true) {
     await device
       .configureAttributeReporting([
         {

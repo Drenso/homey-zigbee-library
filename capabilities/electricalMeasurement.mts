@@ -12,6 +12,7 @@ type ArgumentOverrides<Postfix extends string> = {
   useInstantaneousDemand?: boolean;
   useTotalActivePower?: boolean;
   noPowerFactorReporting?: boolean;
+  noFrequencyFactorReporting?: boolean;
   minVoltageMeasurementChange?: number;
   minCurrentMeasurementChange?: number;
   minPowerMeasurementChange?: number;
@@ -59,6 +60,7 @@ export default async function initElectricalMeasurementDevice<Postfix extends st
   const {
     endpointId,
     noPowerFactorReporting,
+    noFrequencyFactorReporting,
     minFrequencyMeasurementChange,
     minMeasurementInterval,
     maxMeasurementInterval,
@@ -99,7 +101,7 @@ export default async function initElectricalMeasurementDevice<Postfix extends st
       'acFrequencyFactor',
       storePropertyPostfix,
       endpointId,
-      noPowerFactorReporting,
+      noFrequencyFactorReporting !== undefined ? noFrequencyFactorReporting : noPowerFactorReporting,
       {
         minMeasurementInterval,
         maxMeasurementInterval,
