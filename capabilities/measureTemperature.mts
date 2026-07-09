@@ -3,12 +3,17 @@ import zbClusters, { type ZCLNode } from 'zigbee-clusters';
 import type { AttributeConfiguration } from '../lib/attributeDevice.mjs';
 import { initReadOnlyCapability } from '../lib/attributeDevice.mjs';
 
-type ArgumentOverrides = AttributeConfiguration;
+type ArgumentOverrides = {
+  temperatureScaleFunction?: (value: number) => number;
+} & AttributeConfiguration;
 
 export default async function initMeasureTemperatureDevice(
   device: ZigBeeDevice,
   zclNode: ZCLNode,
   {
+    // By default, MeasuredValue represents the temperature in degrees Celsius as follows:
+    // MeasuredValue = 100 x Temperature in degrees Celsius
+    temperatureScaleFunction = (value: number): number => Math.round((value / 100) * 10) / 10,
     capabilityId = 'measure_temperature',
     cluster = zbClusters.CLUSTER.TEMPERATURE_MEASUREMENT,
     attributeName = 'measuredValue',
@@ -33,9 +38,7 @@ export default async function initMeasureTemperatureDevice(
         return null;
       }
 
-      // MeasuredValue represents the temperature in degrees Celsius as follows:
-      // MeasuredValue = 100 x Temperature in degrees Celsius
-      return Math.round((value / 100) * 10) / 10;
+      return temperatureScaleFunction(value);
     },
     { minInterval, maxInterval, minChange },
     endpointId,
