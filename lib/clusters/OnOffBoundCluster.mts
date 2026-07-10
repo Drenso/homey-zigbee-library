@@ -2,6 +2,7 @@ import zbClusters from 'zigbee-clusters';
 
 type OnOffType = () => void;
 
+/** @deprecated Use OnOffBoundCluster from bound_clusters instead */
 export default class OnOffBoundCluster extends zbClusters.BoundCluster {
   private readonly _onSetOn?: OnOffType;
   private readonly _onSetOff?: OnOffType;
