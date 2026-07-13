@@ -1,5 +1,8 @@
 import zbClusters, {type types} from 'zigbee-clusters';
-import type {ExtendedScenesClusterCommands} from '../ExtendedScenesCluster.js';
+import type {
+  ExtendedScenesClusterAttributes,
+  ExtendedScenesClusterCommands,
+} from '../ExtendedScenesCluster.js';
 
 export type AddScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['addScene']['args']>;
 export type ViewScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['viewScene']['args']>;
@@ -14,7 +17,7 @@ export type EnhancedAddScenePayload = types.FromZCLDataType<ExtendedScenesCluste
 export type EnhancedViewScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['enhancedViewScene']['args']>;
 export type CopyScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['copyScene']['args']>;
 
-export default class ScenesBoundCluster extends zbClusters.BoundCluster {
+export default class ScenesBoundCluster extends zbClusters.BoundCluster<ExtendedScenesClusterAttributes, ExtendedScenesClusterCommands> {
   public constructor(
     private _handlers: {
       onAddScene?: (payload: AddScenePayload) => void;

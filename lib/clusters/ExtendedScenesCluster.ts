@@ -104,6 +104,133 @@ class ExtendedScenesCluster extends ScenesCluster<ExtendedScenesClusterAttribute
       ...Commands,
     };
   }
+
+  declare public addScene: (
+    args?: {
+      groupId?: number,
+      sceneId?: number,
+      transitionTime?: number,
+      sceneName?: string,
+    },
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
+
+
+  declare public viewScene: (
+    args?: {
+      groupId?: number,
+      sceneId?: number,
+    },
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
+
+  declare public removeScene: (
+    args?: {
+      groupId?: number,
+      sceneId?: number,
+    },
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
+
+  declare public removeAllScenes: (
+    args?: {
+      groupId?: number,
+    },
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
+
+  declare public storeScene: (
+    args: {
+      groupId?: number,
+      sceneId?: number,
+    },
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
+
+  declare public recallScene: (
+    args: {
+      groupId?: number,
+      sceneId?: number,
+      transitionTime?: number,
+    },
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
+
+  declare public getSceneMembership: (
+    args?: {
+      groupId?: number,
+    },
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
+
+  declare public enhancedAddScene: (
+    args: {
+      groupId?: number,
+      sceneId?: number,
+      transitionTime?: number,
+      sceneName?: string,
+    },
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
+
+  declare public enhancedViewScene: (
+    args: {
+      groupId?: number,
+      sceneId?: number,
+    },
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
+
+  declare public copyScene: (
+    args: {
+      mode?: 'copyAllScenes',
+      groupIdFrom?: number,
+      sceneIdFrom?: number,
+      groupIdTo?: number,
+      sceneIdTo?: number,
+    },
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
 }
 
 Cluster.addCluster(ExtendedScenesCluster);

@@ -7,7 +7,7 @@ import {
   ZCLDataTypes,
 } from 'zigbee-clusters';
 
-const MoveMode = {
+export const MoveMode = {
   stop: 0x00,
   up: 0x01,
   reserved: 0x02,
@@ -51,6 +51,40 @@ class ExtendedColorControlCluster extends ColorControlCluster<ExtendedColorContr
       ...Commands,
     };
   }
+
+  declare public moveHue: (
+    args?: {
+      moveMode?: keyof typeof MoveMode,
+      rate?: number,
+    },
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
+
+  declare public stopMoveStep: (
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
+
+  declare public moveColorTemperature: (
+    args?: {
+      moveMode?: keyof typeof MoveMode,
+      rate?: number,
+      colorTemperatureMinimumMireds?: number,
+      colorTemperatureMaximumMireds?: number,
+    },
+    opts?: {
+      waitForResponse?: boolean,
+      timeout?: number,
+      disableDefaultResponse?: boolean,
+    },
+  ) => Promise<void>;
 }
 
 Cluster.addCluster(ExtendedColorControlCluster);

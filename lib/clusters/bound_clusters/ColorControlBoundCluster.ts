@@ -1,5 +1,8 @@
 import zbClusters, { type ColorControlClusterCommands, type types } from 'zigbee-clusters';
-import type { ExtendedColorControlClusterCommands } from '../ExtendedColorControlCluster.js';
+import type {
+  ExtendedColorControlClusterAttributes,
+  ExtendedColorControlClusterCommands,
+} from '../ExtendedColorControlCluster.js';
 
 export type MoveToHuePayload = types.FromZCLDataType<ColorControlClusterCommands['moveToHue']['args']>;
 export type MoveToSaturationPayload = types.FromZCLDataType<ColorControlClusterCommands['moveToSaturation']['args']>;
@@ -15,7 +18,7 @@ export type MoveColorTemperaturePayload = types.FromZCLDataType<
   ExtendedColorControlClusterCommands['moveColorTemperature']['args']
 >;
 
-export default class ColorControlBoundCluster extends zbClusters.BoundCluster {
+export default class ColorControlBoundCluster extends zbClusters.BoundCluster<ExtendedColorControlClusterAttributes, ExtendedColorControlClusterCommands> {
   public constructor(
     private _handlers: {
       onMoveToHue?: (payload: MoveToHuePayload) => void;

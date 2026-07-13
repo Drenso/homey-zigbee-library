@@ -1,4 +1,8 @@
-import zbClusters, {type LevelControlClusterCommands, type types} from 'zigbee-clusters';
+import zbClusters, {
+  type LevelControlClusterAttributes,
+  type LevelControlClusterCommands,
+  type types,
+} from 'zigbee-clusters';
 
 type MoveToLevelPayload = types.FromZCLDataType<LevelControlClusterCommands['moveToLevel']['args']>;
 type MovePayload = types.FromZCLDataType<LevelControlClusterCommands['move']['args']>;
@@ -7,7 +11,7 @@ type MoveToLevelWithOnOffPayload = types.FromZCLDataType<LevelControlClusterComm
 type MoveWithOnOffPayload = types.FromZCLDataType<LevelControlClusterCommands['moveWithOnOff']['args']>;
 type StepWithOnOffPayload = types.FromZCLDataType<LevelControlClusterCommands['stepWithOnOff']['args']>;
 
-export default class LevelControlBoundCluster extends zbClusters.BoundCluster  {
+export default class LevelControlBoundCluster extends zbClusters.BoundCluster<LevelControlClusterAttributes, LevelControlClusterCommands>  {
   public constructor(
     private _handlers: {
       onMoveToLevel?: (payload: MoveToLevelPayload) => void;

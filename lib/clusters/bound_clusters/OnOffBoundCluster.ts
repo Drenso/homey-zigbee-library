@@ -1,11 +1,21 @@
-import zbClusters from 'zigbee-clusters';
+import zbClusters, {
+  type OnOffClusterAttributes,
+  type OnOffClusterCommands,
+  type types,
+} from 'zigbee-clusters';
 
-export default class OnOffBoundCluster extends zbClusters.BoundCluster  {
+type OffWithEffectPayload = types.FromZCLDataType<OnOffClusterCommands['offWithEffect']['args']>;
+type OnWithTimedOffPayload = types.FromZCLDataType<OnOffClusterCommands['onWithTimedOff']['args']>;
+
+export default class OnOffBoundCluster extends zbClusters.BoundCluster<OnOffClusterAttributes, OnOffClusterCommands>  {
   public constructor(
     private _handlers: {
       onSetOn?: () => void;
       onSetOff?: () => void;
       onToggle?: () => void;
+      offWithEffect?: (payload: OffWithEffectPayload) => void;
+      onWithRecallGlobalScene?: () => void;
+      onWithTimedOff?: (payload: OnWithTimedOffPayload) => void;
     },
   ) {
     super();
@@ -21,5 +31,17 @@ export default class OnOffBoundCluster extends zbClusters.BoundCluster  {
 
   public toggle(): void {
     this._handlers.onToggle?.();
+  }
+
+  public offWithEffect(payload: OffWithEffectPayload): void {
+    this._handlers.offWithEffect?.(payload);
+  }
+
+  public onWithRecallGlobalScene(): void {
+    this._handlers.onWithRecallGlobalScene?.();
+  }
+
+  public onWithTimedOff(payload: OnWithTimedOffPayload): void {
+    this._handlers.onWithTimedOff?.(payload);
   }
 }
