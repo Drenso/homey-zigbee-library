@@ -2,7 +2,7 @@ import zbClusters, {type types} from 'zigbee-clusters';
 import type {
   ExtendedScenesClusterAttributes,
   ExtendedScenesClusterCommands,
-} from '../ExtendedScenesCluster.js';
+} from '../ExtendedScenesCluster.mjs';
 
 export type AddScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['addScene']['args']>;
 export type ViewScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['viewScene']['args']>;

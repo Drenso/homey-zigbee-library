@@ -2,7 +2,7 @@ import zbClusters, { type ColorControlClusterCommands, type types } from 'zigbee
 import type {
   ExtendedColorControlClusterAttributes,
   ExtendedColorControlClusterCommands,
-} from '../ExtendedColorControlCluster.js';
+} from '../ExtendedColorControlCluster.mjs';
 
 export type MoveToHuePayload = types.FromZCLDataType<ColorControlClusterCommands['moveToHue']['args']>;
 export type MoveToSaturationPayload = types.FromZCLDataType<ColorControlClusterCommands['moveToSaturation']['args']>;
