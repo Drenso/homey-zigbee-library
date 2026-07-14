@@ -1,13 +1,10 @@
-import zbClusters, {
-  type OnOffClusterAttributes,
-  type OnOffClusterCommands,
-  type types,
-} from 'zigbee-clusters';
+import zbClusters, { type OnOffClusterAttributes, type OnOffClusterCommands } from 'zigbee-clusters';
+import type { BoundClusterPayloadFromDefinition } from '../../../types/BoundCluster.mjs';
 
-type OffWithEffectPayload = types.FromZCLDataType<OnOffClusterCommands['offWithEffect']['args']>;
-type OnWithTimedOffPayload = types.FromZCLDataType<OnOffClusterCommands['onWithTimedOff']['args']>;
+type OffWithEffectPayload = BoundClusterPayloadFromDefinition<OnOffClusterCommands['offWithEffect']>;
+type OnWithTimedOffPayload = BoundClusterPayloadFromDefinition<OnOffClusterCommands['onWithTimedOff']>;
 
-export default class OnOffBoundCluster extends zbClusters.BoundCluster<OnOffClusterAttributes, OnOffClusterCommands>  {
+export default class OnOffBoundCluster extends zbClusters.BoundCluster<OnOffClusterAttributes, OnOffClusterCommands> {
   public constructor(
     private _handlers: {
       onSetOn?: () => void;

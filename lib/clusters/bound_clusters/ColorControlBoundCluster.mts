@@ -1,24 +1,30 @@
-import zbClusters, { type ColorControlClusterCommands, type types } from 'zigbee-clusters';
+import zbClusters, { type ColorControlClusterCommands } from 'zigbee-clusters';
 import type {
   ExtendedColorControlClusterAttributes,
   ExtendedColorControlClusterCommands,
 } from '../ExtendedColorControlCluster.mjs';
+import type { BoundClusterPayloadFromDefinition } from '../../../types/BoundCluster.mjs';
 
-export type MoveToHuePayload = types.FromZCLDataType<ColorControlClusterCommands['moveToHue']['args']>;
-export type MoveToSaturationPayload = types.FromZCLDataType<ColorControlClusterCommands['moveToSaturation']['args']>;
-export type MoveToHueAndSaturationPayload = types.FromZCLDataType<
-  ColorControlClusterCommands['moveToHueAndSaturation']['args']
+export type MoveToHuePayload = BoundClusterPayloadFromDefinition<ColorControlClusterCommands['moveToHue']>;
+export type MoveToSaturationPayload = BoundClusterPayloadFromDefinition<
+  ColorControlClusterCommands['moveToSaturation']
 >;
-export type MoveToColorPayload = types.FromZCLDataType<ColorControlClusterCommands['moveToColor']['args']>;
-export type MoveToColorTemperaturePayload = types.FromZCLDataType<
-  ColorControlClusterCommands['moveToColorTemperature']['args']
+export type MoveToHueAndSaturationPayload = BoundClusterPayloadFromDefinition<
+  ColorControlClusterCommands['moveToHueAndSaturation']
 >;
-export type MoveHuePayload = types.FromZCLDataType<ExtendedColorControlClusterCommands['moveHue']['args']>;
-export type MoveColorTemperaturePayload = types.FromZCLDataType<
-  ExtendedColorControlClusterCommands['moveColorTemperature']['args']
+export type MoveToColorPayload = BoundClusterPayloadFromDefinition<ColorControlClusterCommands['moveToColor']>;
+export type MoveToColorTemperaturePayload = BoundClusterPayloadFromDefinition<
+  ColorControlClusterCommands['moveToColorTemperature']
+>;
+export type MoveHuePayload = BoundClusterPayloadFromDefinition<ExtendedColorControlClusterCommands['moveHue']>;
+export type MoveColorTemperaturePayload = BoundClusterPayloadFromDefinition<
+  ExtendedColorControlClusterCommands['moveColorTemperature']
 >;
 
-export default class ColorControlBoundCluster extends zbClusters.BoundCluster<ExtendedColorControlClusterAttributes, ExtendedColorControlClusterCommands> {
+export default class ColorControlBoundCluster extends zbClusters.BoundCluster<
+  ExtendedColorControlClusterAttributes,
+  ExtendedColorControlClusterCommands
+> {
   public constructor(
     private _handlers: {
       onMoveToHue?: (payload: MoveToHuePayload) => void;

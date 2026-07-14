@@ -1,23 +1,30 @@
-import zbClusters, {type types} from 'zigbee-clusters';
-import type {
-  ExtendedScenesClusterAttributes,
-  ExtendedScenesClusterCommands,
-} from '../ExtendedScenesCluster.mjs';
+import zbClusters from 'zigbee-clusters';
+import type { ExtendedScenesClusterAttributes, ExtendedScenesClusterCommands } from '../ExtendedScenesCluster.mjs';
+import type { BoundClusterPayloadFromDefinition } from '../../../types/BoundCluster.mjs';
 
-export type AddScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['addScene']['args']>;
-export type ViewScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['viewScene']['args']>;
-export type RemoveScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['removeScene']['args']>;
-export type RemoveAllScenesPayload = types.FromZCLDataType<ExtendedScenesClusterCommands['removeAllScenes']['args']>;
-export type StoreScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['storeScene']['args']>;
-export type RecallScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['recallScene']['args']>;
-export type GetSceneMembershipPayload = types.FromZCLDataType<
-  ExtendedScenesClusterCommands['getSceneMembership']['args']
+export type AddScenePayload = BoundClusterPayloadFromDefinition<ExtendedScenesClusterCommands['addScene']>;
+export type ViewScenePayload = BoundClusterPayloadFromDefinition<ExtendedScenesClusterCommands['viewScene']>;
+export type RemoveScenePayload = BoundClusterPayloadFromDefinition<ExtendedScenesClusterCommands['removeScene']>;
+export type RemoveAllScenesPayload = BoundClusterPayloadFromDefinition<
+  ExtendedScenesClusterCommands['removeAllScenes']
 >;
-export type EnhancedAddScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['enhancedAddScene']['args']>;
-export type EnhancedViewScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['enhancedViewScene']['args']>;
-export type CopyScenePayload = types.FromZCLDataType<ExtendedScenesClusterCommands['copyScene']['args']>;
+export type StoreScenePayload = BoundClusterPayloadFromDefinition<ExtendedScenesClusterCommands['storeScene']>;
+export type RecallScenePayload = BoundClusterPayloadFromDefinition<ExtendedScenesClusterCommands['recallScene']>;
+export type GetSceneMembershipPayload = BoundClusterPayloadFromDefinition<
+  ExtendedScenesClusterCommands['getSceneMembership']
+>;
+export type EnhancedAddScenePayload = BoundClusterPayloadFromDefinition<
+  ExtendedScenesClusterCommands['enhancedAddScene']
+>;
+export type EnhancedViewScenePayload = BoundClusterPayloadFromDefinition<
+  ExtendedScenesClusterCommands['enhancedViewScene']
+>;
+export type CopyScenePayload = BoundClusterPayloadFromDefinition<ExtendedScenesClusterCommands['copyScene']>;
 
-export default class ScenesBoundCluster extends zbClusters.BoundCluster<ExtendedScenesClusterAttributes, ExtendedScenesClusterCommands> {
+export default class ScenesBoundCluster extends zbClusters.BoundCluster<
+  ExtendedScenesClusterAttributes,
+  ExtendedScenesClusterCommands
+> {
   public constructor(
     private _handlers: {
       onAddScene?: (payload: AddScenePayload) => void;
