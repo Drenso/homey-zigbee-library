@@ -1,6 +1,6 @@
 {
   "name": "@drenso/homey-zigbee-library",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "A collection of helpers for initializing zigbee Homey capabilities without all the boilerplate",
   "repository": {
     "type": "git",
