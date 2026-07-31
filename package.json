@@ -2,6 +2,10 @@
   "name": "@drenso/homey-zigbee-library",
   "version": "0.0.0",
   "description": "A collection of helpers for initializing zigbee Homey capabilities without all the boilerplate",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Drenso/homey-zigbee-library.git"
+  },
   "author": "Drenso <hallo@drenso.nl>",
   "contributors": [
     "Bob van de Vijver <bob@drenso.nl>",
