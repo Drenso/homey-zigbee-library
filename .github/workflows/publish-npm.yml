@@ -1,8 +1,11 @@
 name: NPM Publish
 on:
   push:
-    branches:
-      - main
+    tags:
+      - v*
+
+env:
+  VERDACCIO_TOKEN: ${{secrets.VERDACCIO_TOKEN}}
 
 jobs:
   publish:
@@ -14,23 +17,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Setup NPM
+        run: |
+          echo '//npm.drenso.dev/:_authToken=${VERDACCIO_TOKEN}' >> .npmrc
       - name: Use Node.js 24.x
         uses: actions/setup-node@v6
         with:
           node-version: '24.x'
-          registry-url: https://registry.npmjs.org/
-      - name: Check package version
-        id: cpv
-        uses: PostHog/check-package-version@v2
-      - name: Echo versions
-        run: |
-          echo "Committed version: ${{ steps.cpv.outputs.committed-version }}"
-          echo "Published version: ${{ steps.cpv.outputs.published-version }}"
+          registry-url: https://npm.drenso.dev
       - name: Install dependencies
-        if: steps.cpv.outputs.is-new-version == 'true'
         run: npm ci
       - name: Publish
-        if: steps.cpv.outputs.is-new-version == 'true'
-        run: npm publish --provenance --access public
+        run: npm publish --registry=https://registry.npmjs.org --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
