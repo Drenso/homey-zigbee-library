@@ -2,8 +2,6 @@ stages:
   - prepare
   - audit
   - lint
-  - build
-  - publish
 
 workflow:
   rules:
@@ -14,39 +12,11 @@ include:
   - project: 'intern/runner-templates'
     ref: '17.3'
     file: '/npm/install-js-dependencies.yml'
-
-  # Lint
+  # Audit
   - project: 'intern/runner-templates'
     ref: '17.3'
     file: '/npm/audit.yml'
+  # Lint
   - project: 'intern/runner-templates'
     ref: '17.3'
     file: '/npm/eslint.yml'
-
-publish-pkg:
-  stage: publish
-  image: node:24.18.0-alpine
-  resource_group: $CI_JOB_NAME
-  needs:
-    - install-js-dependencies
-  cache:
-    key:
-      files:
-        - package-lock.json
-      prefix: ${CI_PROJECT_PATH_SLUG}_npm
-    paths:
-      - node_modules/
-    policy: pull
-  script:
-    - echo "//${NPM_REGISTRY}/:username=${NPM_USER}" >> .npmrc
-    - echo "//${NPM_REGISTRY}/:_password=$(echo -n ${NPM_PASS} | base64)" >> .npmrc
-    - echo "email=${NPM_EMAIL}" >> .npmrc
-    - echo "always-auth=true" >> .npmrc
-    - npm version --new-version ${CI_COMMIT_TAG} --no-git-tag-version
-    - npm publish
-  after_script:
-    - rm .npmrc
-  tags:
-    - docker
-  only:
-    - tags
