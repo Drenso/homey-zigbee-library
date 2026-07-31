@@ -12,6 +12,7 @@
     "Tobias Feijten <tobias@drenso.nl>",
     "Joost Loohuis <joost@loohuis.dev>"
   ],
+  "license": "GPL-3.0-only",
   "type": "module",
   "devDependencies": {
     "@drenso/eslint-config-homey-mts": "1.2.0",
