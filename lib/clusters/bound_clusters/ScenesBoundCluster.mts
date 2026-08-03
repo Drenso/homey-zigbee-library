@@ -1,7 +1,9 @@
 import zbClusters from 'zigbee-clusters';
 import type { ExtendedScenesClusterAttributes, ExtendedScenesClusterCommands } from '../ExtendedScenesCluster.mjs';
-import type { BoundClusterPayloadFromDefinition } from '../../../types/BoundCluster.mjs';
-import type {BoundClusterMeta} from './BoundClusterMeta.mjs';
+import type {
+  BoundClusterMeta,
+  BoundClusterPayloadFromDefinition,
+} from '../../../types/BoundCluster.mjs';
 
 export type AddScenePayload = BoundClusterPayloadFromDefinition<ExtendedScenesClusterCommands['addScene']>;
 export type ViewScenePayload = BoundClusterPayloadFromDefinition<ExtendedScenesClusterCommands['viewScene']>;

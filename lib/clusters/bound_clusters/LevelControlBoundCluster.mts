@@ -1,6 +1,8 @@
 import zbClusters, { type LevelControlClusterAttributes, type LevelControlClusterCommands } from 'zigbee-clusters';
-import type { BoundClusterPayloadFromDefinition } from '../../../types/BoundCluster.mjs';
-import type {BoundClusterMeta} from './BoundClusterMeta.mjs';
+import type {
+  BoundClusterMeta,
+  BoundClusterPayloadFromDefinition,
+} from '../../../types/BoundCluster.mjs';
 
 export type MoveToLevelPayload = BoundClusterPayloadFromDefinition<LevelControlClusterCommands['moveToLevel']>;
 export type MovePayload = BoundClusterPayloadFromDefinition<LevelControlClusterCommands['move']>;

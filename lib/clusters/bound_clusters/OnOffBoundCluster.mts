@@ -1,6 +1,8 @@
 import zbClusters, { type OnOffClusterAttributes, type OnOffClusterCommands } from 'zigbee-clusters';
-import type { BoundClusterPayloadFromDefinition } from '../../../types/BoundCluster.mjs';
-import type {BoundClusterMeta} from './BoundClusterMeta.mjs';
+import type {
+  BoundClusterMeta,
+  BoundClusterPayloadFromDefinition,
+} from '../../../types/BoundCluster.mjs';
 
 export type OffWithEffectPayload = BoundClusterPayloadFromDefinition<OnOffClusterCommands['offWithEffect']>;
 export type OnWithTimedOffPayload = BoundClusterPayloadFromDefinition<OnOffClusterCommands['onWithTimedOff']>;

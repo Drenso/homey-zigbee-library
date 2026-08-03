@@ -3,8 +3,10 @@ import type {
   ExtendedColorControlClusterAttributes,
   ExtendedColorControlClusterCommands,
 } from '../ExtendedColorControlCluster.mjs';
-import type { BoundClusterPayloadFromDefinition } from '../../../types/BoundCluster.mjs';
-import type {BoundClusterMeta} from './BoundClusterMeta.mjs';
+import type {
+  BoundClusterMeta,
+  BoundClusterPayloadFromDefinition,
+} from '../../../types/BoundCluster.mjs';
 
 export type MoveToHuePayload = BoundClusterPayloadFromDefinition<ColorControlClusterCommands['moveToHue']>;
 export type MoveToSaturationPayload = BoundClusterPayloadFromDefinition<
