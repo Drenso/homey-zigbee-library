@@ -1,14 +1,15 @@
 import zbClusters, { type LevelControlClusterAttributes, type LevelControlClusterCommands } from 'zigbee-clusters';
 import type { BoundClusterPayloadFromDefinition } from '../../../types/BoundCluster.mjs';
+import type {BoundClusterMeta} from './BoundClusterMeta.mjs';
 
-type MoveToLevelPayload = BoundClusterPayloadFromDefinition<LevelControlClusterCommands['moveToLevel']>;
-type MovePayload = BoundClusterPayloadFromDefinition<LevelControlClusterCommands['move']>;
-type StepPayload = BoundClusterPayloadFromDefinition<LevelControlClusterCommands['step']>;
-type MoveToLevelWithOnOffPayload = BoundClusterPayloadFromDefinition<
+export type MoveToLevelPayload = BoundClusterPayloadFromDefinition<LevelControlClusterCommands['moveToLevel']>;
+export type MovePayload = BoundClusterPayloadFromDefinition<LevelControlClusterCommands['move']>;
+export type StepPayload = BoundClusterPayloadFromDefinition<LevelControlClusterCommands['step']>;
+export type MoveToLevelWithOnOffPayload = BoundClusterPayloadFromDefinition<
   LevelControlClusterCommands['moveToLevelWithOnOff']
 >;
-type MoveWithOnOffPayload = BoundClusterPayloadFromDefinition<LevelControlClusterCommands['moveWithOnOff']>;
-type StepWithOnOffPayload = BoundClusterPayloadFromDefinition<LevelControlClusterCommands['stepWithOnOff']>;
+export type MoveWithOnOffPayload = BoundClusterPayloadFromDefinition<LevelControlClusterCommands['moveWithOnOff']>;
+export type StepWithOnOffPayload = BoundClusterPayloadFromDefinition<LevelControlClusterCommands['stepWithOnOff']>;
 
 export default class LevelControlBoundCluster extends zbClusters.BoundCluster<
   LevelControlClusterAttributes,
@@ -16,48 +17,48 @@ export default class LevelControlBoundCluster extends zbClusters.BoundCluster<
 > {
   public constructor(
     private _handlers: {
-      onMoveToLevel?: (payload: MoveToLevelPayload) => void;
-      onMove?: (payload: MovePayload) => void;
-      onStep?: (payload: StepPayload) => void;
-      onStop?: () => void;
-      onMoveToLevelWithOnOff?: (payload: MoveToLevelWithOnOffPayload) => void;
-      onMoveWithOnOff?: (payload: MoveWithOnOffPayload) => void;
-      onStepWithOnOff?: (payload: StepWithOnOffPayload) => void;
-      onStopWithOnOff?: () => void;
+      onMoveToLevel?: (payload: MoveToLevelPayload, meta: BoundClusterMeta) => void;
+      onMove?: (payload: MovePayload, meta: BoundClusterMeta) => void;
+      onStep?: (payload: StepPayload, meta: BoundClusterMeta) => void;
+      onStop?: (meta: BoundClusterMeta) => void;
+      onMoveToLevelWithOnOff?: (payload: MoveToLevelWithOnOffPayload, meta: BoundClusterMeta) => void;
+      onMoveWithOnOff?: (payload: MoveWithOnOffPayload, meta: BoundClusterMeta) => void;
+      onStepWithOnOff?: (payload: StepWithOnOffPayload, meta: BoundClusterMeta) => void;
+      onStopWithOnOff?: (meta: BoundClusterMeta) => void;
     },
   ) {
     super();
   }
 
-  public moveToLevel(payload: MoveToLevelPayload): void {
-    this._handlers.onMoveToLevel?.(payload);
+  public moveToLevel(payload: MoveToLevelPayload, meta: BoundClusterMeta): void {
+    this._handlers.onMoveToLevel?.(payload, meta);
   }
 
-  public move(payload: MovePayload): void {
-    this._handlers.onMove?.(payload);
+  public move(payload: MovePayload, meta: BoundClusterMeta): void {
+    this._handlers.onMove?.(payload, meta);
   }
 
-  public step(payload: StepPayload): void {
-    this._handlers.onStep?.(payload);
+  public step(payload: StepPayload, meta: BoundClusterMeta): void {
+    this._handlers.onStep?.(payload, meta);
   }
 
-  public stop(): void {
-    this._handlers.onStop?.();
+  public stop(meta: BoundClusterMeta): void {
+    this._handlers.onStop?.(meta);
   }
 
-  public moveToLevelWithOnOff(payload: MoveToLevelWithOnOffPayload): void {
-    this._handlers.onMoveToLevelWithOnOff?.(payload);
+  public moveToLevelWithOnOff(payload: MoveToLevelWithOnOffPayload, meta: BoundClusterMeta): void {
+    this._handlers.onMoveToLevelWithOnOff?.(payload, meta);
   }
 
-  public moveWithOnOff(payload: MoveWithOnOffPayload): void {
-    this._handlers.onMoveWithOnOff?.(payload);
+  public moveWithOnOff(payload: MoveWithOnOffPayload, meta: BoundClusterMeta): void {
+    this._handlers.onMoveWithOnOff?.(payload, meta);
   }
 
-  public stepWithOnOff(payload: StepWithOnOffPayload): void {
-    this._handlers.onStepWithOnOff?.(payload);
+  public stepWithOnOff(payload: StepWithOnOffPayload, meta: BoundClusterMeta): void {
+    this._handlers.onStepWithOnOff?.(payload, meta);
   }
 
-  public stopWithOnOff(): void {
-    this._handlers.onStopWithOnOff?.();
+  public stopWithOnOff(meta: BoundClusterMeta): void {
+    this._handlers.onStopWithOnOff?.(meta);
   }
 }

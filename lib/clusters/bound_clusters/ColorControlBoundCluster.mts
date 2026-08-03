@@ -4,6 +4,7 @@ import type {
   ExtendedColorControlClusterCommands,
 } from '../ExtendedColorControlCluster.mjs';
 import type { BoundClusterPayloadFromDefinition } from '../../../types/BoundCluster.mjs';
+import type {BoundClusterMeta} from './BoundClusterMeta.mjs';
 
 export type MoveToHuePayload = BoundClusterPayloadFromDefinition<ColorControlClusterCommands['moveToHue']>;
 export type MoveToSaturationPayload = BoundClusterPayloadFromDefinition<
@@ -27,48 +28,48 @@ export default class ColorControlBoundCluster extends zbClusters.BoundCluster<
 > {
   public constructor(
     private _handlers: {
-      onMoveToHue?: (payload: MoveToHuePayload) => void;
-      onMoveToSaturation?: (payload: MoveToSaturationPayload) => void;
-      onMoveToHueAndSaturation?: (payload: MoveToHueAndSaturationPayload) => void;
-      onMoveToColor?: (payload: MoveToColorPayload) => void;
-      onMoveToColorTemperature?: (payload: MoveToColorTemperaturePayload) => void;
-      onMoveHue?: (payload: MoveHuePayload) => void;
-      stopMoveStep?: () => void;
-      moveColorTemperature?: (payload: MoveColorTemperaturePayload) => void;
+      onMoveToHue?: (payload: MoveToHuePayload, meta: BoundClusterMeta) => void;
+      onMoveToSaturation?: (payload: MoveToSaturationPayload, meta: BoundClusterMeta) => void;
+      onMoveToHueAndSaturation?: (payload: MoveToHueAndSaturationPayload, meta: BoundClusterMeta) => void;
+      onMoveToColor?: (payload: MoveToColorPayload, meta: BoundClusterMeta) => void;
+      onMoveToColorTemperature?: (payload: MoveToColorTemperaturePayload,meta: BoundClusterMeta) => void;
+      onMoveHue?: (payload: MoveHuePayload, meta: BoundClusterMeta) => void;
+      stopMoveStep?: (meta: BoundClusterMeta) => void;
+      moveColorTemperature?: (payload: MoveColorTemperaturePayload, meta: BoundClusterMeta) => void;
     },
   ) {
     super();
   }
 
-  public moveToHue(payload: MoveToHuePayload): void {
-    this._handlers.onMoveToHue?.(payload);
+  public moveToHue(payload: MoveToHuePayload, meta: BoundClusterMeta): void {
+    this._handlers.onMoveToHue?.(payload, meta);
   }
 
-  public moveToSaturation(payload: MoveToSaturationPayload): void {
-    this._handlers.onMoveToSaturation?.(payload);
+  public moveToSaturation(payload: MoveToSaturationPayload, meta: BoundClusterMeta): void {
+    this._handlers.onMoveToSaturation?.(payload, meta);
   }
 
-  public moveToHueAndSaturation(payload: MoveToHueAndSaturationPayload): void {
-    this._handlers.onMoveToHueAndSaturation?.(payload);
+  public moveToHueAndSaturation(payload: MoveToHueAndSaturationPayload, meta: BoundClusterMeta): void {
+    this._handlers.onMoveToHueAndSaturation?.(payload, meta);
   }
 
-  public moveToColor(payload: MoveToColorPayload): void {
-    this._handlers.onMoveToColor?.(payload);
+  public moveToColor(payload: MoveToColorPayload, meta: BoundClusterMeta): void {
+    this._handlers.onMoveToColor?.(payload, meta);
   }
 
-  public moveToColorTemperature(payload: MoveToColorTemperaturePayload): void {
-    this._handlers.onMoveToColorTemperature?.(payload);
+  public moveToColorTemperature(payload: MoveToColorTemperaturePayload, meta: BoundClusterMeta): void {
+    this._handlers.onMoveToColorTemperature?.(payload, meta);
   }
 
-  public moveHue(payload: MoveHuePayload): void {
-    this._handlers.onMoveHue?.(payload);
+  public moveHue(payload: MoveHuePayload, meta: BoundClusterMeta): void {
+    this._handlers.onMoveHue?.(payload, meta);
   }
 
-  public stopMoveStep(): void {
-    this._handlers.stopMoveStep?.();
+  public stopMoveStep(meta: BoundClusterMeta): void {
+    this._handlers.stopMoveStep?.(meta);
   }
 
-  public moveColorTemperature(payload: MoveColorTemperaturePayload): void {
-    this._handlers.moveColorTemperature?.(payload);
+  public moveColorTemperature(payload: MoveColorTemperaturePayload, meta: BoundClusterMeta): void {
+    this._handlers.moveColorTemperature?.(payload, meta);
   }
 }

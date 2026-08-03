@@ -1,44 +1,45 @@
 import zbClusters, { type OnOffClusterAttributes, type OnOffClusterCommands } from 'zigbee-clusters';
 import type { BoundClusterPayloadFromDefinition } from '../../../types/BoundCluster.mjs';
+import type {BoundClusterMeta} from './BoundClusterMeta.mjs';
 
-type OffWithEffectPayload = BoundClusterPayloadFromDefinition<OnOffClusterCommands['offWithEffect']>;
-type OnWithTimedOffPayload = BoundClusterPayloadFromDefinition<OnOffClusterCommands['onWithTimedOff']>;
+export type OffWithEffectPayload = BoundClusterPayloadFromDefinition<OnOffClusterCommands['offWithEffect']>;
+export type OnWithTimedOffPayload = BoundClusterPayloadFromDefinition<OnOffClusterCommands['onWithTimedOff']>;
 
 export default class OnOffBoundCluster extends zbClusters.BoundCluster<OnOffClusterAttributes, OnOffClusterCommands> {
   public constructor(
     private _handlers: {
-      onSetOn?: () => void;
-      onSetOff?: () => void;
-      onToggle?: () => void;
-      offWithEffect?: (payload: OffWithEffectPayload) => void;
-      onWithRecallGlobalScene?: () => void;
-      onWithTimedOff?: (payload: OnWithTimedOffPayload) => void;
+      onSetOn?: (meta: BoundClusterMeta) => void;
+      onSetOff?: (meta: BoundClusterMeta) => void;
+      onToggle?: (meta: BoundClusterMeta) => void;
+      offWithEffect?: (payload: OffWithEffectPayload, meta: BoundClusterMeta) => void;
+      onWithRecallGlobalScene?: (meta: BoundClusterMeta) => void;
+      onWithTimedOff?: (payload: OnWithTimedOffPayload, meta: BoundClusterMeta) => void;
     },
   ) {
     super();
   }
 
-  public setOn(): void {
-    this._handlers.onSetOn?.();
+  public setOn(meta: BoundClusterMeta): void {
+    this._handlers.onSetOn?.(meta);
   }
 
-  public setOff(): void {
-    this._handlers.onSetOff?.();
+  public setOff(meta: BoundClusterMeta): void {
+    this._handlers.onSetOff?.(meta);
   }
 
-  public toggle(): void {
-    this._handlers.onToggle?.();
+  public toggle(meta: BoundClusterMeta): void {
+    this._handlers.onToggle?.(meta);
   }
 
-  public offWithEffect(payload: OffWithEffectPayload): void {
-    this._handlers.offWithEffect?.(payload);
+  public offWithEffect(payload: OffWithEffectPayload, meta: BoundClusterMeta): void {
+    this._handlers.offWithEffect?.(payload, meta);
   }
 
-  public onWithRecallGlobalScene(): void {
-    this._handlers.onWithRecallGlobalScene?.();
+  public onWithRecallGlobalScene(meta: BoundClusterMeta): void {
+    this._handlers.onWithRecallGlobalScene?.(meta);
   }
 
-  public onWithTimedOff(payload: OnWithTimedOffPayload): void {
-    this._handlers.onWithTimedOff?.(payload);
+  public onWithTimedOff(payload: OnWithTimedOffPayload, meta: BoundClusterMeta): void {
+    this._handlers.onWithTimedOff?.(payload, meta);
   }
 }
