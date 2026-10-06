@@ -17,7 +17,7 @@ export const extendedAttributes = {
   activePowerPhC: { id: 0x0a0b, type: zbClusters.ZCLDataTypes.int16 },
 } as const satisfies types.AttributeDefinitions;
 
-type ExtendedElectricalMeasurementClusterAttributes = ElectricalMeasurementClusterAttributes &
+export type ExtendedElectricalMeasurementClusterAttributes = ElectricalMeasurementClusterAttributes &
   typeof extendedAttributes;
 
 export class ExtendedElectricalMeasurementCluster<

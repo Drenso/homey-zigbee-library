@@ -1,11 +1,13 @@
-import zbClusters, { type ZCLNode } from 'zigbee-clusters';
+import zbClusters, { type ZCLNode, type types } from 'zigbee-clusters';
 import { initReadOnlyCapability } from '../lib/attributeDevice.mjs';
+import type { ExtendedElectricalMeasurementClusterAttributes } from '../lib/clusters/ExtendedElectricalMeasurementCluster.mjs';
 import { ExtendedElectricalMeasurementCluster } from '../lib/clusters/ExtendedElectricalMeasurementCluster.mjs';
 import type { ZigbeeFactorDevice, ZigbeeFactorKey } from '../lib/helper/deviceFactor.mjs';
 import initFactorImplementation, {
   factorReportParserBuilder,
   type InvalidFactorValueFunction,
 } from '../lib/helper/deviceFactor.mjs';
+import type { BitmapBase } from '@athombv/data-types';
 
 type ArgumentOverrides<Postfix extends string> = {
   endpointId?: number;
@@ -49,6 +51,14 @@ type PowerValueFunctionFactorKey = Extract<
   'totalActivePowerFactor' | 'instantaneousDemandFactor' | 'activePowerFactor'
 >;
 
+const MEASUREMENT_FLAGS_STORE_KEY = 'homey-zigbee-library:measurementType';
+
+type BitmapFlags<Base> = Base extends BitmapBase<infer Flags> ? Flags : never;
+
+type MeasurementType = BitmapFlags<
+  types.AttributesFromDefinition<ExtendedElectricalMeasurementClusterAttributes>['measurementType']
+>;
+
 const defaultInvalidVoltageValueFunction: InvalidFactorValueFunction = value => value == 65535 || value < 0;
 const defaultInvalidCurrentValueFunction: InvalidFactorValueFunction = value => value == 65535;
 const defaultInvalidPowerValueFunction: Record<PowerValueFunctionFactorKey, InvalidFactorValueFunction> = {
@@ -75,20 +85,26 @@ export default async function initElectricalMeasurementDevice<Postfix extends st
   } = argumentOverrides;
 
   device.log('Determining measurement type');
-  const measurementType = !readOnInit
-    ? undefined
-    : await (
-        zclNode.endpoints[endpointId ?? device.getClusterEndpoint(ExtendedElectricalMeasurementCluster) ?? 1]?.clusters[
-          ExtendedElectricalMeasurementCluster.NAME
-        ] as ExtendedElectricalMeasurementCluster
-      )
-        ?.readAttributes(['measurementType'])
-        ?.catch(e =>
-          device.error('Failed to read', 'measurementType', 'from', ExtendedElectricalMeasurementCluster.NAME, e),
-        );
+  let measurementFlags: Array<MeasurementType> | undefined =
+    device.getStoreValue(MEASUREMENT_FLAGS_STORE_KEY) ?? undefined;
 
-  device.log('Measurement type is', measurementType ?? 'not provided by device');
-  const measurementFlags = measurementType?.measurementType?.getBits();
+  if (readOnInit){
+    await (
+      zclNode.endpoints[endpointId ?? device.getClusterEndpoint(ExtendedElectricalMeasurementCluster) ?? 1]?.clusters[
+        ExtendedElectricalMeasurementCluster.NAME
+      ] as ExtendedElectricalMeasurementCluster
+    )
+      ?.readAttributes(['measurementType'])
+      .then(res => {
+        measurementFlags = res.measurementType.getBits();
+        device.setStoreValue(MEASUREMENT_FLAGS_STORE_KEY, measurementFlags);
+      })
+      ?.catch(e =>
+        device.error('Failed to read', 'measurementType', 'from', ExtendedElectricalMeasurementCluster.NAME, e),
+      );
+  }
+
+  device.log('Measurement flags are', measurementFlags ?? 'not provided by device');
   // Configure phase A if there are no measurement types, if it is explicitly reported or if no phase is reported at all
   const hasPhaseA =
     !measurementFlags ||
