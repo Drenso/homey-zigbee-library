@@ -18,6 +18,7 @@ export default async function initLockedDevice(
     // Can be extended to handle the 'not_fully_locked' state
     reportParser = (value: LockState): boolean => value == 'locked',
     endpointId,
+    readOnInit,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   const command = (value: boolean): string => (value ? 'lockDoor' : 'unlockDoor');
@@ -35,5 +36,7 @@ export default async function initLockedDevice(
     reportParser,
     undefined,
     endpointId,
+    undefined,
+    readOnInit,
   );
 }

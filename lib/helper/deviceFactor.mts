@@ -109,6 +109,7 @@ export default async function initFactorImplementation<Postfix extends string = 
   onReportTimeout = 1,
   additionalMultiplier?: number,
   invalidFactorValue?: InvalidFactorValueFunction,
+  readOnInit = true,
 ): Promise<void> {
   // Restore factor from store
   await updateDeviceFactor<Postfix>(device, storeProperty, storePropertyPostfix, {
@@ -131,19 +132,21 @@ export default async function initFactorImplementation<Postfix extends string = 
 
   const properties = factorProperties[storeProperty];
 
-  // Retrieve initial values
-  await cluster
-    .readAttributes([properties.value, properties.multiplier, properties.divisor])
-    .then(async result => {
-      await updateDeviceFactor(device, storeProperty, storePropertyPostfix, {
-        multiplier: result[properties.multiplier] as number,
-        divisor: result[properties.divisor] as number,
-      });
-      await device
-        .setCapabilityValue(capability, reportParser(result[properties.value] as number))
-        .catch(e => device.error(`Failed to set ${capability} capability value`, e));
-    })
-    .catch(e => device.error(`Failed to read ${clusterSpec.NAME} ${Object.values(properties)} attributes`, e));
+  if (readOnInit) {
+    // Retrieve initial values
+    await cluster
+      .readAttributes([properties.value, properties.multiplier, properties.divisor])
+      .then(async result => {
+        await updateDeviceFactor(device, storeProperty, storePropertyPostfix, {
+          multiplier: result[properties.multiplier] as number,
+          divisor: result[properties.divisor] as number,
+        });
+        await device
+          .setCapabilityValue(capability, reportParser(result[properties.value] as number))
+          .catch(e => device.error(`Failed to set ${capability} capability value`, e));
+      })
+      .catch(e => device.error(`Failed to read ${clusterSpec.NAME} ${Object.values(properties)} attributes`, e));
+  }
 
   // Configure reporting for the factor
   if (noFactorReporting !== true) {

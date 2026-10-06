@@ -18,6 +18,7 @@ export default async function initOnOffDevice(
     maxInterval,
     minChange,
     pollInterval,
+    readOnInit,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   const command = (value: boolean): string => (value ? 'setOn' : 'setOff');
@@ -38,5 +39,6 @@ export default async function initOnOffDevice(
     { minInterval, maxInterval, minChange },
     endpointId,
     pollInterval,
+    readOnInit,
   );
 }

@@ -16,6 +16,7 @@ export default async function initMeasureIlluminanceDevice(
     minInterval,
     maxInterval,
     endpointId,
+    readOnInit,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   await initReadOnlyCapability(
@@ -40,5 +41,6 @@ export default async function initMeasureIlluminanceDevice(
     },
     { minInterval, maxInterval, minChange },
     endpointId,
+    readOnInit,
   );
 }

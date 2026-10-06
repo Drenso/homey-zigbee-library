@@ -20,6 +20,7 @@ export default async function initDimDevice(
     maxInterval,
     minChange,
     endpointId,
+    readOnInit = true,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   await initReadCommandCapability(
@@ -57,6 +58,8 @@ export default async function initDimDevice(
     },
     { minInterval, maxInterval, minChange },
     endpointId,
+    undefined,
+    readOnInit,
   );
 }
 

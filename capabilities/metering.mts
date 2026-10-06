@@ -7,6 +7,7 @@ type ArgumentOverrides<Postfix extends string> = {
   noPowerFactorReporting?: boolean;
   storePropertyPostfix?: Postfix;
   meterPowerCapability?: string;
+  readOnInit?: boolean;
 };
 
 export default async function initMeteringDevice<Postfix extends string = ''>(
@@ -17,6 +18,7 @@ export default async function initMeteringDevice<Postfix extends string = ''>(
     noPowerFactorReporting,
     storePropertyPostfix,
     meterPowerCapability = 'meter_power',
+    readOnInit = true,
   }: ArgumentOverrides<Postfix> = {},
 ): Promise<void> {
   if (device.hasCapability(meterPowerCapability)) {
@@ -31,6 +33,12 @@ export default async function initMeteringDevice<Postfix extends string = ''>(
       storePropertyPostfix,
       endpointId,
       noPowerFactorReporting,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${meterPowerCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${meterPowerCapability} capability`, e));

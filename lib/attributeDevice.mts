@@ -14,6 +14,7 @@ const defaultReportParser: ReportParser = x => x;
 export interface DefaultConfiguration {
   capabilityId: string;
   endpointId?: number;
+  readOnInit?: boolean;
 }
 
 export interface ReportingConfiguration {
@@ -63,11 +64,14 @@ export async function initReadWriteCapability(
   setParser: SetParser = defaultSetParser,
   { minInterval = 0, maxInterval = 3600, minChange = 1 }: ReportingConfiguration = {},
   endpointId?: number,
+  readOnInit?: boolean,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
 
-  // Retrieve initial value
-  await readInitialValue(device, zclNode, capabilityId, cluster, attributeName, reportParser, endpoint);
+  if (readOnInit) {
+    // Retrieve initial value
+    await readInitialValue(device, zclNode, capabilityId, cluster, attributeName, reportParser, endpoint);
+  }
 
   // Configure reading the capability
   device.registerCapability(capabilityId, cluster, {
@@ -106,11 +110,14 @@ export async function initReadCommandCapability(
   { minInterval = 0, maxInterval = 3600, minChange = 1 }: ReportingConfiguration = {},
   endpointId?: number,
   pollInterval?: number,
+  readOnInit?: boolean,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
 
-  // Retrieve initial value
-  await readInitialValue(device, zclNode, capabilityId, cluster, attributeName, reportParser, endpoint);
+  if (readOnInit) {
+    // Retrieve initial value
+    await readInitialValue(device, zclNode, capabilityId, cluster, attributeName, reportParser, endpoint);
+  }
 
   // Configure the capability
   device.registerCapability(capabilityId, cluster, {
@@ -145,11 +152,14 @@ export async function initReadOnlyCapability(
   reportParser: ReportParser = defaultReportParser,
   { minInterval = 0, maxInterval = 3600, minChange = 1 }: ReportingConfiguration = {},
   endpointId?: number,
+  readOnInit?: boolean,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
 
-  // Retrieve initial value
-  await readInitialValue(device, zclNode, capabilityId, cluster, attributeName, reportParser, endpoint);
+  if (readOnInit) {
+    // Retrieve initial value
+    await readInitialValue(device, zclNode, capabilityId, cluster, attributeName, reportParser, endpoint);
+  }
 
   // Configure the capability
   device.registerCapability(capabilityId, cluster, {

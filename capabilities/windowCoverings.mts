@@ -51,4 +51,5 @@ export type ArgumentOverrides = {
   invertPercentage?: boolean;
   invertSetting?: string;
   positionUpdatesAfterSetDebounceTime?: number;
+  readOnInit?: boolean;
 };

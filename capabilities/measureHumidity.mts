@@ -16,6 +16,7 @@ export default async function initMeasureHumidityDevice(
     minInterval,
     maxInterval,
     endpointId,
+    readOnInit,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   await initReadOnlyCapability(
@@ -39,5 +40,6 @@ export default async function initMeasureHumidityDevice(
     },
     { minInterval, maxInterval, minChange },
     endpointId,
+    readOnInit,
   );
 }

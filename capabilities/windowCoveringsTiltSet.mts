@@ -12,7 +12,7 @@ const TILT_PERCENTAGE_CAPABILITY = 'windowcoverings_tilt_set';
 export async function initTiltPercentageCapability(
   device: ZigbeeWindowCoveringsDevice,
   zclNode: ZCLNode,
-  { endpointId, invertPercentage = false, invertSetting }: Partial<ArgumentOverrides> = {},
+  { endpointId, invertPercentage = false, invertSetting, readOnInit = true }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   if (!device.hasCapability(TILT_PERCENTAGE_CAPABILITY)) {
     return;
@@ -50,15 +50,17 @@ export async function initTiltPercentageCapability(
     return parsedValue;
   };
 
-  await readInitialValue(
-    device,
-    zclNode,
-    TILT_PERCENTAGE_CAPABILITY,
-    CLUSTER_SPEC,
-    TILT_PERCENTAGE_ATTRIBUTE,
-    reportParser,
-    endpoint,
-  );
+  if (readOnInit) {
+    await readInitialValue(
+      device,
+      zclNode,
+      TILT_PERCENTAGE_CAPABILITY,
+      CLUSTER_SPEC,
+      TILT_PERCENTAGE_ATTRIBUTE,
+      reportParser,
+      endpoint,
+    );
+  }
 
   device.registerCapability(TILT_PERCENTAGE_CAPABILITY, CLUSTER_SPEC, {
     endpoint,

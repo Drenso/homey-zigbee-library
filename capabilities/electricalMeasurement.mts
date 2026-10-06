@@ -41,6 +41,7 @@ type ArgumentOverrides<Postfix extends string> = {
   measureVoltagePhaseCCapability?: string;
   measureCurrentPhaseCCapability?: string;
   measurePowerPhaseCCapability?: string;
+  readOnInit?: boolean;
 };
 
 type PowerValueFunctionFactorKey = Extract<ZigbeeFactorKey, 'totalActivePowerFactor' | 'instantaneousDemandFactor' | 'activePowerFactor'>
@@ -67,18 +68,21 @@ export default async function initElectricalMeasurementDevice<Postfix extends st
     additionalFrequencyMultiplier,
     storePropertyPostfix,
     measureFrequencyCapability = 'measure_frequency',
+    readOnInit = true,
   } = argumentOverrides;
 
   device.log('Determining measurement type');
-  const measurementType = await (
-    zclNode.endpoints[endpointId ?? device.getClusterEndpoint(ExtendedElectricalMeasurementCluster) ?? 1]?.clusters[
-      ExtendedElectricalMeasurementCluster.NAME
-    ] as ExtendedElectricalMeasurementCluster
-  )
-    ?.readAttributes(['measurementType'])
-    ?.catch(e =>
-      device.error('Failed to read', 'measurementType', 'from', ExtendedElectricalMeasurementCluster.NAME, e),
-    );
+  const measurementType = !readOnInit
+    ? undefined
+    : await (
+        zclNode.endpoints[endpointId ?? device.getClusterEndpoint(ExtendedElectricalMeasurementCluster) ?? 1]?.clusters[
+          ExtendedElectricalMeasurementCluster.NAME
+        ] as ExtendedElectricalMeasurementCluster
+      )
+        ?.readAttributes(['measurementType'])
+        ?.catch(e =>
+          device.error('Failed to read', 'measurementType', 'from', ExtendedElectricalMeasurementCluster.NAME, e),
+        );
 
   device.log('Measurement type is', measurementType ?? 'not provided by device');
   const measurementFlags = measurementType?.measurementType?.getBits();
@@ -111,6 +115,7 @@ export default async function initElectricalMeasurementDevice<Postfix extends st
       undefined,
       additionalFrequencyMultiplier,
       value => value < 0,
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measureFrequencyCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measureFrequencyCapability} capability`, e));
@@ -164,6 +169,7 @@ async function initPhaseA<Postfix extends string>(
     measureVoltagePhaseCCapability = 'measure_voltage.phase_c',
     measureCurrentPhaseCCapability = 'measure_current.phase_c',
     measurePowerPhaseCCapability = 'measure_power.phase_c',
+    readOnInit = true,
   }: ArgumentOverrides<Postfix>,
 ): Promise<void> {
   if (device.hasCapability(measureVoltagePhaseACapability)) {
@@ -195,6 +201,7 @@ async function initPhaseA<Postfix extends string>(
       sumAverageUpdateInterval,
       additionalVoltageMultiplier,
       invalidVoltageValueFunction ?? defaultInvalidVoltageValueFunction,
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measureVoltagePhaseACapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measureVoltagePhaseACapability} capability`, e));
@@ -219,6 +226,7 @@ async function initPhaseA<Postfix extends string>(
       undefined,
       additionalVoltageMultiplier,
       invalidVoltageValueFunction ?? defaultInvalidVoltageValueFunction,
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measureVoltageCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measureVoltageCapability} capability`, e));
@@ -253,6 +261,7 @@ async function initPhaseA<Postfix extends string>(
       sumAverageUpdateInterval,
       additionalCurrentMultiplier,
       invalidCurrentValueFunction ?? defaultInvalidCurrentValueFunction,
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measureCurrentPhaseACapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measureCurrentPhaseACapability} capability`, e));
@@ -277,6 +286,7 @@ async function initPhaseA<Postfix extends string>(
       undefined,
       additionalCurrentMultiplier,
       invalidCurrentValueFunction ?? defaultInvalidCurrentValueFunction,
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measureCurrentCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measureCurrentCapability} capability`, e));
@@ -326,6 +336,7 @@ async function initPhaseA<Postfix extends string>(
       // Fall back to 1000 additional multiplier as the cluster definition for instantaneous demand and total active power define kW as unit of measurement
       additionalPowerMultiplier ?? (useInstantaneousDemand || useTotalActivePower ? 1000 : undefined),
       invalidPowerValueFunction ?? defaultInvalidPowerValueFunction[measurePowerStoreProperty],
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measurePowerPhaseACapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measurePowerPhaseACapability} capability`, e));
@@ -351,6 +362,7 @@ async function initPhaseA<Postfix extends string>(
       // Fall back to 1000 additional multiplier as the cluster definition for instantaneous demand and total active power define kW as unit of measurement
       additionalPowerMultiplier ?? (useInstantaneousDemand || useTotalActivePower ? 1000 : undefined),
       invalidPowerValueFunction ?? defaultInvalidPowerValueFunction[measurePowerStoreProperty],
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measurePowerCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measurePowerCapability} capability`, e));
@@ -383,6 +395,7 @@ async function initPhaseB<Postfix extends string>(
     measureVoltagePhaseCCapability = 'measure_voltage.phase_c',
     measureCurrentPhaseCCapability = 'measure_current.phase_c',
     measurePowerPhaseCCapability = 'measure_power.phase_c',
+    readOnInit = true,
   }: ArgumentOverrides<Postfix>,
 ): Promise<void> {
   device.log('Initialising Phase B measurements');
@@ -416,6 +429,8 @@ async function initPhaseB<Postfix extends string>(
         maxInterval: maxMeasurementInterval,
         minChange: minVoltageMeasurementChange,
       },
+      undefined,
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measureVoltagePhaseBCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measureVoltagePhaseBCapability} capability`, e));
@@ -450,6 +465,8 @@ async function initPhaseB<Postfix extends string>(
         maxInterval: maxMeasurementInterval,
         minChange: minCurrentMeasurementChange,
       },
+      undefined,
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measureCurrentPhaseBCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measureCurrentPhaseBCapability} capability`, e));
@@ -484,6 +501,8 @@ async function initPhaseB<Postfix extends string>(
         maxInterval: maxMeasurementInterval,
         minChange: minPowerMeasurementChange,
       },
+      undefined,
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measurePowerPhaseBCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measureCurrentPhaseBCapability} capability`, e));
@@ -516,6 +535,7 @@ async function initPhaseC<Postfix extends string>(
     measureVoltagePhaseCCapability = 'measure_voltage.phase_c',
     measureCurrentPhaseCCapability = 'measure_current.phase_c',
     measurePowerPhaseCCapability = 'measure_power.phase_c',
+    readOnInit = true,
   }: ArgumentOverrides<Postfix>,
 ): Promise<void> {
   device.log('Initialising Phase C measurements');
@@ -549,6 +569,8 @@ async function initPhaseC<Postfix extends string>(
         maxInterval: maxMeasurementInterval,
         minChange: minVoltageMeasurementChange,
       },
+      undefined,
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measureVoltagePhaseCCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measureVoltagePhaseCCapability} capability`, e));
@@ -583,6 +605,8 @@ async function initPhaseC<Postfix extends string>(
         maxInterval: maxMeasurementInterval,
         minChange: minCurrentMeasurementChange,
       },
+      undefined,
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measureCurrentPhaseCCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measureCurrentPhaseCCapability} capability`, e));
@@ -617,6 +641,8 @@ async function initPhaseC<Postfix extends string>(
         maxInterval: maxMeasurementInterval,
         minChange: minPowerMeasurementChange,
       },
+      undefined,
+      readOnInit,
     )
       .then(() => device.log(`Initialised ${measurePowerPhaseCCapability} capability`))
       .catch(e => device.error(`Failed to initialise ${measurePowerPhaseCCapability} capability`, e));

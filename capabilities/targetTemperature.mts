@@ -16,6 +16,7 @@ export default async function initTargetTemperatureDevice(
     minInterval,
     maxInterval,
     endpointId,
+    readOnInit,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   await initReadWriteCapability(
@@ -40,5 +41,6 @@ export default async function initTargetTemperatureDevice(
     value => Math.round(value * 100),
     { minChange, minInterval, maxInterval },
     endpointId,
+    readOnInit,
   );
 }

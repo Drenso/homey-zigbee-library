@@ -14,6 +14,7 @@ export default async function initPowerConfigurationDevice(
     minInterval,
     maxInterval,
     endpointId,
+    readOnInit = true,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   const reportParser = function (value: number): number | null {
@@ -37,5 +38,6 @@ export default async function initPowerConfigurationDevice(
     reportParser,
     { minInterval, maxInterval, minChange },
     endpointId,
+    readOnInit,
   );
 }

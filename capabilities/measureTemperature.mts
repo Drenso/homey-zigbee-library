@@ -21,6 +21,7 @@ export default async function initMeasureTemperatureDevice(
     minInterval,
     maxInterval,
     endpointId,
+    readOnInit,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   await initReadOnlyCapability(
@@ -42,5 +43,6 @@ export default async function initMeasureTemperatureDevice(
     },
     { minInterval, maxInterval, minChange },
     endpointId,
+    readOnInit,
   );
 }

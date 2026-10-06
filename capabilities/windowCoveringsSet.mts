@@ -19,6 +19,7 @@ export async function initLiftPercentageCapability(
     invertPercentage = false,
     invertSetting,
     positionUpdatesAfterSetDebounceTime: debounceTime,
+    readOnInit = true,
   }: Partial<ArgumentOverrides> = {},
 ): Promise<void> {
   if (!device.hasCapability(LIFT_PERCENTAGE_CAPABILITY)) {
@@ -38,15 +39,17 @@ export async function initLiftPercentageCapability(
   const reportParser = (value: number): number | null =>
     LiftPercentageCapabilityReportParser(device, invertPercentage, invertSetting, value);
 
-  await readInitialValue(
-    device,
-    zclNode,
-    LIFT_PERCENTAGE_CAPABILITY,
-    CLUSTER_SPEC,
-    LIFT_PERCENTAGE_ATTRIBUTE,
-    reportParser,
-    endpoint,
-  );
+  if (readOnInit) {
+    await readInitialValue(
+      device,
+      zclNode,
+      LIFT_PERCENTAGE_CAPABILITY,
+      CLUSTER_SPEC,
+      LIFT_PERCENTAGE_ATTRIBUTE,
+      reportParser,
+      endpoint,
+    );
+  }
 
   device.registerCapability(LIFT_PERCENTAGE_CAPABILITY, CLUSTER_SPEC, {
     endpoint,
