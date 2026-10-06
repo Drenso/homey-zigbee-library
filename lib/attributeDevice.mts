@@ -64,7 +64,7 @@ export async function initReadWriteCapability(
   setParser: SetParser = defaultSetParser,
   { minInterval = 0, maxInterval = 3600, minChange = 1 }: ReportingConfiguration = {},
   endpointId?: number,
-  readOnInit?: boolean,
+  readOnInit = true,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
 
@@ -110,7 +110,7 @@ export async function initReadCommandCapability(
   { minInterval = 0, maxInterval = 3600, minChange = 1 }: ReportingConfiguration = {},
   endpointId?: number,
   pollInterval?: number,
-  readOnInit?: boolean,
+  readOnInit = true,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
 
@@ -152,7 +152,7 @@ export async function initReadOnlyCapability(
   reportParser: ReportParser = defaultReportParser,
   { minInterval = 0, maxInterval = 3600, minChange = 1 }: ReportingConfiguration = {},
   endpointId?: number,
-  readOnInit?: boolean,
+  readOnInit = true,
 ): Promise<void> {
   const endpoint = endpointId ?? device.getClusterEndpoint(cluster) ?? 1;
 
